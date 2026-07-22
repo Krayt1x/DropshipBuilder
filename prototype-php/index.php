@@ -3,13 +3,13 @@ session_start();
 require __DIR__ . '/includes/functions.php';
 
 $units = load_units();
-$factions = load_factions();
+$manufacturers = load_manufacturers();
 
 if (!isset($_SESSION['list_name'])) {
     $_SESSION['list_name'] = 'Kestrel Vanguard';
 }
-if (!isset($_SESSION['faction']) || !in_array($_SESSION['faction'], $factions, true)) {
-    $_SESSION['faction'] = $factions[0] ?? '';
+if (!isset($_SESSION['manufacturer']) || !in_array($_SESSION['manufacturer'], $manufacturers, true)) {
+    $_SESSION['manufacturer'] = $manufacturers[0] ?? '';
 }
 if (!isset($_SESSION['limit'])) {
     $_SESSION['limit'] = 1000;
@@ -23,8 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($action === 'update_settings') {
         $_SESSION['list_name'] = trim($_POST['list_name'] ?? '') ?: 'Untitled list';
-        if (in_array($_POST['faction'] ?? '', $factions, true)) {
-            $_SESSION['faction'] = $_POST['faction'];
+        if (in_array($_POST['manufacturer'] ?? '', $manufacturers, true)) {
+            $_SESSION['manufacturer'] = $_POST['manufacturer'];
         }
         $_SESSION['limit'] = max(1, (int) ($_POST['limit'] ?? 1000));
     }
@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-$catalog = array_values(array_filter($units, fn ($u) => $u['faction'] === $_SESSION['faction']));
+$catalog = array_values(array_filter($units, fn ($u) => $u['manufacturer'] === $_SESSION['manufacturer']));
 
 $rosterUnits = [];
 $total = 0;
@@ -97,10 +97,10 @@ $activePage = 'index';
         <input type="text" id="list_name" name="list_name" value="<?= h($_SESSION['list_name']) ?>" />
       </div>
       <div class="field">
-        <label for="faction">Faction</label>
-        <select id="faction" name="faction" onchange="this.form.submit()">
-          <?php foreach ($factions as $faction): ?>
-            <option value="<?= h($faction) ?>" <?= $faction === $_SESSION['faction'] ? 'selected' : '' ?>><?= h($faction) ?></option>
+        <label for="manufacturer">Manufacturer</label>
+        <select id="manufacturer" name="manufacturer" onchange="this.form.submit()">
+          <?php foreach ($manufacturers as $manufacturer): ?>
+            <option value="<?= h($manufacturer) ?>" <?= $manufacturer === $_SESSION['manufacturer'] ? 'selected' : '' ?>><?= h($manufacturer) ?></option>
           <?php endforeach; ?>
         </select>
       </div>
@@ -122,9 +122,9 @@ $activePage = 'index';
 
   <div class="columns">
     <div>
-      <h2 style="font-size:15px;">Unit catalog — <?= h($_SESSION['faction']) ?></h2>
+      <h2 style="font-size:15px;">Unit catalog — <?= h($_SESSION['manufacturer']) ?></h2>
       <?php if (empty($catalog)): ?>
-        <p class="empty">No units available for this faction yet. Add some on the manage page.</p>
+        <p class="empty">No units available for this manufacturer yet. Add some on the manage page.</p>
       <?php else: ?>
         <?php foreach ($catalog as $unit): ?>
           <div class="unit-row">

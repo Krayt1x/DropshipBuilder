@@ -151,7 +151,7 @@ button.ghost {
   color: var(--text-primary);
 }
 
-.faction-header {
+.manufacturer-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -160,12 +160,12 @@ button.ghost {
   flex-wrap: wrap;
 }
 
-.faction-rename {
+.manufacturer-rename {
   display: flex;
   gap: 6px;
 }
 
-.faction-rename input[type="text"] {
+.manufacturer-rename input[type="text"] {
   width: 180px;
 }
 

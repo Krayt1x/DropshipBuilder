@@ -3,7 +3,7 @@ session_start();
 require __DIR__ . '/includes/functions.php';
 
 $units = load_units();
-$factions = load_factions();
+$manufacturers = load_manufacturers();
 $flash = null;
 $flashError = false;
 
@@ -13,18 +13,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'add_unit' || $action === 'update_unit') {
         $id = (int) ($_POST['id'] ?? 0);
         $name = trim($_POST['name'] ?? '');
-        $faction = $_POST['faction'] ?? '';
+        $manufacturer = $_POST['manufacturer'] ?? '';
         $type = $_POST['type'] ?? '';
         $points = (int) ($_POST['points'] ?? 0);
 
-        if ($name === '' || !in_array($faction, $factions, true) || !in_array($type, UNIT_TYPES, true) || $points < 1) {
+        if ($name === '' || !in_array($manufacturer, $manufacturers, true) || !in_array($type, UNIT_TYPES, true) || $points < 1) {
             $flash = 'Fill in every field with a valid value (points must be at least 1).';
             $flashError = true;
         } elseif ($action === 'add_unit') {
             $units[] = [
                 'id' => next_unit_id($units),
                 'name' => $name,
-                'faction' => $faction,
+                'manufacturer' => $manufacturer,
                 'type' => $type,
                 'points' => $points,
             ];
@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $found = false;
             foreach ($units as &$unit) {
                 if ((int) $unit['id'] === $id) {
-                    $unit = ['id' => $id, 'name' => $name, 'faction' => $faction, 'type' => $type, 'points' => $points];
+                    $unit = ['id' => $id, 'name' => $name, 'manufacturer' => $manufacturer, 'type' => $type, 'points' => $points];
                     $found = true;
                     break;
                 }
@@ -58,31 +58,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $flash = $unit ? "Removed \"{$unit['name']}\" from the catalog." : 'Unit removed.';
     }
 
-    if ($action === 'rename_faction') {
+    if ($action === 'rename_manufacturer') {
         $oldName = $_POST['old_name'] ?? '';
         $newName = trim($_POST['new_name'] ?? '');
-        $idx = array_search($oldName, $factions, true);
+        $idx = array_search($oldName, $manufacturers, true);
 
         if ($idx === false) {
-            $flash = 'Could not find that faction.';
+            $flash = 'Could not find that manufacturer.';
             $flashError = true;
         } elseif ($newName === '') {
-            $flash = 'Faction name cannot be empty.';
+            $flash = 'Manufacturer name cannot be empty.';
             $flashError = true;
-        } elseif ($newName !== $oldName && in_array($newName, $factions, true)) {
-            $flash = "A faction named \"{$newName}\" already exists.";
+        } elseif ($newName !== $oldName && in_array($newName, $manufacturers, true)) {
+            $flash = "A manufacturer named \"{$newName}\" already exists.";
             $flashError = true;
         } else {
-            $factions[$idx] = $newName;
-            save_factions($factions);
+            $manufacturers[$idx] = $newName;
+            save_manufacturers($manufacturers);
             foreach ($units as &$unit) {
-                if ($unit['faction'] === $oldName) {
-                    $unit['faction'] = $newName;
+                if ($unit['manufacturer'] === $oldName) {
+                    $unit['manufacturer'] = $newName;
                 }
             }
             unset($unit);
             save_units($units);
             $flash = "Renamed \"{$oldName}\" to \"{$newName}\".";
+        }
+    }
+
+    if ($action === 'add_manufacturer') {
+        $name = trim($_POST['name'] ?? '');
+
+        if ($name === '') {
+            $flash = 'Manufacturer name cannot be empty.';
+            $flashError = true;
+        } elseif (in_array($name, $manufacturers, true)) {
+            $flash = "A manufacturer named \"{$name}\" already exists.";
+            $flashError = true;
+        } else {
+            $manufacturers[] = $name;
+            save_manufacturers($manufacturers);
+            $flash = "Added manufacturer \"{$name}\".";
         }
     }
 
@@ -125,59 +141,75 @@ $activePage = 'manage';
   <?php endif; ?>
 
   <div class="card">
-    <h2 style="font-size:15px; margin-top:0;"><?= $editing ? 'Edit unit' : 'Add a new unit' ?></h2>
-    <form method="post" class="add-form">
-      <input type="hidden" name="action" value="<?= $editing ? 'update_unit' : 'add_unit' ?>" />
-      <?php if ($editing): ?>
-        <input type="hidden" name="id" value="<?= (int) $editing['id'] ?>" />
-      <?php endif; ?>
-      <div class="field">
-        <label for="name">Name</label>
-        <input type="text" id="name" name="name" placeholder="Shock trooper squad" value="<?= h($editing['name'] ?? '') ?>" required />
+    <h2 style="font-size:15px; margin-top:0;">Add a manufacturer</h2>
+    <form method="post" style="display:flex; gap:10px; align-items:flex-end;">
+      <input type="hidden" name="action" value="add_manufacturer" />
+      <div class="field" style="flex:1;">
+        <label for="manufacturer_name">Name</label>
+        <input type="text" id="manufacturer_name" name="name" placeholder="Voidforge Syndicate" required />
       </div>
-      <div class="field">
-        <label for="faction">Faction</label>
-        <select id="faction" name="faction">
-          <?php foreach ($factions as $faction): ?>
-            <option value="<?= h($faction) ?>" <?= ($editing['faction'] ?? '') === $faction ? 'selected' : '' ?>><?= h($faction) ?></option>
-          <?php endforeach; ?>
-        </select>
-      </div>
-      <div class="field">
-        <label for="type">Type</label>
-        <select id="type" name="type">
-          <?php foreach (UNIT_TYPES as $type): ?>
-            <option value="<?= h($type) ?>" <?= ($editing['type'] ?? '') === $type ? 'selected' : '' ?>><?= h($type) ?></option>
-          <?php endforeach; ?>
-        </select>
-      </div>
-      <div class="field">
-        <label for="points">Points</label>
-        <input type="number" id="points" name="points" min="0" step="5" value="<?= (int) ($editing['points'] ?? 50) ?>" required />
-      </div>
-      <div style="display:flex; gap:8px;">
-        <button type="submit"><?= $editing ? 'Save changes' : 'Add unit' ?></button>
-        <?php if ($editing): ?>
-          <a href="manage.php"><button type="button" class="ghost">Cancel</button></a>
-        <?php endif; ?>
-      </div>
+      <button type="submit">Add manufacturer</button>
     </form>
   </div>
 
-  <?php foreach ($factions as $faction): ?>
-    <?php $factionUnits = array_values(array_filter($units, fn ($u) => $u['faction'] === $faction)); ?>
+  <div class="card">
+    <h2 style="font-size:15px; margin-top:0;"><?= $editing ? 'Edit unit' : 'Add a new unit' ?></h2>
+    <?php if (empty($manufacturers)): ?>
+      <p class="empty">Add a manufacturer above before adding units.</p>
+    <?php else: ?>
+      <form method="post" class="add-form">
+        <input type="hidden" name="action" value="<?= $editing ? 'update_unit' : 'add_unit' ?>" />
+        <?php if ($editing): ?>
+          <input type="hidden" name="id" value="<?= (int) $editing['id'] ?>" />
+        <?php endif; ?>
+        <div class="field">
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" placeholder="Shock trooper squad" value="<?= h($editing['name'] ?? '') ?>" required />
+        </div>
+        <div class="field">
+          <label for="manufacturer">Manufacturer</label>
+          <select id="manufacturer" name="manufacturer">
+            <?php foreach ($manufacturers as $manufacturer): ?>
+              <option value="<?= h($manufacturer) ?>" <?= ($editing['manufacturer'] ?? '') === $manufacturer ? 'selected' : '' ?>><?= h($manufacturer) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div class="field">
+          <label for="type">Type</label>
+          <select id="type" name="type">
+            <?php foreach (UNIT_TYPES as $type): ?>
+              <option value="<?= h($type) ?>" <?= ($editing['type'] ?? '') === $type ? 'selected' : '' ?>><?= h($type) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div class="field">
+          <label for="points">Points</label>
+          <input type="number" id="points" name="points" min="0" step="5" value="<?= (int) ($editing['points'] ?? 50) ?>" required />
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button type="submit"><?= $editing ? 'Save changes' : 'Add unit' ?></button>
+          <?php if ($editing): ?>
+            <a href="manage.php"><button type="button" class="ghost">Cancel</button></a>
+          <?php endif; ?>
+        </div>
+      </form>
+    <?php endif; ?>
+  </div>
+
+  <?php foreach ($manufacturers as $manufacturer): ?>
+    <?php $manufacturerUnits = array_values(array_filter($units, fn ($u) => $u['manufacturer'] === $manufacturer)); ?>
     <div class="card">
-      <div class="faction-header">
-        <h2 style="font-size:15px; margin:0;"><?= h($faction) ?> (<?= count($factionUnits) ?>)</h2>
-        <form method="post" class="inline faction-rename">
-          <input type="hidden" name="action" value="rename_faction" />
-          <input type="hidden" name="old_name" value="<?= h($faction) ?>" />
-          <input type="text" name="new_name" value="<?= h($faction) ?>" aria-label="Rename <?= h($faction) ?>" />
+      <div class="manufacturer-header">
+        <h2 style="font-size:15px; margin:0;"><?= h($manufacturer) ?> (<?= count($manufacturerUnits) ?>)</h2>
+        <form method="post" class="inline manufacturer-rename">
+          <input type="hidden" name="action" value="rename_manufacturer" />
+          <input type="hidden" name="old_name" value="<?= h($manufacturer) ?>" />
+          <input type="text" name="new_name" value="<?= h($manufacturer) ?>" aria-label="Rename <?= h($manufacturer) ?>" />
           <button type="submit" class="ghost">Rename</button>
         </form>
       </div>
-      <?php if (empty($factionUnits)): ?>
-        <p class="empty">No units for this faction yet. Add one above.</p>
+      <?php if (empty($manufacturerUnits)): ?>
+        <p class="empty">No units for this manufacturer yet. Add one above.</p>
       <?php else: ?>
         <table>
           <thead>
@@ -189,7 +221,7 @@ $activePage = 'manage';
             </tr>
           </thead>
           <tbody>
-            <?php foreach ($factionUnits as $unit): ?>
+            <?php foreach ($manufacturerUnits as $unit): ?>
               <tr>
                 <td><?= h($unit['name']) ?></td>
                 <td><span class="badge <?= h($unit['type']) ?>"><?= h($unit['type']) ?></span></td>
