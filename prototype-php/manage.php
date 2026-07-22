@@ -1,0 +1,143 @@
+<?php
+session_start();
+require __DIR__ . '/includes/functions.php';
+
+$units = load_units();
+$flash = null;
+$flashError = false;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = $_POST['action'] ?? '';
+
+    if ($action === 'add_unit') {
+        $name = trim($_POST['name'] ?? '');
+        $faction = $_POST['faction'] ?? '';
+        $type = $_POST['type'] ?? '';
+        $points = (int) ($_POST['points'] ?? 0);
+
+        if ($name === '' || !in_array($faction, FACTIONS, true) || !in_array($type, UNIT_TYPES, true) || $points < 1) {
+            $flash = 'Fill in every field with a valid value (points must be at least 1).';
+            $flashError = true;
+        } else {
+            $units[] = [
+                'id' => next_unit_id($units),
+                'name' => $name,
+                'faction' => $faction,
+                'type' => $type,
+                'points' => $points,
+            ];
+            save_units($units);
+            $flash = "Added \"{$name}\" to the catalog.";
+        }
+    }
+
+    if ($action === 'delete_unit') {
+        $id = (int) ($_POST['id'] ?? 0);
+        $unit = find_unit($units, $id);
+        $units = array_values(array_filter($units, fn ($u) => (int) $u['id'] !== $id));
+        save_units($units);
+        $flash = $unit ? "Removed \"{$unit['name']}\" from the catalog." : 'Unit removed.';
+    }
+
+    $_SESSION['flash'] = $flash;
+    $_SESSION['flash_error'] = $flashError;
+    header('Location: manage.php');
+    exit;
+}
+
+if (isset($_SESSION['flash'])) {
+    $flash = $_SESSION['flash'];
+    $flashError = $_SESSION['flash_error'] ?? false;
+    unset($_SESSION['flash'], $_SESSION['flash_error']);
+}
+
+$activePage = 'manage';
+?>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DropshipBuilder — Manage available models</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+<?php include __DIR__ . '/includes/nav.php'; ?>
+
+<div class="container">
+  <h1>Manage available models</h1>
+
+  <?php if ($flash): ?>
+    <div class="flash <?= $flashError ? 'error' : '' ?>"><?= h($flash) ?></div>
+  <?php endif; ?>
+
+  <div class="card">
+    <h2 style="font-size:15px; margin-top:0;">Add a new unit</h2>
+    <form method="post" class="add-form">
+      <input type="hidden" name="action" value="add_unit" />
+      <div class="field">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" placeholder="Shock trooper squad" required />
+      </div>
+      <div class="field">
+        <label for="faction">Faction</label>
+        <select id="faction" name="faction">
+          <?php foreach (FACTIONS as $faction): ?>
+            <option value="<?= h($faction) ?>"><?= h($faction) ?></option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+      <div class="field">
+        <label for="type">Type</label>
+        <select id="type" name="type">
+          <?php foreach (UNIT_TYPES as $type): ?>
+            <option value="<?= h($type) ?>"><?= h($type) ?></option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+      <div class="field">
+        <label for="points">Points</label>
+        <input type="number" id="points" name="points" min="0" step="5" value="50" required />
+      </div>
+      <button type="submit">Add unit</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:15px; margin-top:0;">Available models (<?= count($units) ?>)</h2>
+    <?php if (empty($units)): ?>
+      <p class="empty">No units in the catalog yet. Add one above.</p>
+    <?php else: ?>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Faction</th>
+            <th>Type</th>
+            <th>Points</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($units as $unit): ?>
+            <tr>
+              <td><?= h($unit['name']) ?></td>
+              <td><?= h($unit['faction']) ?></td>
+              <td><span class="badge <?= h($unit['type']) ?>"><?= h($unit['type']) ?></span></td>
+              <td><?= (int) $unit['points'] ?></td>
+              <td>
+                <form method="post" class="inline">
+                  <input type="hidden" name="action" value="delete_unit" />
+                  <input type="hidden" name="id" value="<?= (int) $unit['id'] ?>" />
+                  <button type="submit" class="danger">Remove</button>
+                </form>
+              </td>
+            </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    <?php endif; ?>
+  </div>
+</div>
+</body>
+</html>
