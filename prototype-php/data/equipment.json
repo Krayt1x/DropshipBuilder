@@ -24,9 +24,9 @@
         "slot": "Right",
         "effects": "Deals 2d6 damage. On a hit of 6, target is knocked prone.",
         "category": "Weapon",
-        "weapon_weight": 4,
+        "weight": 4,
         "range": 6,
-        "heat_rating": 3,
-        "hit_dice": 2
+        "heat_rating": "3\/3",
+        "hit_dice": "1d4"
     }
 ]
