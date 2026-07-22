@@ -2,7 +2,12 @@
 
 define('UNITS_FILE', __DIR__ . '/../data/units.json');
 define('MANUFACTURERS_FILE', __DIR__ . '/../data/manufacturers.json');
-define('UNIT_TYPES', ['Infantry', 'Vehicle', 'Dropship', 'Character']);
+define('UNIT_SIZES', [
+    'Small' => 'Small - 1',
+    'Medium' => 'Medium - 2',
+    'Large' => 'Large - 3',
+    'Huge' => 'Huge - 4',
+]);
 
 function load_units(): array
 {
@@ -54,4 +59,9 @@ function find_unit(array $units, int $id): ?array
 function h(string $value): string
 {
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+}
+
+function size_label(string $size): string
+{
+    return UNIT_SIZES[$size] ?? $size;
 }
