@@ -1,4 +1,5 @@
 import js from '@eslint/js';
+import react from 'eslint-plugin-react';
 import globals from 'globals';
 
 export default [
@@ -12,6 +13,16 @@ export default [
       parserOptions: {
         ecmaFeatures: { jsx: true },
       },
+    },
+    plugins: {
+      react,
+    },
+    settings: {
+      react: { version: 'detect' },
+    },
+    rules: {
+      'react/jsx-uses-vars': 'error',
+      'react/jsx-uses-react': 'error',
     },
   },
 ];
