@@ -135,11 +135,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $slot = $_POST['slot'] ?? '';
         $effects = trim($_POST['effects'] ?? '');
         $category = $_POST['category'] ?? 'General';
+        $weight = (int) ($_POST['weight'] ?? 0);
         $weaponStats = [
-            'weapon_weight' => (int) ($_POST['weapon_weight'] ?? 0),
             'range' => (int) ($_POST['range'] ?? 0),
-            'heat_rating' => (int) ($_POST['heat_rating'] ?? 0),
-            'hit_dice' => (int) ($_POST['hit_dice'] ?? 0),
+            'heat_rating' => trim($_POST['heat_rating'] ?? ''),
+            'hit_dice' => trim($_POST['hit_dice'] ?? ''),
         ];
 
         if ($name === '' || !in_array($manufacturer, $manufacturers, true) || !in_array($slot, SLOTS, true) || !in_array($category, EQUIPMENT_CATEGORIES, true)) {
@@ -156,6 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'slot' => $slot,
                 'effects' => $effects,
                 'category' => $category,
+                'weight' => $weight,
             ], $weaponStats);
             save_equipment($equipment);
             $flash = "Added \"{$name}\" to the equipment catalog.";
@@ -170,6 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'slot' => $slot,
                         'effects' => $effects,
                         'category' => $category,
+                        'weight' => $weight,
                     ], $weaponStats);
                     $found = true;
                     break;
@@ -375,8 +377,8 @@ $activePage = 'manage';
             </select>
           </div>
           <div class="field">
-            <label for="weapon_weight">Weapon weight</label>
-            <input type="number" id="weapon_weight" name="weapon_weight" min="0" step="1" value="<?= (int) ($editingEquipment['weapon_weight'] ?? 0) ?>" />
+            <label for="equipment_weight">Weight (tonnes)</label>
+            <input type="number" id="equipment_weight" name="weight" min="0" step="1" value="<?= (int) ($editingEquipment['weight'] ?? 0) ?>" required />
           </div>
           <div class="field">
             <label for="range">Range</label>
@@ -384,11 +386,11 @@ $activePage = 'manage';
           </div>
           <div class="field">
             <label for="heat_rating">Heat rating</label>
-            <input type="number" id="heat_rating" name="heat_rating" min="0" step="1" value="<?= (int) ($editingEquipment['heat_rating'] ?? 0) ?>" />
+            <input type="text" id="heat_rating" name="heat_rating" placeholder="e.g. 3/3" value="<?= h((string) ($editingEquipment['heat_rating'] ?? '')) ?>" />
           </div>
           <div class="field">
             <label for="hit_dice">Hit dice</label>
-            <input type="number" id="hit_dice" name="hit_dice" min="0" step="1" value="<?= (int) ($editingEquipment['hit_dice'] ?? 0) ?>" />
+            <input type="text" id="hit_dice" name="hit_dice" placeholder="e.g. 1d4" value="<?= h((string) ($editingEquipment['hit_dice'] ?? '')) ?>" />
           </div>
         </div>
         <div class="field" style="margin-top:10px;">
@@ -498,10 +500,10 @@ $activePage = 'manage';
                   <td><?= h($item['name']) ?></td>
                   <td><span class="badge"><?= h($item['category'] ?? 'General') ?></span></td>
                   <td><span class="badge"><?= h($item['slot']) ?></span></td>
-                  <td><?= $isWeapon ? (int) ($item['weapon_weight'] ?? 0) . ' t' : '—' ?></td>
+                  <td><?= (int) ($item['weight'] ?? 0) ?> t</td>
                   <td><?= $isWeapon ? (int) ($item['range'] ?? 0) : '—' ?></td>
-                  <td><?= $isWeapon ? (int) ($item['heat_rating'] ?? 0) : '—' ?></td>
-                  <td><?= $isWeapon ? (int) ($item['hit_dice'] ?? 0) : '—' ?></td>
+                  <td><?= $isWeapon ? (h((string) ($item['heat_rating'] ?? '')) ?: '—') : '—' ?></td>
+                  <td><?= $isWeapon ? (h((string) ($item['hit_dice'] ?? '')) ?: '—') : '—' ?></td>
                   <td><?= h($item['effects'] ?? '') ?: '—' ?></td>
                   <td>
                     <div style="display:flex; gap:8px;">
