@@ -12,7 +12,9 @@
         "base_movement": 0,
         "dice_blue": 2,
         "dice_red": 1,
-        "dice_green": 0
+        "dice_green": 0,
+        "left_slots": 3,
+        "right_slots": 2
     },
     {
         "id": 2,

@@ -4,5 +4,11 @@
         "name": "Boosters",
         "manufacturer": "Corp A",
         "slot": "Movement"
+    },
+    {
+        "id": 2,
+        "name": "Laser rifle",
+        "manufacturer": "Corp A",
+        "slot": "Left"
     }
 ]

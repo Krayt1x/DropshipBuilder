@@ -26,6 +26,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'dice_blue' => max(0, (int) ($_POST['dice_blue'] ?? 0)),
             'dice_red' => max(0, (int) ($_POST['dice_red'] ?? 0)),
             'dice_green' => max(0, (int) ($_POST['dice_green'] ?? 0)),
+            'left_slots' => max(0, (int) ($_POST['left_slots'] ?? 1)),
+            'right_slots' => max(0, (int) ($_POST['right_slots'] ?? 1)),
         ];
 
         if ($name === '' || !in_array($manufacturer, $manufacturers, true) || !array_key_exists($size, UNIT_SIZES) || $weight < 1) {
@@ -294,6 +296,14 @@ $activePage = 'manage';
             <label for="dice_green">Green dice</label>
             <input type="number" id="dice_green" name="dice_green" min="0" step="1" value="<?= (int) ($editing['dice_green'] ?? 0) ?>" />
           </div>
+          <div class="field">
+            <label for="left_slots">Left slots</label>
+            <input type="number" id="left_slots" name="left_slots" min="0" step="1" value="<?= (int) ($editing['left_slots'] ?? 1) ?>" />
+          </div>
+          <div class="field">
+            <label for="right_slots">Right slots</label>
+            <input type="number" id="right_slots" name="right_slots" min="0" step="1" value="<?= (int) ($editing['right_slots'] ?? 1) ?>" />
+          </div>
         </div>
         <div style="display:flex; gap:8px; margin-top:12px;">
           <button type="submit"><?= $editing ? 'Save changes' : 'Add unit' ?></button>
@@ -376,6 +386,8 @@ $activePage = 'manage';
                 <th>HP</th>
                 <th>Move</th>
                 <th>Dice</th>
+                <th>L slots</th>
+                <th>R slots</th>
                 <th></th>
               </tr>
             </thead>
@@ -391,6 +403,8 @@ $activePage = 'manage';
                   <td><?= (int) ($unit['hp'] ?? 0) ?></td>
                   <td><?= (int) ($unit['base_movement'] ?? 0) ?></td>
                   <td><?= h(dice_summary($unit)) ?></td>
+                  <td><?= (int) ($unit['left_slots'] ?? 1) ?></td>
+                  <td><?= (int) ($unit['right_slots'] ?? 1) ?></td>
                   <td>
                     <div style="display:flex; gap:8px;">
                       <a href="manage.php?edit=<?= (int) $unit['id'] ?>"><button type="button" class="ghost">Edit</button></a>
