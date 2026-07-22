@@ -2,11 +2,14 @@
 session_start();
 require __DIR__ . '/includes/functions.php';
 
+$units = load_units();
+$factions = load_factions();
+
 if (!isset($_SESSION['list_name'])) {
     $_SESSION['list_name'] = 'Kestrel Vanguard';
 }
-if (!isset($_SESSION['faction']) || !in_array($_SESSION['faction'], FACTIONS, true)) {
-    $_SESSION['faction'] = FACTIONS[0];
+if (!isset($_SESSION['faction']) || !in_array($_SESSION['faction'], $factions, true)) {
+    $_SESSION['faction'] = $factions[0] ?? '';
 }
 if (!isset($_SESSION['limit'])) {
     $_SESSION['limit'] = 1000;
@@ -15,14 +18,12 @@ if (!isset($_SESSION['roster'])) {
     $_SESSION['roster'] = [];
 }
 
-$units = load_units();
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
     if ($action === 'update_settings') {
         $_SESSION['list_name'] = trim($_POST['list_name'] ?? '') ?: 'Untitled list';
-        if (in_array($_POST['faction'] ?? '', FACTIONS, true)) {
+        if (in_array($_POST['faction'] ?? '', $factions, true)) {
             $_SESSION['faction'] = $_POST['faction'];
         }
         $_SESSION['limit'] = max(1, (int) ($_POST['limit'] ?? 1000));
@@ -97,7 +98,7 @@ $activePage = 'index';
       <div class="field">
         <label for="faction">Faction</label>
         <select id="faction" name="faction" onchange="this.form.submit()">
-          <?php foreach (FACTIONS as $faction): ?>
+          <?php foreach ($factions as $faction): ?>
             <option value="<?= h($faction) ?>" <?= $faction === $_SESSION['faction'] ? 'selected' : '' ?>><?= h($faction) ?></option>
           <?php endforeach; ?>
         </select>

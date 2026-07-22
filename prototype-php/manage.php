@@ -3,6 +3,7 @@ session_start();
 require __DIR__ . '/includes/functions.php';
 
 $units = load_units();
+$factions = load_factions();
 $flash = null;
 $flashError = false;
 
@@ -16,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $type = $_POST['type'] ?? '';
         $points = (int) ($_POST['points'] ?? 0);
 
-        if ($name === '' || !in_array($faction, FACTIONS, true) || !in_array($type, UNIT_TYPES, true) || $points < 1) {
+        if ($name === '' || !in_array($faction, $factions, true) || !in_array($type, UNIT_TYPES, true) || $points < 1) {
             $flash = 'Fill in every field with a valid value (points must be at least 1).';
             $flashError = true;
         } elseif ($action === 'add_unit') {
@@ -55,6 +56,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $units = array_values(array_filter($units, fn ($u) => (int) $u['id'] !== $id));
         save_units($units);
         $flash = $unit ? "Removed \"{$unit['name']}\" from the catalog." : 'Unit removed.';
+    }
+
+    if ($action === 'rename_faction') {
+        $oldName = $_POST['old_name'] ?? '';
+        $newName = trim($_POST['new_name'] ?? '');
+        $idx = array_search($oldName, $factions, true);
+
+        if ($idx === false) {
+            $flash = 'Could not find that faction.';
+            $flashError = true;
+        } elseif ($newName === '') {
+            $flash = 'Faction name cannot be empty.';
+            $flashError = true;
+        } elseif ($newName !== $oldName && in_array($newName, $factions, true)) {
+            $flash = "A faction named \"{$newName}\" already exists.";
+            $flashError = true;
+        } else {
+            $factions[$idx] = $newName;
+            save_factions($factions);
+            foreach ($units as &$unit) {
+                if ($unit['faction'] === $oldName) {
+                    $unit['faction'] = $newName;
+                }
+            }
+            unset($unit);
+            save_units($units);
+            $flash = "Renamed \"{$oldName}\" to \"{$newName}\".";
+        }
     }
 
     $_SESSION['flash'] = $flash;
@@ -108,7 +137,7 @@ $activePage = 'manage';
       <div class="field">
         <label for="faction">Faction</label>
         <select id="faction" name="faction">
-          <?php foreach (FACTIONS as $faction): ?>
+          <?php foreach ($factions as $faction): ?>
             <option value="<?= h($faction) ?>" <?= ($editing['faction'] ?? '') === $faction ? 'selected' : '' ?>><?= h($faction) ?></option>
           <?php endforeach; ?>
         </select>
@@ -134,10 +163,18 @@ $activePage = 'manage';
     </form>
   </div>
 
-  <?php foreach (FACTIONS as $faction): ?>
+  <?php foreach ($factions as $faction): ?>
     <?php $factionUnits = array_values(array_filter($units, fn ($u) => $u['faction'] === $faction)); ?>
     <div class="card">
-      <h2 style="font-size:15px; margin-top:0;"><?= h($faction) ?> (<?= count($factionUnits) ?>)</h2>
+      <div class="faction-header">
+        <h2 style="font-size:15px; margin:0;"><?= h($faction) ?> (<?= count($factionUnits) ?>)</h2>
+        <form method="post" class="inline faction-rename">
+          <input type="hidden" name="action" value="rename_faction" />
+          <input type="hidden" name="old_name" value="<?= h($faction) ?>" />
+          <input type="text" name="new_name" value="<?= h($faction) ?>" aria-label="Rename <?= h($faction) ?>" />
+          <button type="submit" class="ghost">Rename</button>
+        </form>
+      </div>
       <?php if (empty($factionUnits)): ?>
         <p class="empty">No units for this faction yet. Add one above.</p>
       <?php else: ?>
