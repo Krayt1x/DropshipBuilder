@@ -11,8 +11,8 @@ if (!isset($_SESSION['list_name'])) {
 if (!isset($_SESSION['manufacturer']) || !in_array($_SESSION['manufacturer'], $manufacturers, true)) {
     $_SESSION['manufacturer'] = $manufacturers[0] ?? '';
 }
-if (!isset($_SESSION['limit'])) {
-    $_SESSION['limit'] = 1000;
+if (!isset($_SESSION['weight_limit'])) {
+    $_SESSION['weight_limit'] = 1000;
 }
 if (!isset($_SESSION['roster'])) {
     $_SESSION['roster'] = [];
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (in_array($_POST['manufacturer'] ?? '', $manufacturers, true)) {
             $_SESSION['manufacturer'] = $_POST['manufacturer'];
         }
-        $_SESSION['limit'] = max(1, (int) ($_POST['limit'] ?? 1000));
+        $_SESSION['weight_limit'] = max(1, (int) ($_POST['weight_limit'] ?? 1000));
     }
 
     if ($action === 'add_to_list') {
@@ -59,18 +59,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $catalog = array_values(array_filter($units, fn ($u) => $u['manufacturer'] === $_SESSION['manufacturer']));
 
 $rosterUnits = [];
-$total = 0;
+$totalWeight = 0;
 foreach ($_SESSION['roster'] as $entry) {
     $unit = find_unit($units, $entry['unit_id']);
     if ($unit !== null) {
         $rosterUnits[] = ['key' => $entry['key'], 'unit' => $unit];
-        $total += (int) $unit['points'];
+        $totalWeight += (int) $unit['weight'];
     }
 }
 
-$limit = (int) $_SESSION['limit'];
-$pct = $limit > 0 ? min(100, (int) round(($total / $limit) * 100)) : 0;
-$over = $total > $limit;
+$weightLimit = (int) $_SESSION['weight_limit'];
+$pct = $weightLimit > 0 ? min(100, (int) round(($totalWeight / $weightLimit) * 100)) : 0;
+$over = $totalWeight > $weightLimit;
 
 $activePage = 'index';
 ?>
@@ -105,18 +105,18 @@ $activePage = 'index';
         </select>
       </div>
       <div class="field">
-        <label for="limit">Points limit</label>
-        <input type="number" id="limit" name="limit" value="<?= (int) $_SESSION['limit'] ?>" min="0" step="25" />
+        <label for="weight_limit">Weight limit (tonnes)</label>
+        <input type="number" id="weight_limit" name="weight_limit" value="<?= (int) $_SESSION['weight_limit'] ?>" min="0" step="25" />
       </div>
       <button type="submit">Update</button>
     </form>
 
-    <div class="points-label" style="margin-top:14px;">
-      <span>Points used</span>
-      <span><?= number_format($total) ?> / <?= number_format($limit) ?></span>
+    <div class="weight-label" style="margin-top:14px;">
+      <span>Weight used</span>
+      <span><?= number_format($totalWeight) ?> t / <?= number_format($weightLimit) ?> t</span>
     </div>
-    <div class="points-bar-track">
-      <div class="points-bar-fill <?= $over ? 'over' : '' ?>" style="width: <?= $pct ?>%;"></div>
+    <div class="weight-bar-track">
+      <div class="weight-bar-fill <?= $over ? 'over' : '' ?>" style="width: <?= $pct ?>%;"></div>
     </div>
   </div>
 
@@ -130,9 +130,9 @@ $activePage = 'index';
           <div class="unit-row">
             <div class="unit-info">
               <p class="unit-name"><?= h($unit['name']) ?></p>
-              <p class="unit-meta"><?= (int) $unit['points'] ?> pts</p>
+              <p class="unit-meta"><?= (int) $unit['weight'] ?> t</p>
             </div>
-            <span class="badge <?= h($unit['type']) ?>"><?= h($unit['type']) ?></span>
+            <span class="badge"><?= h(size_label($unit['size'])) ?></span>
             <form method="post" class="inline">
               <input type="hidden" name="action" value="add_to_list" />
               <input type="hidden" name="unit_id" value="<?= (int) $unit['id'] ?>" />
@@ -153,7 +153,7 @@ $activePage = 'index';
             <div class="unit-row">
               <div class="unit-info">
                 <p class="unit-name"><?= h($entry['unit']['name']) ?></p>
-                <p class="unit-meta"><?= (int) $entry['unit']['points'] ?> pts</p>
+                <p class="unit-meta"><?= (int) $entry['unit']['weight'] ?> t</p>
               </div>
               <form method="post" class="inline">
                 <input type="hidden" name="action" value="remove_from_list" />

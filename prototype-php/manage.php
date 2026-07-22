@@ -14,19 +14,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id = (int) ($_POST['id'] ?? 0);
         $name = trim($_POST['name'] ?? '');
         $manufacturer = $_POST['manufacturer'] ?? '';
-        $type = $_POST['type'] ?? '';
-        $points = (int) ($_POST['points'] ?? 0);
+        $size = $_POST['size'] ?? '';
+        $weight = (int) ($_POST['weight'] ?? 0);
 
-        if ($name === '' || !in_array($manufacturer, $manufacturers, true) || !in_array($type, UNIT_TYPES, true) || $points < 1) {
-            $flash = 'Fill in every field with a valid value (points must be at least 1).';
+        if ($name === '' || !in_array($manufacturer, $manufacturers, true) || !array_key_exists($size, UNIT_SIZES) || $weight < 1) {
+            $flash = 'Fill in every field with a valid value (weight must be at least 1 tonne).';
             $flashError = true;
         } elseif ($action === 'add_unit') {
             $units[] = [
                 'id' => next_unit_id($units),
                 'name' => $name,
                 'manufacturer' => $manufacturer,
-                'type' => $type,
-                'points' => $points,
+                'size' => $size,
+                'weight' => $weight,
             ];
             save_units($units);
             $flash = "Added \"{$name}\" to the catalog.";
@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $found = false;
             foreach ($units as &$unit) {
                 if ((int) $unit['id'] === $id) {
-                    $unit = ['id' => $id, 'name' => $name, 'manufacturer' => $manufacturer, 'type' => $type, 'points' => $points];
+                    $unit = ['id' => $id, 'name' => $name, 'manufacturer' => $manufacturer, 'size' => $size, 'weight' => $weight];
                     $found = true;
                     break;
                 }
@@ -175,16 +175,16 @@ $activePage = 'manage';
           </select>
         </div>
         <div class="field">
-          <label for="type">Type</label>
-          <select id="type" name="type">
-            <?php foreach (UNIT_TYPES as $type): ?>
-              <option value="<?= h($type) ?>" <?= ($editing['type'] ?? '') === $type ? 'selected' : '' ?>><?= h($type) ?></option>
+          <label for="size">Size</label>
+          <select id="size" name="size">
+            <?php foreach (UNIT_SIZES as $value => $label): ?>
+              <option value="<?= h($value) ?>" <?= ($editing['size'] ?? '') === $value ? 'selected' : '' ?>><?= h($label) ?></option>
             <?php endforeach; ?>
           </select>
         </div>
         <div class="field">
-          <label for="points">Points</label>
-          <input type="number" id="points" name="points" min="0" step="5" value="<?= (int) ($editing['points'] ?? 50) ?>" required />
+          <label for="weight">Weight (tonnes)</label>
+          <input type="number" id="weight" name="weight" min="0" step="5" value="<?= (int) ($editing['weight'] ?? 50) ?>" required />
         </div>
         <div style="display:flex; gap:8px;">
           <button type="submit"><?= $editing ? 'Save changes' : 'Add unit' ?></button>
@@ -215,8 +215,8 @@ $activePage = 'manage';
           <thead>
             <tr>
               <th>Name</th>
-              <th>Type</th>
-              <th>Points</th>
+              <th>Size</th>
+              <th>Weight (t)</th>
               <th></th>
             </tr>
           </thead>
@@ -224,8 +224,8 @@ $activePage = 'manage';
             <?php foreach ($manufacturerUnits as $unit): ?>
               <tr>
                 <td><?= h($unit['name']) ?></td>
-                <td><span class="badge <?= h($unit['type']) ?>"><?= h($unit['type']) ?></span></td>
-                <td><?= (int) $unit['points'] ?></td>
+                <td><span class="badge"><?= h(size_label($unit['size'])) ?></span></td>
+                <td><?= (int) $unit['weight'] ?> t</td>
                 <td>
                   <div style="display:flex; gap:8px;">
                     <a href="manage.php?edit=<?= (int) $unit['id'] ?>"><button type="button" class="ghost">Edit</button></a>
