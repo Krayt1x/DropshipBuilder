@@ -1,7 +1,7 @@
 [
     {
         "id": 1,
-        "name": "Boosters",
+        "name": "Chicken Legs",
         "manufacturer": "Corp A",
         "slot": "Movement"
     },
@@ -10,5 +10,23 @@
         "name": "Laser rifle",
         "manufacturer": "Corp A",
         "slot": "Left"
+    },
+    {
+        "id": 3,
+        "name": "Quad Legs",
+        "manufacturer": "Corp A",
+        "slot": "Movement"
+    },
+    {
+        "id": 4,
+        "name": "Auto-cannon",
+        "manufacturer": "Corp A",
+        "slot": "Right",
+        "effects": "Deals 2d6 damage. On a hit of 6, target is knocked prone.",
+        "category": "Weapon",
+        "weapon_weight": 4,
+        "range": 6,
+        "heat_rating": 3,
+        "hit_dice": 2
     }
 ]
