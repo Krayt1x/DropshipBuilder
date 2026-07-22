@@ -105,6 +105,24 @@ button.ghost {
   color: #26251f;
 }
 
+.faction-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.faction-rename {
+  display: flex;
+  gap: 6px;
+}
+
+.faction-rename input[type="text"] {
+  width: 180px;
+}
+
 .points-bar-track {
   height: 10px;
   border-radius: 99px;

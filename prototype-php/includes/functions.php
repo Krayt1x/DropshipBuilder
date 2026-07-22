@@ -1,7 +1,7 @@
 <?php
 
 define('UNITS_FILE', __DIR__ . '/../data/units.json');
-define('FACTIONS', ['Kestrel Directorate', 'Ashfall Legion']);
+define('FACTIONS_FILE', __DIR__ . '/../data/factions.json');
 define('UNIT_TYPES', ['Infantry', 'Vehicle', 'Dropship', 'Character']);
 
 function load_units(): array
@@ -16,6 +16,20 @@ function load_units(): array
 function save_units(array $units): void
 {
     file_put_contents(UNITS_FILE, json_encode(array_values($units), JSON_PRETTY_PRINT));
+}
+
+function load_factions(): array
+{
+    if (!file_exists(FACTIONS_FILE)) {
+        return [];
+    }
+    $data = json_decode(file_get_contents(FACTIONS_FILE), true);
+    return is_array($data) ? $data : [];
+}
+
+function save_factions(array $factions): void
+{
+    file_put_contents(FACTIONS_FILE, json_encode(array_values($factions), JSON_PRETTY_PRINT));
 }
 
 function next_unit_id(array $units): int
