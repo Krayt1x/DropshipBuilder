@@ -1,0 +1,60 @@
+name: dropshipbuilder
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-dropshipbuilder}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: ${POSTGRES_DB:-dropshipbuilder}
+    volumes:
+      - ${DATA_DIR:-./data}/postgres:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-dropshipbuilder}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backup:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-dropshipbuilder}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: ${POSTGRES_DB:-dropshipbuilder}
+      BACKUP_DIR: /backups
+      BACKUP_INTERVAL_HOURS: 24
+      BACKUP_RETENTION_COUNT: 14
+    volumes:
+      - ./docker/backup-entrypoint.sh:/backup-entrypoint.sh:ro
+      - ${DATA_DIR:-./data}/backups:/backups
+    entrypoint: ["/bin/sh", "/backup-entrypoint.sh"]
+
+  server:
+    image: ghcr.io/krayt1x/dropshipbuilder:${IMAGE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-dropshipbuilder}:${POSTGRES_PASSWORD:-changeme}@postgres:5432/${POSTGRES_DB:-dropshipbuilder}
+      PORT: 3000
+      APP_BASE_URL: ${APP_BASE_URL}
+      SESSION_SECRET: ${SESSION_SECRET}
+      TRUST_PROXY: ${TRUST_PROXY:-false}
+    entrypoint: sh -c "npx prisma migrate deploy && node src/index.js"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s

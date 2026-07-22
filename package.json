@@ -1,0 +1,20 @@
+{
+  "name": "dropshipbuilder",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace packages/server & npm run dev --workspace packages/client",
+    "build": "npm run build --workspace packages/client && npm run build --workspace packages/server",
+    "lint": "npm run lint --workspaces --if-present",
+    "format": "prettier --write \"packages/*/src/**/*.{js,jsx,css}\"",
+    "format:check": "prettier --check \"packages/*/src/**/*.{js,jsx,css}\"",
+    "test": "npm run test --workspaces --if-present",
+    "migrate:deploy": "npm run migrate:deploy --workspace packages/server"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.0"
+  }
+}

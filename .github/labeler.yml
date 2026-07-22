@@ -1,0 +1,34 @@
+client:
+  - changed-files:
+    - any-glob-match-patterns:
+      - 'packages/client/**'
+
+server:
+  - changed-files:
+    - any-glob-match-patterns:
+      - 'packages/server/**'
+
+docker:
+  - changed-files:
+    - any-glob-match-patterns:
+      - 'docker/**'
+      - 'docker-compose*.yml'
+      - 'Dockerfile'
+
+documentation:
+  - changed-files:
+    - any-glob-match-patterns:
+      - '*.md'
+      - 'docs/**'
+
+dependencies:
+  - changed-files:
+    - any-glob-match-patterns:
+      - 'package.json'
+      - 'package-lock.json'
+      - '**/package.json'
+
+ci:
+  - changed-files:
+    - any-glob-match-patterns:
+      - '.github/workflows/**'

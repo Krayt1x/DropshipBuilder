@@ -1,0 +1,29 @@
+name: Create Release
+on:
+  push:
+    tags:
+      - 'v*'
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build --workspace packages/client
+        env:
+          VITE_BASE_PATH: /DropshipBuilder/
+      - run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          sed -n "/^## \[$VERSION\]/,/^## \[/p" CHANGELOG.md | head -n -1 > RELEASE_NOTES.md
+      - uses: softprops/action-gh-release@v1
+        with:
+          files: packages/client/dist/**
+          body_file: RELEASE_NOTES.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
