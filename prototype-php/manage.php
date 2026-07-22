@@ -133,24 +133,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $name = trim($_POST['name'] ?? '');
         $manufacturer = $_POST['manufacturer'] ?? '';
         $slot = $_POST['slot'] ?? '';
+        $effects = trim($_POST['effects'] ?? '');
+        $category = $_POST['category'] ?? 'General';
+        $weaponStats = [
+            'weapon_weight' => (int) ($_POST['weapon_weight'] ?? 0),
+            'range' => (int) ($_POST['range'] ?? 0),
+            'heat_rating' => (int) ($_POST['heat_rating'] ?? 0),
+            'hit_dice' => (int) ($_POST['hit_dice'] ?? 0),
+        ];
 
-        if ($name === '' || !in_array($manufacturer, $manufacturers, true) || !in_array($slot, SLOTS, true)) {
+        if ($name === '' || !in_array($manufacturer, $manufacturers, true) || !in_array($slot, SLOTS, true) || !in_array($category, EQUIPMENT_CATEGORIES, true)) {
             $flash = 'Fill in every equipment field with a valid value.';
             $flashError = true;
+        } elseif ($category === 'Weapon' && !in_array($slot, WEAPON_SLOTS, true)) {
+            $flash = 'Weapons can only be equipped to the Left or Right slot.';
+            $flashError = true;
         } elseif ($action === 'add_equipment') {
-            $equipment[] = [
+            $equipment[] = array_merge([
                 'id' => next_equipment_id($equipment),
                 'name' => $name,
                 'manufacturer' => $manufacturer,
                 'slot' => $slot,
-            ];
+                'effects' => $effects,
+                'category' => $category,
+            ], $weaponStats);
             save_equipment($equipment);
             $flash = "Added \"{$name}\" to the equipment catalog.";
         } else {
             $found = false;
             foreach ($equipment as &$item) {
                 if ((int) $item['id'] === $id) {
-                    $item = ['id' => $id, 'name' => $name, 'manufacturer' => $manufacturer, 'slot' => $slot];
+                    $item = array_merge([
+                        'id' => $id,
+                        'name' => $name,
+                        'manufacturer' => $manufacturer,
+                        'slot' => $slot,
+                        'effects' => $effects,
+                        'category' => $category,
+                    ], $weaponStats);
                     $found = true;
                     break;
                 }
@@ -320,32 +340,62 @@ $activePage = 'manage';
     <?php if (empty($manufacturers)): ?>
       <p class="empty">Add a manufacturer above before adding equipment.</p>
     <?php else: ?>
-      <form method="post" class="add-form">
+      <form method="post">
         <input type="hidden" name="action" value="<?= $editingEquipment ? 'update_equipment' : 'add_equipment' ?>" />
         <?php if ($editingEquipment): ?>
           <input type="hidden" name="id" value="<?= (int) $editingEquipment['id'] ?>" />
         <?php endif; ?>
-        <div class="field">
-          <label for="equipment_name">Name</label>
-          <input type="text" id="equipment_name" name="name" placeholder="Auto-cannon" value="<?= h($editingEquipment['name'] ?? '') ?>" required />
+        <div class="stat-grid">
+          <div class="field">
+            <label for="equipment_name">Name</label>
+            <input type="text" id="equipment_name" name="name" placeholder="Auto-cannon" value="<?= h($editingEquipment['name'] ?? '') ?>" required />
+          </div>
+          <div class="field">
+            <label for="equipment_manufacturer">Manufacturer</label>
+            <select id="equipment_manufacturer" name="manufacturer">
+              <?php foreach ($manufacturers as $manufacturer): ?>
+                <option value="<?= h($manufacturer) ?>" <?= ($editingEquipment['manufacturer'] ?? '') === $manufacturer ? 'selected' : '' ?>><?= h($manufacturer) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="field">
+            <label for="equipment_category">Category</label>
+            <select id="equipment_category" name="category">
+              <?php foreach (EQUIPMENT_CATEGORIES as $category): ?>
+                <option value="<?= h($category) ?>" <?= ($editingEquipment['category'] ?? 'General') === $category ? 'selected' : '' ?>><?= h($category) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="field">
+            <label for="equipment_slot">Slot</label>
+            <select id="equipment_slot" name="slot">
+              <?php foreach (SLOTS as $slot): ?>
+                <option value="<?= h($slot) ?>" <?= ($editingEquipment['slot'] ?? '') === $slot ? 'selected' : '' ?>><?= h($slot) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="field">
+            <label for="weapon_weight">Weapon weight</label>
+            <input type="number" id="weapon_weight" name="weapon_weight" min="0" step="1" value="<?= (int) ($editingEquipment['weapon_weight'] ?? 0) ?>" />
+          </div>
+          <div class="field">
+            <label for="range">Range</label>
+            <input type="number" id="range" name="range" min="0" step="1" value="<?= (int) ($editingEquipment['range'] ?? 0) ?>" />
+          </div>
+          <div class="field">
+            <label for="heat_rating">Heat rating</label>
+            <input type="number" id="heat_rating" name="heat_rating" min="0" step="1" value="<?= (int) ($editingEquipment['heat_rating'] ?? 0) ?>" />
+          </div>
+          <div class="field">
+            <label for="hit_dice">Hit dice</label>
+            <input type="number" id="hit_dice" name="hit_dice" min="0" step="1" value="<?= (int) ($editingEquipment['hit_dice'] ?? 0) ?>" />
+          </div>
         </div>
-        <div class="field">
-          <label for="equipment_manufacturer">Manufacturer</label>
-          <select id="equipment_manufacturer" name="manufacturer">
-            <?php foreach ($manufacturers as $manufacturer): ?>
-              <option value="<?= h($manufacturer) ?>" <?= ($editingEquipment['manufacturer'] ?? '') === $manufacturer ? 'selected' : '' ?>><?= h($manufacturer) ?></option>
-            <?php endforeach; ?>
-          </select>
+        <div class="field" style="margin-top:10px;">
+          <label for="effects">Effects</label>
+          <textarea id="effects" name="effects" rows="3" placeholder="What happens when this is equipped?"><?= h($editingEquipment['effects'] ?? '') ?></textarea>
         </div>
-        <div class="field">
-          <label for="equipment_slot">Slot</label>
-          <select id="equipment_slot" name="slot">
-            <?php foreach (SLOTS as $slot): ?>
-              <option value="<?= h($slot) ?>" <?= ($editingEquipment['slot'] ?? '') === $slot ? 'selected' : '' ?>><?= h($slot) ?></option>
-            <?php endforeach; ?>
-          </select>
-        </div>
-        <div style="display:flex; gap:8px;">
+        <div style="display:flex; gap:8px; margin-top:12px;">
           <button type="submit"><?= $editingEquipment ? 'Save changes' : 'Add equipment' ?></button>
           <?php if ($editingEquipment): ?>
             <a href="manage.php"><button type="button" class="ghost">Cancel</button></a>
@@ -426,33 +476,48 @@ $activePage = 'manage';
       <?php if (empty($manufacturerEquipment)): ?>
         <p class="empty">No equipment for this manufacturer yet. Add some above.</p>
       <?php else: ?>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Slot</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php foreach ($manufacturerEquipment as $item): ?>
+        <div class="table-scroll">
+          <table>
+            <thead>
               <tr>
-                <td><?= h($item['name']) ?></td>
-                <td><span class="badge"><?= h($item['slot']) ?></span></td>
-                <td>
-                  <div style="display:flex; gap:8px;">
-                    <a href="manage.php?edit_equipment=<?= (int) $item['id'] ?>"><button type="button" class="ghost">Edit</button></a>
-                    <form method="post" class="inline">
-                      <input type="hidden" name="action" value="delete_equipment" />
-                      <input type="hidden" name="id" value="<?= (int) $item['id'] ?>" />
-                      <button type="submit" class="danger">Remove</button>
-                    </form>
-                  </div>
-                </td>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Slot</th>
+                <th>Weight</th>
+                <th>Range</th>
+                <th>Heat</th>
+                <th>Hit dice</th>
+                <th>Effects</th>
+                <th></th>
               </tr>
-            <?php endforeach; ?>
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              <?php foreach ($manufacturerEquipment as $item): ?>
+                <?php $isWeapon = ($item['category'] ?? 'General') === 'Weapon'; ?>
+                <tr>
+                  <td><?= h($item['name']) ?></td>
+                  <td><span class="badge"><?= h($item['category'] ?? 'General') ?></span></td>
+                  <td><span class="badge"><?= h($item['slot']) ?></span></td>
+                  <td><?= $isWeapon ? (int) ($item['weapon_weight'] ?? 0) . ' t' : '—' ?></td>
+                  <td><?= $isWeapon ? (int) ($item['range'] ?? 0) : '—' ?></td>
+                  <td><?= $isWeapon ? (int) ($item['heat_rating'] ?? 0) : '—' ?></td>
+                  <td><?= $isWeapon ? (int) ($item['hit_dice'] ?? 0) : '—' ?></td>
+                  <td><?= h($item['effects'] ?? '') ?: '—' ?></td>
+                  <td>
+                    <div style="display:flex; gap:8px;">
+                      <a href="manage.php?edit_equipment=<?= (int) $item['id'] ?>"><button type="button" class="ghost">Edit</button></a>
+                      <form method="post" class="inline">
+                        <input type="hidden" name="action" value="delete_equipment" />
+                        <input type="hidden" name="id" value="<?= (int) $item['id'] ?>" />
+                        <button type="submit" class="danger">Remove</button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div>
       <?php endif; ?>
     </div>
   <?php endforeach; ?>
