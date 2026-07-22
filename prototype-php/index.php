@@ -80,6 +80,7 @@ $activePage = 'index';
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DropshipBuilder — List builder</title>
+  <?php include __DIR__ . '/includes/theme-init.php'; ?>
   <link rel="stylesheet" href="assets/style.css" />
 </head>
 <body>
