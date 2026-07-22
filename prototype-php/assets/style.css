@@ -255,6 +255,39 @@ button.ghost {
   min-width: 120px;
 }
 
+.carried-models {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+}
+
+.carried-heading {
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  margin: 0 0 6px;
+}
+
+.carried-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+  padding: 4px 0;
+}
+
+.carried-add {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.carried-add select {
+  font-size: 12px;
+  padding: 4px 6px;
+}
+
 .badge {
   font-size: 11px;
   padding: 2px 8px;

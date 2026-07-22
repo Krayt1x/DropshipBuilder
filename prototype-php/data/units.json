@@ -55,5 +55,20 @@
         "manufacturer": "Corp A",
         "size": "Small",
         "weight": 5
+    },
+    {
+        "id": 11,
+        "name": "Alpha pod",
+        "manufacturer": "Corp A",
+        "size": "Drop Pod",
+        "weight": 40,
+        "armor": 0,
+        "max_weight": 0,
+        "max_drop_weight": 0,
+        "hp": 0,
+        "base_movement": 0,
+        "dice_blue": 0,
+        "dice_red": 0,
+        "dice_green": 0
     }
 ]
