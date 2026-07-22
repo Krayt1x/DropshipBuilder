@@ -17,8 +17,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-      - run: npm ci
+      - run: npm install
       - run: npm run build --workspace packages/client
         env:
           VITE_BASE_PATH: /DropshipBuilder/
