@@ -13,8 +13,7 @@ define('UNIT_SIZES', [
 define('DICE_COLORS', ['blue', 'red', 'green']);
 define('SLOTS', ['Movement', 'Left', 'Right']);
 define('DROP_POD_SIZE', 'Drop Pod');
-define('EQUIPMENT_CATEGORIES', ['General', 'Weapon']);
-define('WEAPON_SLOTS', ['Left', 'Right']);
+define('EQUIPMENT_TYPES', ['Movement', 'Weapon']);
 
 function load_units(): array
 {

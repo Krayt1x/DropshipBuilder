@@ -239,7 +239,8 @@ $activePage = 'index';
                 <div class="equipment-slots">
                   <?php foreach (SLOTS as $slot): ?>
                     <?php
-                    $slotOptions = array_values(array_filter($unitEquipment, fn ($e) => $e['slot'] === $slot));
+                    $requiredType = $slot === 'Movement' ? 'Movement' : 'Weapon';
+                    $slotOptions = array_values(array_filter($unitEquipment, fn ($e) => ($e['type'] ?? 'Movement') === $requiredType));
                     $count = $slotCounts[$slot];
                     ?>
                     <?php for ($i = 0; $i < $count; $i++): ?>
