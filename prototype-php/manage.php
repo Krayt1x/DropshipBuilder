@@ -132,9 +132,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id = (int) ($_POST['id'] ?? 0);
         $name = trim($_POST['name'] ?? '');
         $manufacturer = $_POST['manufacturer'] ?? '';
-        $slot = $_POST['slot'] ?? '';
+        $type = $_POST['type'] ?? 'Movement';
         $effects = trim($_POST['effects'] ?? '');
-        $category = $_POST['category'] ?? 'General';
         $weight = (int) ($_POST['weight'] ?? 0);
         $weaponStats = [
             'range' => (int) ($_POST['range'] ?? 0),
@@ -142,20 +141,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'hit_dice' => trim($_POST['hit_dice'] ?? ''),
         ];
 
-        if ($name === '' || !in_array($manufacturer, $manufacturers, true) || !in_array($slot, SLOTS, true) || !in_array($category, EQUIPMENT_CATEGORIES, true)) {
+        if ($name === '' || !in_array($manufacturer, $manufacturers, true) || !in_array($type, EQUIPMENT_TYPES, true)) {
             $flash = 'Fill in every equipment field with a valid value.';
-            $flashError = true;
-        } elseif ($category === 'Weapon' && !in_array($slot, WEAPON_SLOTS, true)) {
-            $flash = 'Weapons can only be equipped to the Left or Right slot.';
             $flashError = true;
         } elseif ($action === 'add_equipment') {
             $equipment[] = array_merge([
                 'id' => next_equipment_id($equipment),
                 'name' => $name,
                 'manufacturer' => $manufacturer,
-                'slot' => $slot,
+                'type' => $type,
                 'effects' => $effects,
-                'category' => $category,
                 'weight' => $weight,
             ], $weaponStats);
             save_equipment($equipment);
@@ -168,9 +163,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'id' => $id,
                         'name' => $name,
                         'manufacturer' => $manufacturer,
-                        'slot' => $slot,
+                        'type' => $type,
                         'effects' => $effects,
-                        'category' => $category,
                         'weight' => $weight,
                     ], $weaponStats);
                     $found = true;
@@ -361,18 +355,10 @@ $activePage = 'manage';
             </select>
           </div>
           <div class="field">
-            <label for="equipment_category">Category</label>
-            <select id="equipment_category" name="category">
-              <?php foreach (EQUIPMENT_CATEGORIES as $category): ?>
-                <option value="<?= h($category) ?>" <?= ($editingEquipment['category'] ?? 'General') === $category ? 'selected' : '' ?>><?= h($category) ?></option>
-              <?php endforeach; ?>
-            </select>
-          </div>
-          <div class="field">
-            <label for="equipment_slot">Slot</label>
-            <select id="equipment_slot" name="slot">
-              <?php foreach (SLOTS as $slot): ?>
-                <option value="<?= h($slot) ?>" <?= ($editingEquipment['slot'] ?? '') === $slot ? 'selected' : '' ?>><?= h($slot) ?></option>
+            <label for="equipment_type">Equipment type</label>
+            <select id="equipment_type" name="type">
+              <?php foreach (EQUIPMENT_TYPES as $type): ?>
+                <option value="<?= h($type) ?>" <?= ($editingEquipment['type'] ?? 'Movement') === $type ? 'selected' : '' ?>><?= h($type) ?></option>
               <?php endforeach; ?>
             </select>
           </div>
@@ -483,8 +469,7 @@ $activePage = 'manage';
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Category</th>
-                <th>Slot</th>
+                <th>Type</th>
                 <th>Weight</th>
                 <th>Range</th>
                 <th>Heat</th>
@@ -495,11 +480,10 @@ $activePage = 'manage';
             </thead>
             <tbody>
               <?php foreach ($manufacturerEquipment as $item): ?>
-                <?php $isWeapon = ($item['category'] ?? 'General') === 'Weapon'; ?>
+                <?php $isWeapon = ($item['type'] ?? 'Movement') === 'Weapon'; ?>
                 <tr>
                   <td><?= h($item['name']) ?></td>
-                  <td><span class="badge"><?= h($item['category'] ?? 'General') ?></span></td>
-                  <td><span class="badge"><?= h($item['slot']) ?></span></td>
+                  <td><span class="badge"><?= h($item['type'] ?? 'Movement') ?></span></td>
                   <td><?= (int) ($item['weight'] ?? 0) ?> t</td>
                   <td><?= $isWeapon ? (int) ($item['range'] ?? 0) : '—' ?></td>
                   <td><?= $isWeapon ? (h((string) ($item['heat_rating'] ?? '')) ?: '—') : '—' ?></td>
