@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['roster'][] = [
                 'key' => uniqid('r', true),
                 'unit_id' => $unitId,
-                'equipment' => array_fill_keys(SLOTS, null),
+                'equipment' => array_fill_keys(SLOTS, []),
                 'carried' => [],
             ];
         }
@@ -54,15 +54,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'assign_equipment') {
         $key = $_POST['key'] ?? '';
         $slot = $_POST['slot'] ?? '';
+        $slotIndex = max(0, (int) ($_POST['slot_index'] ?? 0));
         $equipmentId = (int) ($_POST['equipment_id'] ?? 0);
 
         if (in_array($slot, SLOTS, true)) {
             foreach ($_SESSION['roster'] as &$entry) {
                 if ($entry['key'] === $key) {
                     if (!isset($entry['equipment'])) {
-                        $entry['equipment'] = array_fill_keys(SLOTS, null);
+                        $entry['equipment'] = array_fill_keys(SLOTS, []);
                     }
-                    $entry['equipment'][$slot] = $equipmentId > 0 ? $equipmentId : null;
+                    if (!isset($entry['equipment'][$slot])) {
+                        $entry['equipment'][$slot] = [];
+                    }
+                    $entry['equipment'][$slot][$slotIndex] = $equipmentId > 0 ? $equipmentId : null;
                     break;
                 }
             }
@@ -127,7 +131,7 @@ foreach ($_SESSION['roster'] as $entry) {
         $rosterUnits[] = [
             'key' => $entry['key'],
             'unit' => $unit,
-            'equipment' => $entry['equipment'] ?? array_fill_keys(SLOTS, null),
+            'equipment' => $entry['equipment'] ?? array_fill_keys(SLOTS, []),
             'carried' => $entry['carried'] ?? [],
         ];
         $totalWeight += (int) $unit['weight'];
@@ -222,6 +226,11 @@ $activePage = 'index';
             $carryOptions = $isDropPod
                 ? array_values(array_filter($units, fn ($u) => $u['manufacturer'] === $entry['unit']['manufacturer'] && $u['size'] !== DROP_POD_SIZE && (int) $u['id'] !== (int) $entry['unit']['id']))
                 : [];
+            $slotCounts = [
+                'Movement' => 1,
+                'Left' => max(0, (int) ($entry['unit']['left_slots'] ?? 1)),
+                'Right' => max(0, (int) ($entry['unit']['right_slots'] ?? 1)),
+            ];
             ?>
             <div class="unit-row" style="align-items:flex-start; flex-wrap:wrap;">
               <div class="unit-info">
@@ -229,21 +238,27 @@ $activePage = 'index';
                 <p class="unit-meta"><?= (int) $entry['unit']['weight'] ?> t</p>
                 <div class="equipment-slots">
                   <?php foreach (SLOTS as $slot): ?>
-                    <?php $slotOptions = array_values(array_filter($unitEquipment, fn ($e) => $e['slot'] === $slot)); ?>
-                    <form method="post" class="inline">
-                      <input type="hidden" name="action" value="assign_equipment" />
-                      <input type="hidden" name="key" value="<?= h($entry['key']) ?>" />
-                      <input type="hidden" name="slot" value="<?= h($slot) ?>" />
-                      <label class="slot-label">
-                        <?= h($slot) ?>
-                        <select name="equipment_id" onchange="this.form.submit()" <?= empty($slotOptions) ? 'disabled' : '' ?>>
-                          <option value="0">None</option>
-                          <?php foreach ($slotOptions as $item): ?>
-                            <option value="<?= (int) $item['id'] ?>" <?= (int) ($entry['equipment'][$slot] ?? 0) === (int) $item['id'] ? 'selected' : '' ?>><?= h($item['name']) ?></option>
-                          <?php endforeach; ?>
-                        </select>
-                      </label>
-                    </form>
+                    <?php
+                    $slotOptions = array_values(array_filter($unitEquipment, fn ($e) => $e['slot'] === $slot));
+                    $count = $slotCounts[$slot];
+                    ?>
+                    <?php for ($i = 0; $i < $count; $i++): ?>
+                      <form method="post" class="inline">
+                        <input type="hidden" name="action" value="assign_equipment" />
+                        <input type="hidden" name="key" value="<?= h($entry['key']) ?>" />
+                        <input type="hidden" name="slot" value="<?= h($slot) ?>" />
+                        <input type="hidden" name="slot_index" value="<?= $i ?>" />
+                        <label class="slot-label">
+                          <?= $count > 1 ? h($slot . ' ' . ($i + 1)) : h($slot) ?>
+                          <select name="equipment_id" onchange="this.form.submit()" <?= empty($slotOptions) ? 'disabled' : '' ?>>
+                            <option value="0">None</option>
+                            <?php foreach ($slotOptions as $item): ?>
+                              <option value="<?= (int) $item['id'] ?>" <?= (int) ($entry['equipment'][$slot][$i] ?? 0) === (int) $item['id'] ? 'selected' : '' ?>><?= h($item['name']) ?></option>
+                            <?php endforeach; ?>
+                          </select>
+                        </label>
+                      </form>
+                    <?php endfor; ?>
                   <?php endforeach; ?>
                 </div>
 
