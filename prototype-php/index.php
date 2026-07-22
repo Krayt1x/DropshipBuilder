@@ -38,6 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'key' => uniqid('r', true),
                 'unit_id' => $unitId,
                 'equipment' => array_fill_keys(SLOTS, null),
+                'carried' => [],
             ];
         }
     }
@@ -69,6 +70,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    if ($action === 'add_carried_model') {
+        $key = $_POST['key'] ?? '';
+        $carriedUnitId = (int) ($_POST['carried_unit_id'] ?? 0);
+        $carriedUnit = find_unit($units, $carriedUnitId);
+
+        if ($carriedUnit !== null) {
+            foreach ($_SESSION['roster'] as &$entry) {
+                if ($entry['key'] === $key) {
+                    if (!isset($entry['carried'])) {
+                        $entry['carried'] = [];
+                    }
+                    $entry['carried'][] = [
+                        'key' => uniqid('c', true),
+                        'unit_id' => $carriedUnitId,
+                    ];
+                    break;
+                }
+            }
+            unset($entry);
+        }
+    }
+
+    if ($action === 'remove_carried_model') {
+        $key = $_POST['key'] ?? '';
+        $carriedKey = $_POST['carried_key'] ?? '';
+
+        foreach ($_SESSION['roster'] as &$entry) {
+            if ($entry['key'] === $key) {
+                $entry['carried'] = array_values(array_filter(
+                    $entry['carried'] ?? [],
+                    fn ($c) => $c['key'] !== $carriedKey
+                ));
+                break;
+            }
+        }
+        unset($entry);
+    }
+
     if ($action === 'clear_list') {
         $_SESSION['roster'] = [];
     }
@@ -78,6 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $catalog = array_values(array_filter($units, fn ($u) => $u['manufacturer'] === $_SESSION['manufacturer']));
+usort($catalog, fn ($a, $b) => $a['weight'] <=> $b['weight']);
 
 $rosterUnits = [];
 $totalWeight = 0;
@@ -88,6 +128,7 @@ foreach ($_SESSION['roster'] as $entry) {
             'key' => $entry['key'],
             'unit' => $unit,
             'equipment' => $entry['equipment'] ?? array_fill_keys(SLOTS, null),
+            'carried' => $entry['carried'] ?? [],
         ];
         $totalWeight += (int) $unit['weight'];
     }
@@ -175,10 +216,16 @@ $activePage = 'index';
           <p class="empty">No units added yet.</p>
         <?php else: ?>
           <?php foreach ($rosterUnits as $entry): ?>
-            <?php $unitEquipment = array_values(array_filter($equipment, fn ($e) => $e['manufacturer'] === $entry['unit']['manufacturer'])); ?>
+            <?php
+            $unitEquipment = array_values(array_filter($equipment, fn ($e) => $e['manufacturer'] === $entry['unit']['manufacturer']));
+            $isDropPod = $entry['unit']['size'] === DROP_POD_SIZE;
+            $carryOptions = $isDropPod
+                ? array_values(array_filter($units, fn ($u) => $u['manufacturer'] === $entry['unit']['manufacturer'] && $u['size'] !== DROP_POD_SIZE && (int) $u['id'] !== (int) $entry['unit']['id']))
+                : [];
+            ?>
             <div class="unit-row" style="align-items:flex-start; flex-wrap:wrap;">
               <div class="unit-info">
-                <p class="unit-name"><?= h($entry['unit']['name']) ?></p>
+                <p class="unit-name"><?= h($entry['unit']['name']) ?> <?php if ($isDropPod): ?><span class="badge">Drop Pod</span><?php endif; ?></p>
                 <p class="unit-meta"><?= (int) $entry['unit']['weight'] ?> t</p>
                 <div class="equipment-slots">
                   <?php foreach (SLOTS as $slot): ?>
@@ -199,6 +246,44 @@ $activePage = 'index';
                     </form>
                   <?php endforeach; ?>
                 </div>
+
+                <?php if ($isDropPod): ?>
+                  <div class="carried-models">
+                    <p class="carried-heading">Carried models</p>
+                    <?php if (empty($entry['carried'])): ?>
+                      <p class="empty" style="padding:6px 0;">Nothing carried yet.</p>
+                    <?php else: ?>
+                      <?php foreach ($entry['carried'] as $carried): ?>
+                        <?php $carriedUnit = find_unit($units, $carried['unit_id']); ?>
+                        <?php if ($carriedUnit !== null): ?>
+                          <div class="carried-row">
+                            <span><?= h($carriedUnit['name']) ?> <span class="unit-meta">(<?= (int) $carriedUnit['weight'] ?> t)</span></span>
+                            <form method="post" class="inline">
+                              <input type="hidden" name="action" value="remove_carried_model" />
+                              <input type="hidden" name="key" value="<?= h($entry['key']) ?>" />
+                              <input type="hidden" name="carried_key" value="<?= h($carried['key']) ?>" />
+                              <button type="submit" class="danger">Remove</button>
+                            </form>
+                          </div>
+                        <?php endif; ?>
+                      <?php endforeach; ?>
+                    <?php endif; ?>
+                    <?php if (!empty($carryOptions)): ?>
+                      <form method="post" class="inline carried-add">
+                        <input type="hidden" name="action" value="add_carried_model" />
+                        <input type="hidden" name="key" value="<?= h($entry['key']) ?>" />
+                        <select name="carried_unit_id">
+                          <?php foreach ($carryOptions as $option): ?>
+                            <option value="<?= (int) $option['id'] ?>"><?= h($option['name']) ?> (<?= (int) $option['weight'] ?> t)</option>
+                          <?php endforeach; ?>
+                        </select>
+                        <button type="submit">Add model</button>
+                      </form>
+                    <?php else: ?>
+                      <p class="empty" style="padding:6px 0;">No other <?= h($entry['unit']['manufacturer']) ?> models to carry.</p>
+                    <?php endif; ?>
+                  </div>
+                <?php endif; ?>
               </div>
               <form method="post" class="inline">
                 <input type="hidden" name="action" value="remove_from_list" />

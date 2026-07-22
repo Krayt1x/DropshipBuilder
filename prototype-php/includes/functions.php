@@ -8,9 +8,11 @@ define('UNIT_SIZES', [
     'Medium' => 'Medium - 2',
     'Large' => 'Large - 3',
     'Huge' => 'Huge - 4',
+    'Drop Pod' => 'Drop Pod (special)',
 ]);
 define('DICE_COLORS', ['blue', 'red', 'green']);
 define('SLOTS', ['Movement', 'Left', 'Right']);
+define('DROP_POD_SIZE', 'Drop Pod');
 
 function load_units(): array
 {
