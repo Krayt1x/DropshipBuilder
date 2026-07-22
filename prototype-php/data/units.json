@@ -2,70 +2,70 @@
     {
         "id": 1,
         "name": "Rifle squad",
-        "faction": "Kestrel Directorate",
+        "manufacturer": "Kestrel Directorate",
         "type": "Infantry",
         "points": 65
     },
     {
         "id": 2,
         "name": "Heavy gunner team",
-        "faction": "Kestrel Directorate",
+        "manufacturer": "Kestrel Directorate",
         "type": "Infantry",
         "points": 90
     },
     {
         "id": 3,
         "name": "Recon walker",
-        "faction": "Kestrel Directorate",
+        "manufacturer": "Kestrel Directorate",
         "type": "Vehicle",
         "points": 120
     },
     {
         "id": 4,
         "name": "Siege tank",
-        "faction": "Kestrel Directorate",
+        "manufacturer": "Kestrel Directorate",
         "type": "Vehicle",
         "points": 175
     },
     {
         "id": 5,
         "name": "Strike dropship",
-        "faction": "Kestrel Directorate",
+        "manufacturer": "Kestrel Directorate",
         "type": "Dropship",
         "points": 220
     },
     {
         "id": 6,
         "name": "Vanguard captain",
-        "faction": "Kestrel Directorate",
+        "manufacturer": "Kestrel Directorate",
         "type": "Character",
         "points": 75
     },
     {
         "id": 7,
         "name": "Ash troopers",
-        "faction": "Ashfall Legion",
+        "manufacturer": "Ashfall Legion",
         "type": "Infantry",
         "points": 60
     },
     {
         "id": 8,
         "name": "Cinder walker",
-        "faction": "Ashfall Legion",
+        "manufacturer": "Ashfall Legion",
         "type": "Vehicle",
         "points": 130
     },
     {
         "id": 9,
         "name": "Pyre dropship",
-        "faction": "Ashfall Legion",
+        "manufacturer": "Ashfall Legion",
         "type": "Dropship",
         "points": 235
     },
     {
         "id": 10,
         "name": "Legion warlord",
-        "faction": "Ashfall Legion",
+        "manufacturer": "Ashfall Legion",
         "type": "Character",
         "points": 80
     }
