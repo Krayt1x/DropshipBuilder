@@ -4,7 +4,15 @@
         "name": "A10",
         "manufacturer": "Corp A",
         "size": "Medium",
-        "weight": 10
+        "weight": 10,
+        "armor": 5,
+        "max_weight": 0,
+        "max_drop_weight": 0,
+        "hp": 20,
+        "base_movement": 0,
+        "dice_blue": 2,
+        "dice_red": 1,
+        "dice_green": 0
     },
     {
         "id": 2,

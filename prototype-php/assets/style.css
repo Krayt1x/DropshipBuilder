@@ -234,6 +234,27 @@ button.ghost {
   min-width: 0;
 }
 
+.equipment-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.slot-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.slot-label select {
+  font-size: 12px;
+  padding: 4px 6px;
+  min-width: 120px;
+}
+
 .badge {
   font-size: 11px;
   padding: 2px 8px;
@@ -250,10 +271,21 @@ button.ghost {
   padding: 1.5rem 0;
 }
 
+.table-scroll {
+  overflow-x: auto;
+}
+
 table {
   width: 100%;
+  min-width: 640px;
   border-collapse: collapse;
   font-size: 14px;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
 }
 
 th, td {
