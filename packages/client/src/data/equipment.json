@@ -1,0 +1,31 @@
+[
+    {
+        "id": 1,
+        "name": "Chicken Legs",
+        "manufacturer": "Corp A",
+        "type": "Movement"
+    },
+    {
+        "id": 2,
+        "name": "Laser rifle",
+        "manufacturer": "Corp A",
+        "type": "Weapon"
+    },
+    {
+        "id": 3,
+        "name": "Quad Legs",
+        "manufacturer": "Corp A",
+        "type": "Movement"
+    },
+    {
+        "id": 4,
+        "name": "Auto-cannon",
+        "manufacturer": "Corp A",
+        "effects": "Deals 2d6 damage. On a hit of 6, target is knocked prone.",
+        "type": "Weapon",
+        "weight": 4,
+        "range": 6,
+        "heat_rating": "3/3",
+        "hit_dice": "1d4"
+    }
+]
