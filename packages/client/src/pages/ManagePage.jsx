@@ -8,6 +8,7 @@ import {
 import { nextId } from '../lib/storage.js';
 import UnitForm from '../components/UnitForm.jsx';
 import EquipmentForm from '../components/EquipmentForm.jsx';
+import ExportPanel from '../components/ExportPanel.jsx';
 
 function ManagePage({
   manufacturers,
@@ -436,6 +437,12 @@ function ManagePage({
           </div>
         );
       })}
+
+      <ExportPanel
+        manufacturers={manufacturers}
+        units={units}
+        equipment={equipment}
+      />
     </div>
   );
 }
