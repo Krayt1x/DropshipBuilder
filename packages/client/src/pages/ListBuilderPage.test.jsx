@@ -47,13 +47,14 @@ describe('ListBuilderPage', () => {
     expect(screen.getByText('No units added yet.')).toBeDefined();
   });
 
-  it("scales movement equipment weight by the unit's size tier", () => {
+  it('adds movement equipment weight without any size-based scaling', () => {
     const movementItem = {
       id: 1,
       name: 'Heavy Legs',
       manufacturer: 'Corp A',
       type: 'Movement',
       weight: 2,
+      movement: 5,
     };
     const { container } = render(
       <ListBuilderPage
@@ -65,12 +66,12 @@ describe('ListBuilderPage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Add' }));
 
-    // Adding a unit auto-equips its cheapest movement item — "Heavy Legs" is
-    // the only option here. A10 is size "Medium" (tier 2), so 2t movement
-    // gear costs 2 * 2 = 4t, for a total of 10 (unit) + 4 (equipment) = 14t.
+    // Adding a unit auto-equips its best movement item — "Heavy Legs" is
+    // the only option here. Its 2t weight is added as-is, for a total of
+    // 10 (unit) + 2 (equipment) = 12t.
     const weightValue = container.querySelector(
       '.weight-label span:last-child',
     );
-    expect(weightValue.textContent).toBe('14 t / 100 t');
+    expect(weightValue.textContent).toBe('12 t / 100 t');
   });
 });

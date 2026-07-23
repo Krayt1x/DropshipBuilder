@@ -87,8 +87,8 @@ function ManagePage({
   const [showEquipmentForm, setShowEquipmentForm] = useState(false);
   const [unitSort, setUnitSort] = useState({ key: 'weight', dir: 'asc' });
   const [movementSort, setMovementSort] = useState({
-    key: 'weight',
-    dir: 'asc',
+    key: 'movement',
+    dir: 'desc',
   });
   const [weaponSort, setWeaponSort] = useState({ key: 'weight', dir: 'asc' });
   const [activeManufacturer, setActiveManufacturer] = useState(
@@ -132,6 +132,7 @@ function ManagePage({
         type: 'Movement',
         effects: '',
         weight: 0,
+        movement: 4,
         range: 0,
         heat_rating: '',
         hit_dice: '',
@@ -202,7 +203,6 @@ function ManagePage({
       max_weight: Number(form.get('max_weight')) || 0,
       max_drop_weight: Number(form.get('max_drop_weight')) || 0,
       hp: Number(form.get('hp')) || 0,
-      base_movement: Number(form.get('base_movement')) || 0,
       dice_blue: Math.max(0, Number(form.get('dice_blue')) || 0),
       dice_red: Math.max(0, Number(form.get('dice_red')) || 0),
       dice_green: Math.max(0, Number(form.get('dice_green')) || 0),
@@ -289,6 +289,10 @@ function ManagePage({
       const sizeRaw = (form.get('size') || '').toString();
       payload.size = WEAPON_SIZES.includes(sizeRaw) ? sizeRaw : 'Small';
       payload.head_only = form.get('head_only') === 'on';
+    }
+
+    if (type === 'Movement') {
+      payload.movement = Math.max(0, Number(form.get('movement')) || 0);
     }
 
     if (editingEquipmentItem) {
@@ -554,12 +558,6 @@ function ManagePage({
                           sort={unitSort}
                           onSort={(k) => toggleSort(setUnitSort, k)}
                         />
-                        <SortTh
-                          label="Move"
-                          sortKey="base_movement"
-                          sort={unitSort}
-                          onSort={(k) => toggleSort(setUnitSort, k)}
-                        />
                         <th>Dice</th>
                         <SortTh
                           label="L slots"
@@ -597,7 +595,6 @@ function ManagePage({
                             <td>{unit.max_weight ?? 0}</td>
                             <td>{unit.max_drop_weight ?? 0}</td>
                             <td>{unit.hp ?? 0}</td>
-                            <td>{unit.base_movement ?? 0}</td>
                             <td style={{ whiteSpace: 'nowrap' }}>
                               <DiceIcons unit={unit} />
                             </td>
@@ -629,7 +626,7 @@ function ManagePage({
                           </tr>
                           {editingUnitId === Number(unit.id) && (
                             <tr>
-                              <td colSpan={12}>
+                              <td colSpan={11}>
                                 <UnitForm
                                   key={unit.id}
                                   manufacturers={manufacturers}
@@ -682,6 +679,12 @@ function ManagePage({
                           onSort={(k) => toggleSort(setMovementSort, k)}
                         />
                         <SortTh
+                          label="Movement"
+                          sortKey="movement"
+                          sort={movementSort}
+                          onSort={(k) => toggleSort(setMovementSort, k)}
+                        />
+                        <SortTh
                           label="Weight"
                           sortKey="weight"
                           sort={movementSort}
@@ -702,6 +705,7 @@ function ManagePage({
                         <Fragment key={item.id}>
                           <tr>
                             <td>{item.name}</td>
+                            <td>{item.movement ?? 0}</td>
                             <td>{item.weight ?? 0} t</td>
                             <td>{item.no_drop_pod ? '✕' : ''}</td>
                             <td>
@@ -734,7 +738,7 @@ function ManagePage({
                           </tr>
                           {editingEquipmentId === Number(item.id) && (
                             <tr>
-                              <td colSpan={4}>
+                              <td colSpan={5}>
                                 <EquipmentForm
                                   key={item.id}
                                   manufacturers={manufacturers}

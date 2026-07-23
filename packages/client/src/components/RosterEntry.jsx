@@ -3,7 +3,6 @@ import {
   SLOTS,
   DROP_POD_SIZE,
   sizeLabel,
-  sizeTier,
   weaponSlotCost,
   effectStatLabel,
 } from '../lib/constants.js';
@@ -39,7 +38,7 @@ function LoadMechForm({ options, onAdd }) {
   );
 }
 
-function SlotCard({ label, item, weightOverride, isOpen, disabled, onToggle }) {
+function SlotCard({ label, item, statOverride, isOpen, disabled, onToggle }) {
   return (
     <button
       type="button"
@@ -51,7 +50,7 @@ function SlotCard({ label, item, weightOverride, isOpen, disabled, onToggle }) {
       <span className="slot-card-item">{item?.name ?? 'Empty'}</span>
       {item && (
         <span className="slot-card-wt">
-          {weightOverride ?? item.weight ?? 0}t
+          {statOverride ?? `${item.weight ?? 0}t`}
         </span>
       )}
       {!disabled && <span className="slot-card-edit">✎</span>}
@@ -65,11 +64,9 @@ function SlotPicker({
   selectedId,
   allowNone,
   isWeapon,
-  weightMultiplier,
   weaponFit,
   onSelect,
 }) {
-  const multiplier = weightMultiplier ?? 1;
   return (
     <div className="slot-picker">
       <p className="slot-picker-title">{title}</p>
@@ -95,7 +92,9 @@ function SlotPicker({
               <span className="slot-picker-stats">
                 {isWeapon
                   ? `${item.size ?? 'Small'} (${weaponSlotCost(item)} slot${weaponSlotCost(item) > 1 ? 's' : ''}) · ${item.weight ?? 0}t · ${item.range || '—'} · ${item.heat_rating || '—'} · ${item.hit_dice || '—'}`
-                  : `${Number(item.weight ?? 0) + multiplier}t`}
+                  : (item.type ?? 'Movement') === 'Movement'
+                    ? `${item.movement ?? 0} movement · ${item.weight ?? 0}t`
+                    : `${item.weight ?? 0}t`}
               </span>
             </div>
             {!isWeapon && item.effects && (
@@ -182,8 +181,6 @@ function RosterEntry({
   );
 
   const effectiveHp = Number(unit.hp ?? 0) + statBonus.hp;
-  const effectiveBaseMovement =
-    Number(unit.base_movement ?? 0) + statBonus.base_movement;
 
   const slotCounts = {
     Movement: 1,
@@ -192,19 +189,24 @@ function RosterEntry({
     Head: Math.max(0, Number(unit.head_slots ?? 0) + statBonus.head_slots),
   };
 
-  const statsLine = [
-    `Armor ${unit.armor || '—'}`,
-    `HP ${effectiveHp}`,
-    `Move ${effectiveBaseMovement}`,
-  ].join(' · ');
-
   const maxWeight = Number(unit.max_weight) || 0;
   const maxDropWeight = Number(unit.max_drop_weight) || 0;
   const overMaxWeight = maxWeight > 0 && totalWeight > maxWeight;
   const overDropWeight =
     !overMaxWeight && maxDropWeight > 0 && totalWeight > maxDropWeight;
-  const spareCapacity = maxWeight - totalWeight;
-  const effectiveMovement = spareCapacity + effectiveBaseMovement;
+
+  const movementItem = isDropPod ? null : resolveEquippedItems('Movement')[0];
+  const movementGearStat =
+    Number(movementItem?.movement ?? 0) + statBonus.base_movement;
+  const excessDropWeight =
+    maxDropWeight > 0 ? Math.max(0, totalWeight - maxDropWeight) : 0;
+  const effectiveMovement = Math.max(0, movementGearStat - excessDropWeight);
+
+  const statsLine = [
+    `Armor ${unit.armor || '—'}`,
+    `HP ${effectiveHp}`,
+    `Move ${effectiveMovement}`,
+  ].join(' · ');
 
   function toggleSlot(key) {
     setOpenSlotKey((current) => (current === key ? null : key));
@@ -242,9 +244,7 @@ function RosterEntry({
           key={key}
           label="Movement"
           item={selected}
-          weightOverride={
-            selected ? Number(selected.weight ?? 0) + tier : undefined
-          }
+          statOverride={selected ? `${selected.movement ?? 0} move` : undefined}
           isOpen={openSlotKey === key}
           disabled={slotOptions.length === 0}
           onToggle={() => toggleSlot(key)}
@@ -284,16 +284,12 @@ function RosterEntry({
 
   const equippedWithEffects = [];
   const equippedWeights = [];
-  const tier = sizeTier(unit.size);
   if (isDropPod) {
     if (dropPodSelected?.effects || dropPodSelected?.effect_stats?.length) {
       equippedWithEffects.push({ key: 'equipment', item: dropPodSelected });
     }
     if (dropPodSelected) {
-      const isMovement = (dropPodSelected.type ?? 'Movement') === 'Movement';
-      const weight = isMovement
-        ? Number(dropPodSelected.weight ?? 0) + tier
-        : Number(dropPodSelected.weight ?? 0);
+      const weight = Number(dropPodSelected.weight ?? 0);
       if (weight > 0) {
         equippedWeights.push({
           key: 'equipment',
@@ -317,10 +313,7 @@ function RosterEntry({
           equippedWithEffects.push({ key: `${slot}-${i}`, item: selected });
         }
         if (selected) {
-          const isMovement = requiredType === 'Movement';
-          const weight = isMovement
-            ? Number(selected.weight ?? 0) + tier
-            : Number(selected.weight ?? 0);
+          const weight = Number(selected.weight ?? 0);
           if (weight > 0) {
             equippedWeights.push({
               key: `${slot}-${i}`,
@@ -436,9 +429,12 @@ function RosterEntry({
         </p>
         {maxWeight > 0 && (
           <p className="unit-stats">
-            Effective movement: <b>{effectiveMovement}</b> (base{' '}
-            {unit.base_movement ?? 0} {spareCapacity >= 0 ? '+' : '-'}{' '}
-            {Math.abs(spareCapacity)} spare capacity)
+            Effective movement: <b>{effectiveMovement}</b> (gear movement{' '}
+            {movementGearStat}
+            {excessDropWeight > 0
+              ? ` − ${excessDropWeight}t over max drop`
+              : ''}
+            )
           </p>
         )}
 
@@ -447,10 +443,10 @@ function RosterEntry({
             <SlotCard
               label="Equipment"
               item={dropPodSelected}
-              weightOverride={
+              statOverride={
                 dropPodSelected &&
                 (dropPodSelected.type ?? 'Movement') === 'Movement'
-                  ? Number(dropPodSelected.weight ?? 0) + tier
+                  ? `${dropPodSelected.movement ?? 0} move`
                   : undefined
               }
               isOpen={openSlotKey === 'equipment'}
@@ -509,7 +505,9 @@ function RosterEntry({
             if (slot === 'Movement') {
               const slotOptions = unitEquipment
                 .filter((item) => (item.type ?? 'Movement') === 'Movement')
-                .sort((a, b) => Number(a.weight ?? 0) - Number(b.weight ?? 0));
+                .sort(
+                  (a, b) => Number(b.movement ?? 0) - Number(a.movement ?? 0),
+                );
               const selectedId = entry.equipment?.Movement?.[0] ?? 0;
               return (
                 <SlotPicker
@@ -518,7 +516,6 @@ function RosterEntry({
                   selectedId={selectedId}
                   allowNone={false}
                   isWeapon={false}
-                  weightMultiplier={tier}
                   onSelect={(id) => {
                     onAssignEquipment('Movement', 0, id);
                     setOpenSlotKey(null);
