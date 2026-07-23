@@ -3,13 +3,36 @@ import {
   UNIT_SIZES,
   EQUIPMENT_TYPES,
   WEAPON_SIZES,
+  EFFECT_STATS,
   sizeLabel,
+  effectStatLabel,
 } from '../lib/constants.js';
 import { nextId, purgeCatalogCache } from '../lib/storage.js';
 import UnitForm from '../components/UnitForm.jsx';
 import EquipmentForm from '../components/EquipmentForm.jsx';
 import ExportPanel from '../components/ExportPanel.jsx';
 import DiceIcons from '../components/DiceIcons.jsx';
+
+function EffectsCell({ item }) {
+  const statEffects = item.effect_stats ?? [];
+  const hasText = Boolean(item.effects);
+  if (statEffects.length === 0 && !hasText) return '—';
+  return (
+    <>
+      {statEffects.length > 0 && (
+        <div className="effect-chips" style={{ marginBottom: hasText ? 4 : 0 }}>
+          {statEffects.map((effect, i) => (
+            <span className="effect-chip" key={`${effect.stat}-${i}`}>
+              {effect.amount > 0 ? '+' : ''}
+              {effect.amount} {effectStatLabel(effect.stat)}
+            </span>
+          ))}
+        </div>
+      )}
+      {hasText && item.effects}
+    </>
+  );
+}
 
 function compareValues(a, b) {
   const an = Number(a);
@@ -234,11 +257,27 @@ function ManagePage({
       return;
     }
 
+    let effectStats = [];
+    try {
+      const parsed = JSON.parse(form.get('effect_stats') || '[]');
+      if (Array.isArray(parsed)) {
+        effectStats = parsed.filter(
+          (e) =>
+            EFFECT_STATS.some((s) => s.key === e.stat) &&
+            Number.isFinite(Number(e.amount)) &&
+            Number(e.amount) !== 0,
+        );
+      }
+    } catch {
+      effectStats = [];
+    }
+
     const payload = {
       name,
       manufacturer,
       type,
       effects: (form.get('effects') || '').toString().trim(),
+      effect_stats: effectStats,
       weight: Number(form.get('weight')) || 0,
       range: (form.get('range') || '').toString().trim(),
       heat_rating: (form.get('heat_rating') || '').toString().trim(),
@@ -664,7 +703,9 @@ function ManagePage({
                             <td>{item.name}</td>
                             <td>{item.weight ?? 0} t</td>
                             <td>{item.no_drop_pod ? '✕' : ''}</td>
-                            <td>{item.effects || '—'}</td>
+                            <td>
+                              <EffectsCell item={item} />
+                            </td>
                             <td>
                               <div style={{ display: 'flex', gap: 8 }}>
                                 <button
@@ -783,7 +824,9 @@ function ManagePage({
                             <td>{item.heat_rating || '—'}</td>
                             <td>{item.hit_dice || '—'}</td>
                             <td>{item.no_drop_pod ? '✕' : ''}</td>
-                            <td>{item.effects || '—'}</td>
+                            <td>
+                              <EffectsCell item={item} />
+                            </td>
                             <td>
                               <div style={{ display: 'flex', gap: 8 }}>
                                 <button
