@@ -67,12 +67,11 @@ function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
           <div className="field">
             <label htmlFor="range">Range</label>
             <input
-              type="number"
+              type="text"
               id="range"
               name="range"
-              min="0"
-              step="1"
-              defaultValue={editing?.range ?? 0}
+              placeholder="e.g. 6 or 3-9"
+              defaultValue={editing?.range ?? ''}
             />
           </div>
           <div className="field">
