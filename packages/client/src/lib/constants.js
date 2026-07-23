@@ -22,7 +22,7 @@ const WEAPON_SIZE_SLOTS = { Small: 1, Medium: 2, Large: 3 };
 // Bump this whenever the seed data (manufacturers/units/equipment.json)
 // changes, so browsers with older cached data get a "please purge cache"
 // warning instead of silently going stale.
-export const DATA_VERSION = 4;
+export const DATA_VERSION = 5;
 
 export function sizeLabel(size) {
   return UNIT_SIZES[size] ?? size;
