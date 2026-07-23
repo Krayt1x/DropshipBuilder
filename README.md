@@ -6,6 +6,18 @@ A list-building web app for Dropship, a tabletop wargame — similar to army bui
 
 🌐 https://Krayt1x.github.io/DropshipBuilder
 
+## Screenshots
+
+**List builder** — browse a manufacturer's catalog, add units to your roster, assign equipment to
+each unit's movement/left/right slots, and track your list's total weight against its limit.
+
+![List builder screenshot](docs/screenshots/list-builder.png)
+
+**Manage available models** — add manufacturers, units, and equipment to the catalog, or edit and
+remove existing ones.
+
+![Manage available models screenshot](docs/screenshots/manage.png)
+
 ## Self-Hosting
 
 ```bash
