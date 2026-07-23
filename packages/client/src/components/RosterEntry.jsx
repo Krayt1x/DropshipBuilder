@@ -1,6 +1,14 @@
 import { useState } from 'react';
-import { SLOTS, DROP_POD_SIZE, sizeLabel } from '../lib/constants.js';
+import { SLOTS, DROP_POD_SIZE, sizeLabel, sizeTier } from '../lib/constants.js';
 import DiceIcons from './DiceIcons.jsx';
+
+const WEIGHT_SEGMENT_COLORS = [
+  '#1d4ed8',
+  '#2563eb',
+  '#3b82f6',
+  '#60a5fa',
+  '#93c5fd',
+];
 
 function LoadMechForm({ options, onAdd }) {
   return (
@@ -173,9 +181,23 @@ function RosterEntry({
   }
 
   const equippedWithEffects = [];
+  const equippedWeights = [];
+  const tier = sizeTier(unit.size);
   if (isDropPod) {
     if (dropPodSelected?.effects) {
       equippedWithEffects.push({ key: 'equipment', item: dropPodSelected });
+    }
+    if (dropPodSelected) {
+      const isMovement = (dropPodSelected.type ?? 'Movement') === 'Movement';
+      const weight =
+        Number(dropPodSelected.weight ?? 0) * (isMovement ? tier : 1);
+      if (weight > 0) {
+        equippedWeights.push({
+          key: 'equipment',
+          name: dropPodSelected.name,
+          weight,
+        });
+      }
     }
   } else {
     SLOTS.forEach((slot) => {
@@ -192,9 +214,24 @@ function RosterEntry({
         if (selected?.effects) {
           equippedWithEffects.push({ key: `${slot}-${i}`, item: selected });
         }
+        if (selected) {
+          const isMovement = requiredType === 'Movement';
+          const weight = Number(selected.weight ?? 0) * (isMovement ? tier : 1);
+          if (weight > 0) {
+            equippedWeights.push({
+              key: `${slot}-${i}`,
+              name: selected.name,
+              weight,
+            });
+          }
+        }
       }
     });
   }
+  const hullWeight = Math.max(
+    0,
+    totalWeight - equippedWeights.reduce((sum, item) => sum + item.weight, 0),
+  );
 
   return (
     <div
@@ -225,12 +262,27 @@ function RosterEntry({
         {maxWeight > 0 && (
           <div className="weight-bar-mini">
             <div className="weight-bar-mini-track">
-              <div
-                className="weight-bar-mini-fill"
-                style={{
-                  width: `${Math.min(100, (totalWeight / maxWeight) * 100)}%`,
-                }}
-              />
+              {hullWeight > 0 && (
+                <div
+                  className="weight-bar-mini-seg weight-bar-mini-seg-hull"
+                  style={{
+                    width: `${Math.min(100, (hullWeight / maxWeight) * 100)}%`,
+                  }}
+                  title={`${unit.name} hull: ${hullWeight}t`}
+                />
+              )}
+              {equippedWeights.map((item, i) => (
+                <div
+                  key={item.key}
+                  className="weight-bar-mini-seg"
+                  style={{
+                    width: `${Math.min(100, (item.weight / maxWeight) * 100)}%`,
+                    background:
+                      WEIGHT_SEGMENT_COLORS[i % WEIGHT_SEGMENT_COLORS.length],
+                  }}
+                  title={`${item.name}: ${item.weight}t`}
+                />
+              ))}
               {maxDropWeight > 0 && (
                 <div
                   className="weight-bar-mini-drop-marker"
@@ -245,6 +297,24 @@ function RosterEntry({
               {maxDropWeight > 0 && <span>Max drop {maxDropWeight}t</span>}
               <span>Max {maxWeight}t</span>
             </div>
+            {equippedWeights.length > 0 && (
+              <div className="weight-legend">
+                {equippedWeights.map((item, i) => (
+                  <span className="legend-chip" key={item.key}>
+                    <span
+                      className="legend-swatch"
+                      style={{
+                        background:
+                          WEIGHT_SEGMENT_COLORS[
+                            i % WEIGHT_SEGMENT_COLORS.length
+                          ],
+                      }}
+                    />
+                    {item.name} {item.weight}t
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         )}
         <p className="unit-stats">{sizeLabel(unit.size)}</p>

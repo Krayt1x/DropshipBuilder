@@ -134,7 +134,7 @@ function UnitForm({ manufacturers, editing, onSubmit, onCancel }) {
           />
         </div>
         <div className="field">
-          <label htmlFor="dice_green">Green dice</label>
+          <label htmlFor="dice_green">Yellow dice</label>
           <input
             type="number"
             id="dice_green"

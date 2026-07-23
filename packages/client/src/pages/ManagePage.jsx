@@ -1,14 +1,10 @@
 import { Fragment, useState } from 'react';
-import {
-  UNIT_SIZES,
-  EQUIPMENT_TYPES,
-  diceLines,
-  sizeLabel,
-} from '../lib/constants.js';
+import { UNIT_SIZES, EQUIPMENT_TYPES, sizeLabel } from '../lib/constants.js';
 import { nextId, purgeCatalogCache } from '../lib/storage.js';
 import UnitForm from '../components/UnitForm.jsx';
 import EquipmentForm from '../components/EquipmentForm.jsx';
 import ExportPanel from '../components/ExportPanel.jsx';
+import DiceIcons from '../components/DiceIcons.jsx';
 
 function compareValues(a, b) {
   const an = Number(a);
@@ -447,6 +443,15 @@ function ManagePage({
                   </button>
                 </form>
               </div>
+              <h3
+                style={{
+                  fontSize: 13,
+                  color: 'var(--text-secondary)',
+                  margin: '16px 0 8px',
+                }}
+              >
+                Units
+              </h3>
               {manufacturerUnits.length === 0 ? (
                 <p className="empty">
                   No units for this manufacturer yet. Add one above.
@@ -537,13 +542,7 @@ function ManagePage({
                             <td>{unit.hp ?? 0}</td>
                             <td>{unit.base_movement ?? 0}</td>
                             <td style={{ whiteSpace: 'nowrap' }}>
-                              {diceLines(unit).length ? (
-                                diceLines(unit).map((line) => (
-                                  <div key={line}>{line}</div>
-                                ))
-                              ) : (
-                                <div>None</div>
-                              )}
+                              <DiceIcons unit={unit} />
                             </td>
                             <td>{unit.left_slots ?? 1}</td>
                             <td>{unit.right_slots ?? 1}</td>

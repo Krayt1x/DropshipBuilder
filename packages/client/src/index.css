@@ -323,7 +323,7 @@ button.ghost {
 
 .unit-stats {
   font-size: 11px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   margin: 2px 0 0;
 }
 
@@ -337,11 +337,41 @@ button.ghost {
   background: var(--bg-track);
   overflow: hidden;
   position: relative;
+  display: flex;
 }
 
-.weight-bar-mini-fill {
+.weight-bar-mini-seg {
   height: 100%;
-  background: #2563eb;
+}
+
+.weight-bar-mini-seg-hull {
+  background: var(--text-muted);
+  opacity: 0.5;
+}
+
+.weight-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.legend-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  color: var(--text-secondary);
+  background: var(--bg-track);
+  border-radius: 99px;
+  padding: 1px 6px 1px 4px;
+}
+
+.legend-swatch {
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  display: inline-block;
 }
 
 .weight-bar-mini-drop-marker {
@@ -396,7 +426,7 @@ button.ghost {
 }
 
 .die-icon.green {
-  background: #16a34a;
+  background: #eab308;
 }
 
 .remove-row {
