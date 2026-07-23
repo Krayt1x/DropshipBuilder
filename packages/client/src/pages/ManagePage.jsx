@@ -317,20 +317,16 @@ function ManagePage({
                       <th>Max drop wt</th>
                       <th>HP</th>
                       <th>Move</th>
+                      <th>Dice</th>
+                      <th>L slots</th>
+                      <th>R slots</th>
                       <th></th>
                     </tr>
                   </thead>
                   <tbody>
                     {manufacturerUnits.map((unit) => (
                       <tr key={unit.id}>
-                        <td>
-                          <p className="unit-name">{unit.name}</p>
-                          <p className="unit-meta">Dice: {diceSummary(unit)}</p>
-                          <p className="unit-meta">
-                            Slots: L{unit.left_slots ?? 1} / R
-                            {unit.right_slots ?? 1}
-                          </p>
-                        </td>
+                        <td>{unit.name}</td>
                         <td>
                           <span className="badge">{sizeLabel(unit.size)}</span>
                         </td>
@@ -340,6 +336,9 @@ function ManagePage({
                         <td>{unit.max_drop_weight ?? 0}</td>
                         <td>{unit.hp ?? 0}</td>
                         <td>{unit.base_movement ?? 0}</td>
+                        <td>{diceSummary(unit)}</td>
+                        <td>{unit.left_slots ?? 1}</td>
+                        <td>{unit.right_slots ?? 1}</td>
                         <td>
                           <div style={{ display: 'flex', gap: 8 }}>
                             <button

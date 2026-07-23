@@ -106,6 +106,9 @@ function UnitForm({ manufacturers, editing, onSubmit, onCancel }) {
             defaultValue={editing?.base_movement ?? 0}
           />
         </div>
+      </div>
+
+      <div className="stat-grid" style={{ marginTop: 10 }}>
         <div className="field">
           <label htmlFor="dice_blue">Blue dice</label>
           <input
@@ -139,6 +142,9 @@ function UnitForm({ manufacturers, editing, onSubmit, onCancel }) {
             defaultValue={editing?.dice_green ?? 0}
           />
         </div>
+      </div>
+
+      <div className="stat-grid" style={{ marginTop: 10 }}>
         <div className="field">
           <label htmlFor="left_slots">Left slots</label>
           <input
