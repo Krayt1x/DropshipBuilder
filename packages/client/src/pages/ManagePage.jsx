@@ -58,6 +58,7 @@ function ManagePage({
   const [flash, setFlash] = useState(null);
   const [editingUnitId, setEditingUnitId] = useState(null);
   const [editingEquipmentId, setEditingEquipmentId] = useState(null);
+  const [showManufacturerForm, setShowManufacturerForm] = useState(false);
   const [showUnitForm, setShowUnitForm] = useState(false);
   const [showEquipmentForm, setShowEquipmentForm] = useState(false);
   const [unitSort, setUnitSort] = useState({ key: 'weight', dir: 'asc' });
@@ -272,104 +273,101 @@ function ManagePage({
       )}
 
       <div className="card">
-        <h2 style={{ fontSize: 15, marginTop: 0 }}>Add a manufacturer</h2>
-        <form
-          style={{ display: 'flex', gap: 10, alignItems: 'flex-end' }}
-          onSubmit={addManufacturer}
-        >
-          <div className="field" style={{ flex: 1 }}>
-            <label htmlFor="manufacturer_name">Name</label>
-            <input
-              type="text"
-              id="manufacturer_name"
-              name="name"
-              placeholder="New Manufacturer"
-              required
-            />
-          </div>
-          <button type="submit">Add manufacturer</button>
-        </form>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            className="ghost"
+            onClick={() => setShowManufacturerForm((v) => !v)}
+          >
+            {showManufacturerForm ? 'Cancel' : 'Add manufacturer'}
+          </button>
+          <button
+            type="button"
+            className="ghost"
+            disabled={manufacturers.length === 0}
+            title={
+              manufacturers.length === 0
+                ? 'Add a manufacturer first'
+                : undefined
+            }
+            onClick={() => {
+              setShowUnitForm((v) => !v);
+              setEditingUnitId(null);
+            }}
+          >
+            {unitFormVisible ? 'Cancel' : 'Add unit'}
+          </button>
+          <button
+            type="button"
+            className="ghost"
+            disabled={manufacturers.length === 0}
+            title={
+              manufacturers.length === 0
+                ? 'Add a manufacturer first'
+                : undefined
+            }
+            onClick={() => {
+              setShowEquipmentForm((v) => !v);
+              setEditingEquipmentId(null);
+            }}
+          >
+            {showEquipmentForm ? 'Cancel' : 'Add equipment'}
+          </button>
+        </div>
       </div>
 
-      <div className="card">
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <h2 style={{ fontSize: 15, margin: 0 }}>
+      {showManufacturerForm && (
+        <div className="card">
+          <h2 style={{ fontSize: 15, marginTop: 0 }}>Add a manufacturer</h2>
+          <form
+            style={{ display: 'flex', gap: 10, alignItems: 'flex-end' }}
+            onSubmit={addManufacturer}
+          >
+            <div className="field" style={{ flex: 1 }}>
+              <label htmlFor="manufacturer_name">Name</label>
+              <input
+                type="text"
+                id="manufacturer_name"
+                name="name"
+                placeholder="New Manufacturer"
+                required
+              />
+            </div>
+            <button type="submit">Add manufacturer</button>
+          </form>
+        </div>
+      )}
+
+      {manufacturers.length > 0 && unitFormVisible && (
+        <div className="card">
+          <h2 style={{ fontSize: 15, marginTop: 0 }}>
             {editingUnit ? 'Edit unit' : 'Add a new unit'}
           </h2>
-          {manufacturers.length > 0 && !editingUnit && (
-            <button
-              type="button"
-              className="ghost"
-              onClick={() => setShowUnitForm((v) => !v)}
-            >
-              {showUnitForm ? 'Cancel' : 'Add unit'}
-            </button>
-          )}
+          <UnitForm
+            key={editingUnit?.id ?? 'new-unit'}
+            manufacturers={manufacturers}
+            editing={editingUnit}
+            onSubmit={submitUnit}
+            onCancel={() => {
+              setEditingUnitId(null);
+              setShowUnitForm(false);
+            }}
+          />
         </div>
-        {manufacturers.length === 0 ? (
-          <p className="empty">Add a manufacturer above before adding units.</p>
-        ) : unitFormVisible ? (
-          <div style={{ marginTop: 10 }}>
-            <UnitForm
-              key={editingUnit?.id ?? 'new-unit'}
-              manufacturers={manufacturers}
-              editing={editingUnit}
-              onSubmit={submitUnit}
-              onCancel={() => {
-                setEditingUnitId(null);
-                setShowUnitForm(false);
-              }}
-            />
-          </div>
-        ) : null}
-      </div>
+      )}
 
-      <div className="card">
-        <h2 style={{ fontSize: 15, margin: 0 }}>Add equipment</h2>
-        {manufacturers.length === 0 ? (
-          <p className="empty">
-            Add a manufacturer above before adding equipment.
-          </p>
-        ) : (
-          <>
-            {showEquipmentForm && (
-              <div style={{ marginTop: 10 }}>
-                <EquipmentForm
-                  key="new-equipment"
-                  manufacturers={manufacturers}
-                  editing={null}
-                  onSubmit={submitEquipment}
-                  onCancel={() => setShowEquipmentForm(false)}
-                />
-              </div>
-            )}
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                marginTop: 10,
-              }}
-            >
-              <button
-                type="button"
-                className="ghost"
-                onClick={() => {
-                  setShowEquipmentForm((v) => !v);
-                  setEditingEquipmentId(null);
-                }}
-              >
-                {showEquipmentForm ? 'Cancel' : 'Add equipment'}
-              </button>
-            </div>
-          </>
-        )}
-      </div>
+      {manufacturers.length > 0 && showEquipmentForm && (
+        <div className="card">
+          <h2 style={{ fontSize: 15, marginTop: 0 }}>Add equipment</h2>
+          <EquipmentForm
+            key="new-equipment"
+            manufacturers={manufacturers}
+            editing={null}
+            onSubmit={submitEquipment}
+            onCancel={() => setShowEquipmentForm(false)}
+          />
+        </div>
+      )}
 
       {manufacturers.map((manufacturer) => {
         const manufacturerUnits = units.filter(
