@@ -20,7 +20,7 @@ export const EQUIPMENT_TYPES = ['Movement', 'Weapon'];
 // Bump this whenever the seed data (manufacturers/units/equipment.json)
 // changes, so browsers with older cached data get a "please purge cache"
 // warning instead of silently going stale.
-export const DATA_VERSION = 1;
+export const DATA_VERSION = 2;
 
 export function sizeLabel(size) {
   return UNIT_SIZES[size] ?? size;
