@@ -17,10 +17,7 @@ function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
   function addStatEffect() {
     const amount = Number(newEffectAmount);
     if (!EFFECT_STATS.some((s) => s.key === newEffectStat) || !amount) return;
-    setStatEffects((current) => [
-      ...current,
-      { stat: newEffectStat, amount },
-    ]);
+    setStatEffects((current) => [...current, { stat: newEffectStat, amount }]);
     setShowEffectEditor(false);
     setNewEffectStat('');
     setNewEffectAmount('');
