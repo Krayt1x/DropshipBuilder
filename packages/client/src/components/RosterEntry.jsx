@@ -122,13 +122,16 @@ function RosterEntry({
     `Armor ${unit.armor || '—'}`,
     `HP ${unit.hp ?? 0}`,
     `Move ${unit.base_movement ?? 0}`,
-    `Max wt ${unit.max_weight ?? 0}`,
-    `Max drop wt ${unit.max_drop_weight ?? 0}`,
   ].join(' · ');
 
   const overDropWeight =
     Number(unit.max_drop_weight) > 0 &&
     totalWeight > Number(unit.max_drop_weight);
+
+  const maxWeight = Number(unit.max_weight) || 0;
+  const maxDropWeight = Number(unit.max_drop_weight) || 0;
+  const spareCapacity = maxWeight - totalWeight;
+  const effectiveMovement = spareCapacity + Number(unit.base_movement ?? 0);
 
   const [openSlotKey, setOpenSlotKey] = useState(null);
 
@@ -212,11 +215,43 @@ function RosterEntry({
           {unit.name} {isDropPod && <span className="badge">Drop Pod</span>}
         </p>
         <p className="unit-meta">{totalWeight} t</p>
+        {maxWeight > 0 && (
+          <div className="weight-bar-mini">
+            <div className="weight-bar-mini-track">
+              <div
+                className="weight-bar-mini-fill"
+                style={{
+                  width: `${Math.min(100, (totalWeight / maxWeight) * 100)}%`,
+                }}
+              />
+              {maxDropWeight > 0 && (
+                <div
+                  className="weight-bar-mini-drop-marker"
+                  style={{
+                    left: `${Math.min(100, (maxDropWeight / maxWeight) * 100)}%`,
+                  }}
+                />
+              )}
+            </div>
+            <div className="weight-bar-mini-labels">
+              <span>0t</span>
+              {maxDropWeight > 0 && <span>Max drop {maxDropWeight}t</span>}
+              <span>Max {maxWeight}t</span>
+            </div>
+          </div>
+        )}
         <p className="unit-stats">{sizeLabel(unit.size)}</p>
         <p className="unit-stats">{statsLine}</p>
         <p className="unit-stats">
           <DiceIcons unit={unit} />
         </p>
+        {maxWeight > 0 && (
+          <p className="unit-stats">
+            Effective movement: <b>{effectiveMovement}</b> (base{' '}
+            {unit.base_movement ?? 0} {spareCapacity >= 0 ? '+' : '-'}{' '}
+            {Math.abs(spareCapacity)} spare capacity)
+          </p>
+        )}
 
         {isDropPod ? (
           <div className="equipment-slots">
