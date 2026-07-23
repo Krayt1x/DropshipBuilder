@@ -1,6 +1,6 @@
 import { SLOTS, DROP_POD_SIZE } from '../lib/constants.js';
 
-function CarriedAddForm({ options, onAdd }) {
+function LoadMechForm({ options, onAdd }) {
   return (
     <form
       className="inline carried-add"
@@ -17,7 +17,7 @@ function CarriedAddForm({ options, onAdd }) {
           </option>
         ))}
       </select>
-      <button type="submit">Add model</button>
+      <button type="submit">Load mech</button>
     </form>
   );
 }
@@ -36,6 +36,8 @@ function RosterEntry({
   const unitEquipment = equipment.filter(
     (item) => item.manufacturer === unit.manufacturer,
   );
+  const carried = entry.carried ?? [];
+  const hasMech = carried.length > 0;
   const carryOptions = isDropPod
     ? units.filter(
         (u) =>
@@ -50,6 +52,12 @@ function RosterEntry({
     Right: Math.max(0, Number(unit.right_slots ?? 1)),
   };
 
+  const dropPodEquipmentId = entry.equipment?.Movement?.[0] ?? 0;
+  const hasEquipment = Boolean(dropPodEquipmentId);
+  const dropPodEquipmentOptions = unitEquipment.filter(
+    (item) => !item.no_drop_pod,
+  );
+
   return (
     <div
       className="unit-row"
@@ -60,52 +68,69 @@ function RosterEntry({
           {unit.name} {isDropPod && <span className="badge">Drop Pod</span>}
         </p>
         <p className="unit-meta">{unit.weight} t</p>
-        <div className="equipment-slots">
-          {SLOTS.flatMap((slot) => {
-            const requiredType = slot === 'Movement' ? 'Movement' : 'Weapon';
-            const slotOptions = unitEquipment.filter(
-              (item) =>
-                (item.type ?? 'Movement') === requiredType &&
-                !(isDropPod && item.no_drop_pod),
-            );
-            const count = slotCounts[slot];
-            return Array.from({ length: count }, (_, i) => (
-              <label className="slot-label" key={`${slot}-${i}`}>
-                {count > 1 ? `${slot} ${i + 1}` : slot}
-                <select
-                  value={entry.equipment?.[slot]?.[i] ?? 0}
-                  disabled={slotOptions.length === 0}
-                  onChange={(e) =>
-                    onAssignEquipment(slot, i, Number(e.target.value))
-                  }
-                >
-                  <option value={0}>None</option>
-                  {slotOptions.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            ));
-          })}
-        </div>
+
+        {isDropPod ? (
+          <div className="equipment-slots">
+            <label className="slot-label">
+              Equipment
+              <select
+                value={dropPodEquipmentId}
+                disabled={hasMech || dropPodEquipmentOptions.length === 0}
+                onChange={(e) =>
+                  onAssignEquipment('Movement', 0, Number(e.target.value))
+                }
+              >
+                <option value={0}>None</option>
+                {dropPodEquipmentOptions.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        ) : (
+          <div className="equipment-slots">
+            {SLOTS.flatMap((slot) => {
+              const requiredType = slot === 'Movement' ? 'Movement' : 'Weapon';
+              const slotOptions = unitEquipment.filter(
+                (item) => (item.type ?? 'Movement') === requiredType,
+              );
+              const count = slotCounts[slot];
+              return Array.from({ length: count }, (_, i) => (
+                <label className="slot-label" key={`${slot}-${i}`}>
+                  {count > 1 ? `${slot} ${i + 1}` : slot}
+                  <select
+                    value={entry.equipment?.[slot]?.[i] ?? 0}
+                    disabled={slotOptions.length === 0}
+                    onChange={(e) =>
+                      onAssignEquipment(slot, i, Number(e.target.value))
+                    }
+                  >
+                    <option value={0}>None</option>
+                    {slotOptions.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ));
+            })}
+          </div>
+        )}
 
         {isDropPod && (
           <div className="carried-models">
-            <p className="carried-heading">Carried models</p>
-            {(entry.carried ?? []).length === 0 ? (
-              <p className="empty" style={{ padding: '6px 0' }}>
-                Nothing carried yet.
-              </p>
-            ) : (
-              entry.carried.map((carried) => {
+            <p className="carried-heading">Carried mech</p>
+            {hasMech ? (
+              carried.map((carriedEntry) => {
                 const carriedUnit = units.find(
-                  (u) => Number(u.id) === Number(carried.unit_id),
+                  (u) => Number(u.id) === Number(carriedEntry.unit_id),
                 );
                 if (!carriedUnit) return null;
                 return (
-                  <div className="carried-row" key={carried.key}>
+                  <div className="carried-row" key={carriedEntry.key}>
                     <span>
                       {carriedUnit.name}{' '}
                       <span className="unit-meta">
@@ -116,7 +141,7 @@ function RosterEntry({
                       className="inline"
                       onSubmit={(e) => {
                         e.preventDefault();
-                        onRemoveCarried(carried.key);
+                        onRemoveCarried(carriedEntry.key);
                       }}
                     >
                       <button type="submit" className="danger">
@@ -126,14 +151,20 @@ function RosterEntry({
                   </div>
                 );
               })
-            )}
-            {carryOptions.length > 0 ? (
-              <CarriedAddForm options={carryOptions} onAdd={onAddCarried} />
             ) : (
               <p className="empty" style={{ padding: '6px 0' }}>
-                No other {unit.manufacturer} models to carry.
+                Nothing loaded yet.
               </p>
             )}
+            {!hasMech &&
+              !hasEquipment &&
+              (carryOptions.length > 0 ? (
+                <LoadMechForm options={carryOptions} onAdd={onAddCarried} />
+              ) : (
+                <p className="empty" style={{ padding: '6px 0' }}>
+                  No other {unit.manufacturer} models to load.
+                </p>
+              ))}
           </div>
         )}
       </div>
