@@ -118,14 +118,10 @@ function RosterEntry({
   };
 
   const statsLine = [
-    sizeLabel(unit.size),
     `Armor ${unit.armor || '—'}`,
     `HP ${unit.hp ?? 0}`,
     `Move ${unit.base_movement ?? 0}`,
     `Dice ${diceSummary(unit)}`,
-    ...(isDropPod
-      ? []
-      : [`L ${unit.left_slots ?? 1} / R ${unit.right_slots ?? 1}`]),
   ].join(' · ');
 
   const [openSlotKey, setOpenSlotKey] = useState(null);
@@ -202,6 +198,7 @@ function RosterEntry({
           {unit.name} {isDropPod && <span className="badge">Drop Pod</span>}
         </p>
         <p className="unit-meta">{totalWeight} t</p>
+        <p className="unit-stats">{sizeLabel(unit.size)}</p>
         <p className="unit-stats">{statsLine}</p>
 
         {isDropPod ? (
