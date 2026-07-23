@@ -11,11 +11,6 @@ import EquipmentForm from '../components/EquipmentForm.jsx';
 import ExportPanel from '../components/ExportPanel.jsx';
 import DiceIcons from '../components/DiceIcons.jsx';
 
-function trueWeight(item) {
-  const raw = Number(item.weight ?? 0) * Number(item.weight_ratio ?? 1);
-  return Number.isInteger(raw) ? raw : raw.toFixed(1);
-}
-
 function compareValues(a, b) {
   const an = Number(a);
   const bn = Number(b);
@@ -239,17 +234,12 @@ function ManagePage({
       return;
     }
 
-    const weightRatioRaw = form.get('weight_ratio');
     const payload = {
       name,
       manufacturer,
       type,
       effects: (form.get('effects') || '').toString().trim(),
       weight: Number(form.get('weight')) || 0,
-      weight_ratio:
-        weightRatioRaw != null && weightRatioRaw !== ''
-          ? Math.max(0, Number(weightRatioRaw))
-          : 1,
       range: (form.get('range') || '').toString().trim(),
       heat_rating: (form.get('heat_rating') || '').toString().trim(),
       hit_dice: (form.get('hit_dice') || '').toString().trim(),
@@ -658,13 +648,6 @@ function ManagePage({
                           onSort={(k) => toggleSort(setMovementSort, k)}
                         />
                         <SortTh
-                          label="Ratio"
-                          sortKey="weight_ratio"
-                          sort={movementSort}
-                          onSort={(k) => toggleSort(setMovementSort, k)}
-                        />
-                        <th>True wt</th>
-                        <SortTh
                           label="Drop Pod"
                           sortKey="no_drop_pod"
                           sort={movementSort}
@@ -680,8 +663,6 @@ function ManagePage({
                           <tr>
                             <td>{item.name}</td>
                             <td>{item.weight ?? 0} t</td>
-                            <td>{item.weight_ratio ?? 1}</td>
-                            <td>{trueWeight(item)} t</td>
                             <td>{item.no_drop_pod ? '✕' : ''}</td>
                             <td>{item.effects || '—'}</td>
                             <td>
@@ -711,7 +692,7 @@ function ManagePage({
                           </tr>
                           {editingEquipmentId === Number(item.id) && (
                             <tr>
-                              <td colSpan={5}>
+                              <td colSpan={4}>
                                 <EquipmentForm
                                   key={item.id}
                                   manufacturers={manufacturers}

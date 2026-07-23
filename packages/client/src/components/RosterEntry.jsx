@@ -90,7 +90,7 @@ function SlotPicker({
               <span className="slot-picker-stats">
                 {isWeapon
                   ? `${item.size ?? 'Small'} (${weaponSlotCost(item)} slot${weaponSlotCost(item) > 1 ? 's' : ''}) · ${item.weight ?? 0}t · ${item.range || '—'} · ${item.heat_rating || '—'} · ${item.hit_dice || '—'}`
-                  : `${(item.weight ?? 0) * Number(item.weight_ratio ?? 1) * multiplier}t`}
+                  : `${Number(item.weight ?? 0) + multiplier}t`}
               </span>
             </div>
             {!isWeapon && item.effects && (
@@ -250,9 +250,9 @@ function RosterEntry({
     }
     if (dropPodSelected) {
       const isMovement = (dropPodSelected.type ?? 'Movement') === 'Movement';
-      const ratio = isMovement ? Number(dropPodSelected.weight_ratio ?? 1) : 1;
-      const weight =
-        Number(dropPodSelected.weight ?? 0) * ratio * (isMovement ? tier : 1);
+      const weight = isMovement
+        ? Number(dropPodSelected.weight ?? 0) + tier
+        : Number(dropPodSelected.weight ?? 0);
       if (weight > 0) {
         equippedWeights.push({
           key: 'equipment',
@@ -277,9 +277,9 @@ function RosterEntry({
         }
         if (selected) {
           const isMovement = requiredType === 'Movement';
-          const ratio = isMovement ? Number(selected.weight_ratio ?? 1) : 1;
-          const weight =
-            Number(selected.weight ?? 0) * ratio * (isMovement ? tier : 1);
+          const weight = isMovement
+            ? Number(selected.weight ?? 0) + tier
+            : Number(selected.weight ?? 0);
           if (weight > 0) {
             equippedWeights.push({
               key: `${slot}-${i}`,
@@ -454,11 +454,7 @@ function RosterEntry({
             if (slot === 'Movement') {
               const slotOptions = unitEquipment
                 .filter((item) => (item.type ?? 'Movement') === 'Movement')
-                .sort(
-                  (a, b) =>
-                    Number(a.weight ?? 0) * Number(a.weight_ratio ?? 1) -
-                    Number(b.weight ?? 0) * Number(b.weight_ratio ?? 1),
-                );
+                .sort((a, b) => Number(a.weight ?? 0) - Number(b.weight ?? 0));
               const selectedId = entry.equipment?.Movement?.[0] ?? 0;
               return (
                 <SlotPicker

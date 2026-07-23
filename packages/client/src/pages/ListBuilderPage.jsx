@@ -34,9 +34,8 @@ function equipmentWeight(entrySlots, equipmentCatalog, unit) {
         const item = equipmentCatalog.find((e) => Number(e.id) === Number(id));
         if (!item) return slotSum;
         const isMovement = (item.type ?? 'Movement') === 'Movement';
-        const ratio = isMovement ? Number(item.weight_ratio ?? 1) : 1;
-        const weight = Number(item.weight ?? 0) * ratio;
-        return slotSum + (isMovement ? weight * tier : weight);
+        const weight = Number(item.weight ?? 0);
+        return slotSum + (isMovement ? weight + tier : weight);
       }, 0)
     );
   }, 0);
