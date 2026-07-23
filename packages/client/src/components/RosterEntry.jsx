@@ -1,4 +1,9 @@
-import { SLOTS, DROP_POD_SIZE } from '../lib/constants.js';
+import {
+  SLOTS,
+  DROP_POD_SIZE,
+  diceSummary,
+  sizeLabel,
+} from '../lib/constants.js';
 
 const WEAPON_COLS = [
   { key: 'name', label: 'Name', width: 10 },
@@ -78,6 +83,17 @@ function RosterEntry({
     Right: Math.max(0, Number(unit.right_slots ?? 1)),
   };
 
+  const statsLine = [
+    sizeLabel(unit.size),
+    `Armor ${unit.armor || '—'}`,
+    `HP ${unit.hp ?? 0}`,
+    `Move ${unit.base_movement ?? 0}`,
+    `Dice ${diceSummary(unit)}`,
+    ...(isDropPod
+      ? []
+      : [`L ${unit.left_slots ?? 1} / R ${unit.right_slots ?? 1}`]),
+  ].join(' · ');
+
   const dropPodEquipmentId = entry.equipment?.Movement?.[0] ?? 0;
   const hasEquipment = Boolean(dropPodEquipmentId);
   const dropPodEquipmentOptions = unitEquipment.filter(
@@ -94,6 +110,7 @@ function RosterEntry({
           {unit.name} {isDropPod && <span className="badge">Drop Pod</span>}
         </p>
         <p className="unit-meta">{totalWeight} t</p>
+        <p className="unit-stats">{statsLine}</p>
 
         {isDropPod ? (
           <div className="equipment-slots">
@@ -132,6 +149,7 @@ function RosterEntry({
               );
               const count = slotCounts[slot];
               const isWeaponSlot = requiredType === 'Weapon';
+              const isMovementSlot = slot === 'Movement';
               return Array.from({ length: count }, (_, i) => {
                 const selectedId = entry.equipment?.[slot]?.[i] ?? 0;
                 const selected = slotOptions.find(
@@ -160,7 +178,7 @@ function RosterEntry({
                         onAssignEquipment(slot, i, Number(e.target.value))
                       }
                     >
-                      <option value={0}>None</option>
+                      {!isMovementSlot && <option value={0}>None</option>}
                       {slotOptions.map((item) => (
                         <option key={item.id} value={item.id}>
                           {isWeaponSlot ? formatWeaponOption(item) : item.name}

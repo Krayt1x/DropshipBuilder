@@ -67,6 +67,13 @@ function ManagePage({
     dir: 'asc',
   });
   const [weaponSort, setWeaponSort] = useState({ key: 'weight', dir: 'asc' });
+  const [activeManufacturer, setActiveManufacturer] = useState(
+    manufacturers[0] ?? null,
+  );
+
+  const currentManufacturer = manufacturers.includes(activeManufacturer)
+    ? activeManufacturer
+    : (manufacturers[0] ?? null);
 
   const editingUnit =
     editingUnitId != null
@@ -110,6 +117,7 @@ function ManagePage({
       },
     ]);
     showFlash(`Added manufacturer "${name}".`);
+    setActiveManufacturer(name);
     e.target.reset();
   }
 
@@ -139,6 +147,9 @@ function ManagePage({
           ? { ...item, manufacturer: newName }
           : item,
       ),
+    );
+    setActiveManufacturer((current) =>
+      current === oldName ? newName : current,
     );
     showFlash(`Renamed "${oldName}" to "${newName}".`);
   }
@@ -262,6 +273,20 @@ function ManagePage({
     if (editingEquipmentId === id) setEditingEquipmentId(null);
   }
 
+  function purgeCache() {
+    if (
+      !window.confirm(
+        'This clears your saved manufacturers, units, and equipment and reloads the latest defaults. Your list and roster are not affected. Continue?',
+      )
+    ) {
+      return;
+    }
+    window.localStorage.removeItem('dropshipbuilder:manufacturers');
+    window.localStorage.removeItem('dropshipbuilder:units');
+    window.localStorage.removeItem('dropshipbuilder:equipment');
+    window.location.reload();
+  }
+
   return (
     <div className="container">
       <h1>Manage available models</h1>
@@ -369,389 +394,430 @@ function ManagePage({
         </div>
       )}
 
-      {manufacturers.map((manufacturer) => {
-        const manufacturerUnits = units.filter(
-          (u) => u.manufacturer === manufacturer,
-        );
-        const manufacturerEquipment = equipment.filter(
-          (e) => e.manufacturer === manufacturer,
-        );
-        const movementItems = sortRows(
-          manufacturerEquipment.filter(
-            (e) => (e.type ?? 'Movement') === 'Movement',
-          ),
-          movementSort,
-        );
-        const weaponItems = sortRows(
-          manufacturerEquipment.filter((e) => e.type === 'Weapon'),
-          weaponSort,
-        );
-        return (
-          <div className="card" key={manufacturer}>
-            <div className="manufacturer-header">
-              <h2 style={{ fontSize: 15, margin: 0 }}>
-                {manufacturer} ({manufacturerUnits.length})
-              </h2>
-              <form
-                className="inline manufacturer-rename"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  renameManufacturer(
-                    manufacturer,
-                    (new FormData(e.target).get('new_name') || '').toString(),
-                  );
+      {manufacturers.length > 0 && (
+        <div className="card">
+          <div className="manufacturer-tabs">
+            {manufacturers.map((m) => (
+              <button
+                key={m}
+                type="button"
+                className={m === currentManufacturer ? 'tab active' : 'tab'}
+                onClick={() => setActiveManufacturer(m)}
+              >
+                {m}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {currentManufacturer &&
+        (() => {
+          const manufacturer = currentManufacturer;
+          const manufacturerUnits = units.filter(
+            (u) => u.manufacturer === manufacturer,
+          );
+          const manufacturerEquipment = equipment.filter(
+            (e) => e.manufacturer === manufacturer,
+          );
+          const movementItems = sortRows(
+            manufacturerEquipment.filter(
+              (e) => (e.type ?? 'Movement') === 'Movement',
+            ),
+            movementSort,
+          );
+          const weaponItems = sortRows(
+            manufacturerEquipment.filter((e) => e.type === 'Weapon'),
+            weaponSort,
+          );
+          return (
+            <div className="card">
+              <div className="manufacturer-header">
+                <h2 style={{ fontSize: 15, margin: 0 }}>
+                  {manufacturer} ({manufacturerUnits.length})
+                </h2>
+                <form
+                  className="inline manufacturer-rename"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    renameManufacturer(
+                      manufacturer,
+                      (new FormData(e.target).get('new_name') || '').toString(),
+                    );
+                  }}
+                >
+                  <input
+                    type="text"
+                    name="new_name"
+                    defaultValue={manufacturer}
+                    aria-label={`Rename ${manufacturer}`}
+                  />
+                  <button type="submit" className="ghost">
+                    Rename
+                  </button>
+                </form>
+              </div>
+              {manufacturerUnits.length === 0 ? (
+                <p className="empty">
+                  No units for this manufacturer yet. Add one above.
+                </p>
+              ) : (
+                <div className="table-scroll">
+                  <table>
+                    <thead>
+                      <tr>
+                        <SortTh
+                          label="Name"
+                          sortKey="name"
+                          sort={unitSort}
+                          onSort={(k) => toggleSort(setUnitSort, k)}
+                        />
+                        <SortTh
+                          label="Size"
+                          sortKey="size"
+                          sort={unitSort}
+                          onSort={(k) => toggleSort(setUnitSort, k)}
+                        />
+                        <SortTh
+                          label="Weight (t)"
+                          sortKey="weight"
+                          sort={unitSort}
+                          onSort={(k) => toggleSort(setUnitSort, k)}
+                        />
+                        <SortTh
+                          label="Armor"
+                          sortKey="armor"
+                          sort={unitSort}
+                          onSort={(k) => toggleSort(setUnitSort, k)}
+                        />
+                        <SortTh
+                          label="Max wt"
+                          sortKey="max_weight"
+                          sort={unitSort}
+                          onSort={(k) => toggleSort(setUnitSort, k)}
+                        />
+                        <SortTh
+                          label="Max drop wt"
+                          sortKey="max_drop_weight"
+                          sort={unitSort}
+                          onSort={(k) => toggleSort(setUnitSort, k)}
+                        />
+                        <SortTh
+                          label="HP"
+                          sortKey="hp"
+                          sort={unitSort}
+                          onSort={(k) => toggleSort(setUnitSort, k)}
+                        />
+                        <SortTh
+                          label="Move"
+                          sortKey="base_movement"
+                          sort={unitSort}
+                          onSort={(k) => toggleSort(setUnitSort, k)}
+                        />
+                        <th>Dice</th>
+                        <SortTh
+                          label="L slots"
+                          sortKey="left_slots"
+                          sort={unitSort}
+                          onSort={(k) => toggleSort(setUnitSort, k)}
+                        />
+                        <SortTh
+                          label="R slots"
+                          sortKey="right_slots"
+                          sort={unitSort}
+                          onSort={(k) => toggleSort(setUnitSort, k)}
+                        />
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sortRows(manufacturerUnits, unitSort).map((unit) => (
+                        <tr key={unit.id}>
+                          <td>{unit.name}</td>
+                          <td>
+                            <span className="badge">
+                              {sizeLabel(unit.size)}
+                            </span>
+                          </td>
+                          <td>{unit.weight} t</td>
+                          <td>{unit.armor || '—'}</td>
+                          <td>{unit.max_weight ?? 0}</td>
+                          <td>{unit.max_drop_weight ?? 0}</td>
+                          <td>{unit.hp ?? 0}</td>
+                          <td>{unit.base_movement ?? 0}</td>
+                          <td style={{ whiteSpace: 'nowrap' }}>
+                            {diceLines(unit).length ? (
+                              diceLines(unit).map((line) => (
+                                <div key={line}>{line}</div>
+                              ))
+                            ) : (
+                              <div>None</div>
+                            )}
+                          </td>
+                          <td>{unit.left_slots ?? 1}</td>
+                          <td>{unit.right_slots ?? 1}</td>
+                          <td>
+                            <div style={{ display: 'flex', gap: 8 }}>
+                              <button
+                                type="button"
+                                className="ghost"
+                                onClick={() =>
+                                  setEditingUnitId(Number(unit.id))
+                                }
+                              >
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                className="danger"
+                                aria-label="Remove"
+                                onClick={() => deleteUnit(Number(unit.id))}
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              <h3
+                style={{
+                  fontSize: 13,
+                  color: 'var(--text-secondary)',
+                  margin: '16px 0 8px',
                 }}
               >
-                <input
-                  type="text"
-                  name="new_name"
-                  defaultValue={manufacturer}
-                  aria-label={`Rename ${manufacturer}`}
-                />
-                <button type="submit" className="ghost">
-                  Rename
-                </button>
-              </form>
-            </div>
-            {manufacturerUnits.length === 0 ? (
-              <p className="empty">
-                No units for this manufacturer yet. Add one above.
-              </p>
-            ) : (
-              <div className="table-scroll">
-                <table>
-                  <thead>
-                    <tr>
-                      <SortTh
-                        label="Name"
-                        sortKey="name"
-                        sort={unitSort}
-                        onSort={(k) => toggleSort(setUnitSort, k)}
-                      />
-                      <SortTh
-                        label="Size"
-                        sortKey="size"
-                        sort={unitSort}
-                        onSort={(k) => toggleSort(setUnitSort, k)}
-                      />
-                      <SortTh
-                        label="Weight (t)"
-                        sortKey="weight"
-                        sort={unitSort}
-                        onSort={(k) => toggleSort(setUnitSort, k)}
-                      />
-                      <SortTh
-                        label="Armor"
-                        sortKey="armor"
-                        sort={unitSort}
-                        onSort={(k) => toggleSort(setUnitSort, k)}
-                      />
-                      <SortTh
-                        label="Max wt"
-                        sortKey="max_weight"
-                        sort={unitSort}
-                        onSort={(k) => toggleSort(setUnitSort, k)}
-                      />
-                      <SortTh
-                        label="Max drop wt"
-                        sortKey="max_drop_weight"
-                        sort={unitSort}
-                        onSort={(k) => toggleSort(setUnitSort, k)}
-                      />
-                      <SortTh
-                        label="HP"
-                        sortKey="hp"
-                        sort={unitSort}
-                        onSort={(k) => toggleSort(setUnitSort, k)}
-                      />
-                      <SortTh
-                        label="Move"
-                        sortKey="base_movement"
-                        sort={unitSort}
-                        onSort={(k) => toggleSort(setUnitSort, k)}
-                      />
-                      <th>Dice</th>
-                      <SortTh
-                        label="L slots"
-                        sortKey="left_slots"
-                        sort={unitSort}
-                        onSort={(k) => toggleSort(setUnitSort, k)}
-                      />
-                      <SortTh
-                        label="R slots"
-                        sortKey="right_slots"
-                        sort={unitSort}
-                        onSort={(k) => toggleSort(setUnitSort, k)}
-                      />
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {sortRows(manufacturerUnits, unitSort).map((unit) => (
-                      <tr key={unit.id}>
-                        <td>{unit.name}</td>
-                        <td>
-                          <span className="badge">{sizeLabel(unit.size)}</span>
-                        </td>
-                        <td>{unit.weight} t</td>
-                        <td>{unit.armor || '—'}</td>
-                        <td>{unit.max_weight ?? 0}</td>
-                        <td>{unit.max_drop_weight ?? 0}</td>
-                        <td>{unit.hp ?? 0}</td>
-                        <td>{unit.base_movement ?? 0}</td>
-                        <td>
-                          {diceLines(unit).length ? (
-                            diceLines(unit).map((line) => (
-                              <div key={line}>{line}</div>
-                            ))
-                          ) : (
-                            <div>None</div>
-                          )}
-                        </td>
-                        <td>{unit.left_slots ?? 1}</td>
-                        <td>{unit.right_slots ?? 1}</td>
-                        <td>
-                          <div style={{ display: 'flex', gap: 8 }}>
-                            <button
-                              type="button"
-                              className="ghost"
-                              onClick={() => setEditingUnitId(Number(unit.id))}
-                            >
-                              Edit
-                            </button>
-                            <button
-                              type="button"
-                              className="danger"
-                              onClick={() => deleteUnit(Number(unit.id))}
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        </td>
+                Equipment
+              </h3>
+
+              <h4
+                style={{
+                  fontSize: 12,
+                  color: 'var(--text-secondary)',
+                  margin: '0 0 6px',
+                }}
+              >
+                Movement
+              </h4>
+              {movementItems.length === 0 ? (
+                <p className="empty">
+                  No movement equipment for this manufacturer yet.
+                </p>
+              ) : (
+                <div className="table-scroll">
+                  <table>
+                    <thead>
+                      <tr>
+                        <SortTh
+                          label="Name"
+                          sortKey="name"
+                          sort={movementSort}
+                          onSort={(k) => toggleSort(setMovementSort, k)}
+                        />
+                        <SortTh
+                          label="Weight"
+                          sortKey="weight"
+                          sort={movementSort}
+                          onSort={(k) => toggleSort(setMovementSort, k)}
+                        />
+                        <SortTh
+                          label="Drop Pod"
+                          sortKey="no_drop_pod"
+                          sort={movementSort}
+                          onSort={(k) => toggleSort(setMovementSort, k)}
+                        />
+                        <th>Effects</th>
+                        <th></th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            <h3
-              style={{
-                fontSize: 13,
-                color: 'var(--text-secondary)',
-                margin: '16px 0 8px',
-              }}
-            >
-              Equipment
-            </h3>
-
-            <h4
-              style={{
-                fontSize: 12,
-                color: 'var(--text-secondary)',
-                margin: '0 0 6px',
-              }}
-            >
-              Movement
-            </h4>
-            {movementItems.length === 0 ? (
-              <p className="empty">
-                No movement equipment for this manufacturer yet.
-              </p>
-            ) : (
-              <div className="table-scroll">
-                <table>
-                  <thead>
-                    <tr>
-                      <SortTh
-                        label="Name"
-                        sortKey="name"
-                        sort={movementSort}
-                        onSort={(k) => toggleSort(setMovementSort, k)}
-                      />
-                      <SortTh
-                        label="Weight"
-                        sortKey="weight"
-                        sort={movementSort}
-                        onSort={(k) => toggleSort(setMovementSort, k)}
-                      />
-                      <SortTh
-                        label="Drop Pod"
-                        sortKey="no_drop_pod"
-                        sort={movementSort}
-                        onSort={(k) => toggleSort(setMovementSort, k)}
-                      />
-                      <th>Effects</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {movementItems.map((item) => (
-                      <Fragment key={item.id}>
-                        <tr>
-                          <td>{item.name}</td>
-                          <td>{item.weight ?? 0} t</td>
-                          <td>{item.no_drop_pod ? '✕' : ''}</td>
-                          <td>{item.effects || '—'}</td>
-                          <td>
-                            <div style={{ display: 'flex', gap: 8 }}>
-                              <button
-                                type="button"
-                                className="ghost"
-                                onClick={() => {
-                                  setEditingEquipmentId(Number(item.id));
-                                  setShowEquipmentForm(false);
-                                }}
-                              >
-                                Edit
-                              </button>
-                              <button
-                                type="button"
-                                className="danger"
-                                onClick={() => deleteEquipment(Number(item.id))}
-                              >
-                                Remove
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                        {editingEquipmentId === Number(item.id) && (
+                    </thead>
+                    <tbody>
+                      {movementItems.map((item) => (
+                        <Fragment key={item.id}>
                           <tr>
-                            <td colSpan={5}>
-                              <EquipmentForm
-                                key={item.id}
-                                manufacturers={manufacturers}
-                                editing={item}
-                                onSubmit={submitEquipment}
-                                onCancel={() => setEditingEquipmentId(null)}
-                              />
+                            <td>{item.name}</td>
+                            <td>{item.weight ?? 0} t</td>
+                            <td>{item.no_drop_pod ? '✕' : ''}</td>
+                            <td>{item.effects || '—'}</td>
+                            <td>
+                              <div style={{ display: 'flex', gap: 8 }}>
+                                <button
+                                  type="button"
+                                  className="ghost"
+                                  onClick={() => {
+                                    setEditingEquipmentId(Number(item.id));
+                                    setShowEquipmentForm(false);
+                                  }}
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  type="button"
+                                  className="danger"
+                                  aria-label="Remove"
+                                  onClick={() =>
+                                    deleteEquipment(Number(item.id))
+                                  }
+                                >
+                                  ✕
+                                </button>
+                              </div>
                             </td>
                           </tr>
-                        )}
-                      </Fragment>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                          {editingEquipmentId === Number(item.id) && (
+                            <tr>
+                              <td colSpan={5}>
+                                <EquipmentForm
+                                  key={item.id}
+                                  manufacturers={manufacturers}
+                                  editing={item}
+                                  onSubmit={submitEquipment}
+                                  onCancel={() => setEditingEquipmentId(null)}
+                                />
+                              </td>
+                            </tr>
+                          )}
+                        </Fragment>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
 
-            <h4
-              style={{
-                fontSize: 12,
-                color: 'var(--text-secondary)',
-                margin: '16px 0 6px',
-              }}
-            >
-              Weapons
-            </h4>
-            {weaponItems.length === 0 ? (
-              <p className="empty">No weapons for this manufacturer yet.</p>
-            ) : (
-              <div className="table-scroll">
-                <table>
-                  <thead>
-                    <tr>
-                      <SortTh
-                        label="Name"
-                        sortKey="name"
-                        sort={weaponSort}
-                        onSort={(k) => toggleSort(setWeaponSort, k)}
-                      />
-                      <SortTh
-                        label="Weight"
-                        sortKey="weight"
-                        sort={weaponSort}
-                        onSort={(k) => toggleSort(setWeaponSort, k)}
-                      />
-                      <SortTh
-                        label="Range"
-                        sortKey="range"
-                        sort={weaponSort}
-                        onSort={(k) => toggleSort(setWeaponSort, k)}
-                      />
-                      <SortTh
-                        label="Heat"
-                        sortKey="heat_rating"
-                        sort={weaponSort}
-                        onSort={(k) => toggleSort(setWeaponSort, k)}
-                      />
-                      <SortTh
-                        label="Hit dice"
-                        sortKey="hit_dice"
-                        sort={weaponSort}
-                        onSort={(k) => toggleSort(setWeaponSort, k)}
-                      />
-                      <SortTh
-                        label="Drop Pod"
-                        sortKey="no_drop_pod"
-                        sort={weaponSort}
-                        onSort={(k) => toggleSort(setWeaponSort, k)}
-                      />
-                      <th>Effects</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {weaponItems.map((item) => (
-                      <Fragment key={item.id}>
-                        <tr>
-                          <td>{item.name}</td>
-                          <td>{item.weight ?? 0} t</td>
-                          <td>{item.range || '—'}</td>
-                          <td>{item.heat_rating || '—'}</td>
-                          <td>{item.hit_dice || '—'}</td>
-                          <td>{item.no_drop_pod ? '✕' : ''}</td>
-                          <td>{item.effects || '—'}</td>
-                          <td>
-                            <div style={{ display: 'flex', gap: 8 }}>
-                              <button
-                                type="button"
-                                className="ghost"
-                                onClick={() => {
-                                  setEditingEquipmentId(Number(item.id));
-                                  setShowEquipmentForm(false);
-                                }}
-                              >
-                                Edit
-                              </button>
-                              <button
-                                type="button"
-                                className="danger"
-                                onClick={() => deleteEquipment(Number(item.id))}
-                              >
-                                Remove
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                        {editingEquipmentId === Number(item.id) && (
+              <h4
+                style={{
+                  fontSize: 12,
+                  color: 'var(--text-secondary)',
+                  margin: '16px 0 6px',
+                }}
+              >
+                Weapons
+              </h4>
+              {weaponItems.length === 0 ? (
+                <p className="empty">No weapons for this manufacturer yet.</p>
+              ) : (
+                <div className="table-scroll">
+                  <table>
+                    <thead>
+                      <tr>
+                        <SortTh
+                          label="Name"
+                          sortKey="name"
+                          sort={weaponSort}
+                          onSort={(k) => toggleSort(setWeaponSort, k)}
+                        />
+                        <SortTh
+                          label="Weight"
+                          sortKey="weight"
+                          sort={weaponSort}
+                          onSort={(k) => toggleSort(setWeaponSort, k)}
+                        />
+                        <SortTh
+                          label="Range"
+                          sortKey="range"
+                          sort={weaponSort}
+                          onSort={(k) => toggleSort(setWeaponSort, k)}
+                        />
+                        <SortTh
+                          label="Heat"
+                          sortKey="heat_rating"
+                          sort={weaponSort}
+                          onSort={(k) => toggleSort(setWeaponSort, k)}
+                        />
+                        <SortTh
+                          label="Hit dice"
+                          sortKey="hit_dice"
+                          sort={weaponSort}
+                          onSort={(k) => toggleSort(setWeaponSort, k)}
+                        />
+                        <SortTh
+                          label="Drop Pod"
+                          sortKey="no_drop_pod"
+                          sort={weaponSort}
+                          onSort={(k) => toggleSort(setWeaponSort, k)}
+                        />
+                        <th>Effects</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {weaponItems.map((item) => (
+                        <Fragment key={item.id}>
                           <tr>
-                            <td colSpan={8}>
-                              <EquipmentForm
-                                key={item.id}
-                                manufacturers={manufacturers}
-                                editing={item}
-                                onSubmit={submitEquipment}
-                                onCancel={() => setEditingEquipmentId(null)}
-                              />
+                            <td>{item.name}</td>
+                            <td>{item.weight ?? 0} t</td>
+                            <td>{item.range || '—'}</td>
+                            <td>{item.heat_rating || '—'}</td>
+                            <td>{item.hit_dice || '—'}</td>
+                            <td>{item.no_drop_pod ? '✕' : ''}</td>
+                            <td>{item.effects || '—'}</td>
+                            <td>
+                              <div style={{ display: 'flex', gap: 8 }}>
+                                <button
+                                  type="button"
+                                  className="ghost"
+                                  onClick={() => {
+                                    setEditingEquipmentId(Number(item.id));
+                                    setShowEquipmentForm(false);
+                                  }}
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  type="button"
+                                  className="danger"
+                                  aria-label="Remove"
+                                  onClick={() =>
+                                    deleteEquipment(Number(item.id))
+                                  }
+                                >
+                                  ✕
+                                </button>
+                              </div>
                             </td>
                           </tr>
-                        )}
-                      </Fragment>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        );
-      })}
+                          {editingEquipmentId === Number(item.id) && (
+                            <tr>
+                              <td colSpan={8}>
+                                <EquipmentForm
+                                  key={item.id}
+                                  manufacturers={manufacturers}
+                                  editing={item}
+                                  onSubmit={submitEquipment}
+                                  onCancel={() => setEditingEquipmentId(null)}
+                                />
+                              </td>
+                            </tr>
+                          )}
+                        </Fragment>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
       <ExportPanel
         manufacturers={manufacturers}
         units={units}
         equipment={equipment}
       />
+
+      <div className="card">
+        <h2 style={{ fontSize: 15, marginTop: 0 }}>Reset catalog</h2>
+        <p className="unit-meta" style={{ marginBottom: 10 }}>
+          Clears your saved manufacturers, units, and equipment and reloads the
+          app&apos;s latest defaults. Your list and roster are not affected.
+        </p>
+        <button type="button" className="danger" onClick={purgeCache}>
+          Purge cache
+        </button>
+      </div>
     </div>
   );
 }
