@@ -170,6 +170,7 @@ function ManagePage({
       range: Number(form.get('range')) || 0,
       heat_rating: (form.get('heat_rating') || '').toString().trim(),
       hit_dice: (form.get('hit_dice') || '').toString().trim(),
+      no_drop_pod: form.get('no_drop_pod') === 'on',
     };
 
     if (editingEquipmentItem) {
@@ -397,7 +398,12 @@ function ManagePage({
                       const isWeapon = (item.type ?? 'Movement') === 'Weapon';
                       return (
                         <tr key={item.id}>
-                          <td>{item.name}</td>
+                          <td>
+                            <p className="unit-name">{item.name}</p>
+                            {item.no_drop_pod && (
+                              <p className="unit-meta">Not for Drop Pods</p>
+                            )}
+                          </td>
                           <td>
                             <span className="badge">
                               {item.type ?? 'Movement'}

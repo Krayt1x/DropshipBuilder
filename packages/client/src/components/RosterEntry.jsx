@@ -64,7 +64,9 @@ function RosterEntry({
           {SLOTS.flatMap((slot) => {
             const requiredType = slot === 'Movement' ? 'Movement' : 'Weapon';
             const slotOptions = unitEquipment.filter(
-              (item) => (item.type ?? 'Movement') === requiredType,
+              (item) =>
+                (item.type ?? 'Movement') === requiredType &&
+                !(isDropPod && item.no_drop_pod),
             );
             const count = slotCounts[slot];
             return Array.from({ length: count }, (_, i) => (
