@@ -334,6 +334,46 @@ button.ghost {
   margin-top: 8px;
 }
 
+.equipment-slots-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.equipment-slots-panel {
+  background: var(--bg-track);
+  border-radius: 8px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.equipment-slots-panel .slot-card {
+  width: 100%;
+}
+
+.equipment-slots-panel-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-bottom: 2px;
+}
+
+.equipment-slots-panel-movement {
+  grid-column: 1 / -1;
+  align-items: center;
+}
+
+.equipment-slots-panel-movement .slot-card {
+  width: 60%;
+  align-items: center;
+  text-align: center;
+}
+
 .slot-card {
   display: flex;
   flex-direction: column;

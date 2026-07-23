@@ -143,6 +143,31 @@ function RosterEntry({
     setOpenSlotKey((current) => (current === key ? null : key));
   }
 
+  function renderSlotCards(slot) {
+    const requiredType = slot === 'Movement' ? 'Movement' : 'Weapon';
+    const slotOptions = unitEquipment.filter(
+      (item) => (item.type ?? 'Movement') === requiredType,
+    );
+    const count = slotCounts[slot];
+    return Array.from({ length: count }, (_, i) => {
+      const selectedId = entry.equipment?.[slot]?.[i] ?? 0;
+      const selected = slotOptions.find(
+        (item) => Number(item.id) === Number(selectedId),
+      );
+      const key = `${slot}-${i}`;
+      return (
+        <SlotCard
+          key={key}
+          label={count > 1 ? `${slot} ${i + 1}` : slot}
+          item={selected}
+          isOpen={openSlotKey === key}
+          disabled={slotOptions.length === 0}
+          onToggle={() => toggleSlot(key)}
+        />
+      );
+    });
+  }
+
   const equippedWithEffects = [];
   if (isDropPod) {
     if (dropPodSelected?.effects) {
@@ -190,31 +215,19 @@ function RosterEntry({
             />
           </div>
         ) : (
-          <div className="equipment-slots">
-            {SLOTS.flatMap((slot) => {
-              const requiredType = slot === 'Movement' ? 'Movement' : 'Weapon';
-              const slotOptions = unitEquipment.filter(
-                (item) => (item.type ?? 'Movement') === requiredType,
-              );
-              const count = slotCounts[slot];
-              return Array.from({ length: count }, (_, i) => {
-                const selectedId = entry.equipment?.[slot]?.[i] ?? 0;
-                const selected = slotOptions.find(
-                  (item) => Number(item.id) === Number(selectedId),
-                );
-                const key = `${slot}-${i}`;
-                return (
-                  <SlotCard
-                    key={key}
-                    label={count > 1 ? `${slot} ${i + 1}` : slot}
-                    item={selected}
-                    isOpen={openSlotKey === key}
-                    disabled={slotOptions.length === 0}
-                    onToggle={() => toggleSlot(key)}
-                  />
-                );
-              });
-            })}
+          <div className="equipment-slots-grid">
+            <div className="equipment-slots-panel">
+              <div className="equipment-slots-panel-label">Left</div>
+              {renderSlotCards('Left')}
+            </div>
+            <div className="equipment-slots-panel">
+              <div className="equipment-slots-panel-label">Right</div>
+              {renderSlotCards('Right')}
+            </div>
+            <div className="equipment-slots-panel equipment-slots-panel-movement">
+              <div className="equipment-slots-panel-label">Movement</div>
+              {renderSlotCards('Movement')}
+            </div>
           </div>
         )}
 
