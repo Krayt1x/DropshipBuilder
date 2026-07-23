@@ -54,8 +54,10 @@ function SlotPicker({
   selectedId,
   allowNone,
   isWeapon,
+  weightMultiplier,
   onSelect,
 }) {
+  const multiplier = weightMultiplier ?? 1;
   return (
     <div className="slot-picker">
       <p className="slot-picker-title">{title}</p>
@@ -78,7 +80,7 @@ function SlotPicker({
             <span className="slot-picker-stats">
               {isWeapon
                 ? `${item.weight ?? 0}t · ${item.range || '—'} · ${item.heat_rating || '—'} · ${item.hit_dice || '—'}`
-                : `${item.weight ?? 0}t`}
+                : `${(item.weight ?? 0) * Number(item.weight_ratio ?? 1) * multiplier}t`}
             </span>
           </div>
           {!isWeapon && item.effects && (
@@ -124,6 +126,7 @@ function RosterEntry({
     Movement: 1,
     Left: Math.max(0, Number(unit.left_slots ?? 1)),
     Right: Math.max(0, Number(unit.right_slots ?? 1)),
+    Head: Math.max(0, Number(unit.head_slots ?? 0)),
   };
 
   const statsLine = [
@@ -189,8 +192,9 @@ function RosterEntry({
     }
     if (dropPodSelected) {
       const isMovement = (dropPodSelected.type ?? 'Movement') === 'Movement';
+      const ratio = isMovement ? Number(dropPodSelected.weight_ratio ?? 1) : 1;
       const weight =
-        Number(dropPodSelected.weight ?? 0) * (isMovement ? tier : 1);
+        Number(dropPodSelected.weight ?? 0) * ratio * (isMovement ? tier : 1);
       if (weight > 0) {
         equippedWeights.push({
           key: 'equipment',
@@ -216,7 +220,9 @@ function RosterEntry({
         }
         if (selected) {
           const isMovement = requiredType === 'Movement';
-          const weight = Number(selected.weight ?? 0) * (isMovement ? tier : 1);
+          const ratio = isMovement ? Number(selected.weight_ratio ?? 1) : 1;
+          const weight =
+            Number(selected.weight ?? 0) * ratio * (isMovement ? tier : 1);
           if (weight > 0) {
             equippedWeights.push({
               key: `${slot}-${i}`,
@@ -354,6 +360,12 @@ function RosterEntry({
               <div className="equipment-slots-panel-label">Movement</div>
               {renderSlotCards('Movement')}
             </div>
+            {slotCounts.Head > 0 && (
+              <div className="equipment-slots-panel equipment-slots-panel-head">
+                <div className="equipment-slots-panel-label">Head</div>
+                {renderSlotCards('Head')}
+              </div>
+            )}
           </div>
         )}
 
@@ -381,7 +393,8 @@ function RosterEntry({
               .filter((item) => (item.type ?? 'Movement') === requiredType)
               .sort((a, b) =>
                 slot === 'Movement'
-                  ? Number(a.weight ?? 0) - Number(b.weight ?? 0)
+                  ? Number(a.weight ?? 0) * Number(a.weight_ratio ?? 1) -
+                    Number(b.weight ?? 0) * Number(b.weight_ratio ?? 1)
                   : 0,
               );
             const count = slotCounts[slot];
@@ -393,6 +406,7 @@ function RosterEntry({
                 selectedId={selectedId}
                 allowNone={slot !== 'Movement'}
                 isWeapon={requiredType === 'Weapon'}
+                weightMultiplier={slot === 'Movement' ? tier : 1}
                 onSelect={(id) => {
                   onAssignEquipment(slot, i, id);
                   setOpenSlotKey(null);

@@ -50,6 +50,14 @@ body {
   align-items: center;
 }
 
+[data-theme='dark'] .topnav {
+  border-bottom: 2px solid var(--accent);
+}
+
+[data-theme='dark'] .hamburger-btn {
+  color: var(--accent);
+}
+
 .topnav a {
   color: var(--nav-text);
   text-decoration: none;
@@ -481,7 +489,8 @@ button.ghost {
   margin-bottom: 2px;
 }
 
-.equipment-slots-panel-movement {
+.equipment-slots-panel-movement,
+.equipment-slots-panel-head {
   grid-column: 1 / -1;
   align-items: center;
 }

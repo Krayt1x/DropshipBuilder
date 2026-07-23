@@ -14,7 +14,7 @@ export const UNIT_SIZE_TIER = {
 };
 
 export const DICE_COLORS = ['blue', 'red', 'green'];
-export const SLOTS = ['Movement', 'Left', 'Right'];
+export const SLOTS = ['Movement', 'Left', 'Right', 'Head'];
 export const DROP_POD_SIZE = 'Drop Pod';
 export const EQUIPMENT_TYPES = ['Movement', 'Weapon'];
 // Bump this whenever the seed data (manufacturers/units/equipment.json)
