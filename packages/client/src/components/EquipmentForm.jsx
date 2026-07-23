@@ -127,15 +127,22 @@ function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
           defaultValue={editing?.effects ?? ''}
         />
       </div>
-      <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-        <button type="submit">
-          {editing ? 'Save changes' : 'Add equipment'}
-        </button>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          gap: 8,
+          marginTop: 12,
+        }}
+      >
         {editing && (
           <button type="button" className="ghost" onClick={onCancel}>
             Cancel
           </button>
         )}
+        <button type="submit">
+          {editing ? 'Save changes' : 'Add equipment'}
+        </button>
       </div>
     </form>
   );

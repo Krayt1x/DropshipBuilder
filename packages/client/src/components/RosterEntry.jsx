@@ -1,5 +1,30 @@
 import { SLOTS, DROP_POD_SIZE } from '../lib/constants.js';
 
+const WEAPON_COLS = [
+  { key: 'name', label: 'Name', width: 10 },
+  { key: 'weight', label: 'Wt', width: 4 },
+  { key: 'range', label: 'Range', width: 5 },
+  { key: 'heat_rating', label: 'Heat', width: 5 },
+  { key: 'hit_dice', label: 'Hit dice', width: 8 },
+];
+
+function pad(value, width) {
+  return String(value ?? '')
+    .padEnd(width)
+    .slice(0, width);
+}
+
+function formatWeaponOption(item) {
+  return WEAPON_COLS.map((col) => {
+    if (col.key === 'name') return pad(item.name, col.width);
+    if (col.key === 'weight') return pad(`${item.weight ?? 0}t`, col.width);
+    if (col.key === 'range') return pad(item.range || '—', col.width);
+    if (col.key === 'heat_rating')
+      return pad(item.heat_rating || '—', col.width);
+    return pad(item.hit_dice || '—', col.width);
+  }).join(' ');
+}
+
 function LoadMechForm({ options, onAdd }) {
   return (
     <form
@@ -97,10 +122,21 @@ function RosterEntry({
                 (item) => (item.type ?? 'Movement') === requiredType,
               );
               const count = slotCounts[slot];
+              const isWeaponSlot = requiredType === 'Weapon';
               return Array.from({ length: count }, (_, i) => (
                 <label className="slot-label" key={`${slot}-${i}`}>
                   {count > 1 ? `${slot} ${i + 1}` : slot}
+                  {isWeaponSlot && slotOptions.length > 0 && (
+                    <div className="weapon-col-header">
+                      {WEAPON_COLS.map((col) => (
+                        <span key={col.key} style={{ width: `${col.width}ch` }}>
+                          {col.label}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   <select
+                    className={isWeaponSlot ? 'weapon-select' : undefined}
                     value={entry.equipment?.[slot]?.[i] ?? 0}
                     disabled={slotOptions.length === 0}
                     onChange={(e) =>
@@ -110,7 +146,7 @@ function RosterEntry({
                     <option value={0}>None</option>
                     {slotOptions.map((item) => (
                       <option key={item.id} value={item.id}>
-                        {item.name}
+                        {isWeaponSlot ? formatWeaponOption(item) : item.name}
                       </option>
                     ))}
                   </select>

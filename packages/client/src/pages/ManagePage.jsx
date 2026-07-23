@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import {
   UNIT_SIZES,
   EQUIPMENT_TYPES,
-  diceSummary,
+  diceLines,
   sizeLabel,
 } from '../lib/constants.js';
 import { nextId } from '../lib/storage.js';
@@ -76,8 +76,6 @@ function ManagePage({
       ? equipment.find((e) => Number(e.id) === editingEquipmentId)
       : null;
   const unitFormVisible = showUnitForm || editingUnit != null;
-  const equipmentFormVisible =
-    showEquipmentForm || editingEquipmentItem != null;
 
   function showFlash(message, isError = false) {
     setFlash({ message, isError });
@@ -333,44 +331,44 @@ function ManagePage({
       </div>
 
       <div className="card">
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <h2 style={{ fontSize: 15, margin: 0 }}>
-            {editingEquipmentItem ? 'Edit equipment' : 'Add equipment'}
-          </h2>
-          {manufacturers.length > 0 && !editingEquipmentItem && (
-            <button
-              type="button"
-              className="ghost"
-              onClick={() => setShowEquipmentForm((v) => !v)}
-            >
-              {showEquipmentForm ? 'Cancel' : 'Add equipment'}
-            </button>
-          )}
-        </div>
+        <h2 style={{ fontSize: 15, margin: 0 }}>Add equipment</h2>
         {manufacturers.length === 0 ? (
           <p className="empty">
             Add a manufacturer above before adding equipment.
           </p>
-        ) : equipmentFormVisible ? (
-          <div style={{ marginTop: 10 }}>
-            <EquipmentForm
-              key={editingEquipmentItem?.id ?? 'new-equipment'}
-              manufacturers={manufacturers}
-              editing={editingEquipmentItem}
-              onSubmit={submitEquipment}
-              onCancel={() => {
-                setEditingEquipmentId(null);
-                setShowEquipmentForm(false);
+        ) : (
+          <>
+            {showEquipmentForm && (
+              <div style={{ marginTop: 10 }}>
+                <EquipmentForm
+                  key="new-equipment"
+                  manufacturers={manufacturers}
+                  editing={null}
+                  onSubmit={submitEquipment}
+                  onCancel={() => setShowEquipmentForm(false)}
+                />
+              </div>
+            )}
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                marginTop: 10,
               }}
-            />
-          </div>
-        ) : null}
+            >
+              <button
+                type="button"
+                className="ghost"
+                onClick={() => {
+                  setShowEquipmentForm((v) => !v);
+                  setEditingEquipmentId(null);
+                }}
+              >
+                {showEquipmentForm ? 'Cancel' : 'Add equipment'}
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
       {manufacturers.map((manufacturer) => {
@@ -503,7 +501,15 @@ function ManagePage({
                         <td>{unit.max_drop_weight ?? 0}</td>
                         <td>{unit.hp ?? 0}</td>
                         <td>{unit.base_movement ?? 0}</td>
-                        <td>{diceSummary(unit)}</td>
+                        <td>
+                          {diceLines(unit).length ? (
+                            diceLines(unit).map((line) => (
+                              <div key={line}>{line}</div>
+                            ))
+                          ) : (
+                            <div>None</div>
+                          )}
+                        </td>
                         <td>{unit.left_slots ?? 1}</td>
                         <td>{unit.right_slots ?? 1}</td>
                         <td>
@@ -583,32 +589,48 @@ function ManagePage({
                   </thead>
                   <tbody>
                     {movementItems.map((item) => (
-                      <tr key={item.id}>
-                        <td>{item.name}</td>
-                        <td>{item.weight ?? 0} t</td>
-                        <td>{item.no_drop_pod ? '✕' : ''}</td>
-                        <td>{item.effects || '—'}</td>
-                        <td>
-                          <div style={{ display: 'flex', gap: 8 }}>
-                            <button
-                              type="button"
-                              className="ghost"
-                              onClick={() =>
-                                setEditingEquipmentId(Number(item.id))
-                              }
-                            >
-                              Edit
-                            </button>
-                            <button
-                              type="button"
-                              className="danger"
-                              onClick={() => deleteEquipment(Number(item.id))}
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
+                      <Fragment key={item.id}>
+                        <tr>
+                          <td>{item.name}</td>
+                          <td>{item.weight ?? 0} t</td>
+                          <td>{item.no_drop_pod ? '✕' : ''}</td>
+                          <td>{item.effects || '—'}</td>
+                          <td>
+                            <div style={{ display: 'flex', gap: 8 }}>
+                              <button
+                                type="button"
+                                className="ghost"
+                                onClick={() => {
+                                  setEditingEquipmentId(Number(item.id));
+                                  setShowEquipmentForm(false);
+                                }}
+                              >
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                className="danger"
+                                onClick={() => deleteEquipment(Number(item.id))}
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                        {editingEquipmentId === Number(item.id) && (
+                          <tr>
+                            <td colSpan={5}>
+                              <EquipmentForm
+                                key={item.id}
+                                manufacturers={manufacturers}
+                                editing={item}
+                                onSubmit={submitEquipment}
+                                onCancel={() => setEditingEquipmentId(null)}
+                              />
+                            </td>
+                          </tr>
+                        )}
+                      </Fragment>
                     ))}
                   </tbody>
                 </table>
@@ -673,35 +695,51 @@ function ManagePage({
                   </thead>
                   <tbody>
                     {weaponItems.map((item) => (
-                      <tr key={item.id}>
-                        <td>{item.name}</td>
-                        <td>{item.weight ?? 0} t</td>
-                        <td>{item.range || '—'}</td>
-                        <td>{item.heat_rating || '—'}</td>
-                        <td>{item.hit_dice || '—'}</td>
-                        <td>{item.no_drop_pod ? '✕' : ''}</td>
-                        <td>{item.effects || '—'}</td>
-                        <td>
-                          <div style={{ display: 'flex', gap: 8 }}>
-                            <button
-                              type="button"
-                              className="ghost"
-                              onClick={() =>
-                                setEditingEquipmentId(Number(item.id))
-                              }
-                            >
-                              Edit
-                            </button>
-                            <button
-                              type="button"
-                              className="danger"
-                              onClick={() => deleteEquipment(Number(item.id))}
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
+                      <Fragment key={item.id}>
+                        <tr>
+                          <td>{item.name}</td>
+                          <td>{item.weight ?? 0} t</td>
+                          <td>{item.range || '—'}</td>
+                          <td>{item.heat_rating || '—'}</td>
+                          <td>{item.hit_dice || '—'}</td>
+                          <td>{item.no_drop_pod ? '✕' : ''}</td>
+                          <td>{item.effects || '—'}</td>
+                          <td>
+                            <div style={{ display: 'flex', gap: 8 }}>
+                              <button
+                                type="button"
+                                className="ghost"
+                                onClick={() => {
+                                  setEditingEquipmentId(Number(item.id));
+                                  setShowEquipmentForm(false);
+                                }}
+                              >
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                className="danger"
+                                onClick={() => deleteEquipment(Number(item.id))}
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                        {editingEquipmentId === Number(item.id) && (
+                          <tr>
+                            <td colSpan={8}>
+                              <EquipmentForm
+                                key={item.id}
+                                manufacturers={manufacturers}
+                                editing={item}
+                                onSubmit={submitEquipment}
+                                onCancel={() => setEditingEquipmentId(null)}
+                              />
+                            </td>
+                          </tr>
+                        )}
+                      </Fragment>
                     ))}
                   </tbody>
                 </table>

@@ -320,6 +320,24 @@ button.ghost {
   min-width: 120px;
 }
 
+.weapon-col-header {
+  display: flex;
+  gap: 4px;
+  font-family: monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.weapon-col-header span {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+select.weapon-select {
+  font-family: monospace;
+  min-width: 220px;
+}
+
 .carried-models {
   margin-top: 10px;
   padding-top: 10px;
