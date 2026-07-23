@@ -20,7 +20,7 @@ jobs:
       - run: |
           VERSION=${GITHUB_REF#refs/tags/}
           sed -n "/^## \[$VERSION\]/,/^## \[/p" CHANGELOG.md | head -n -1 > RELEASE_NOTES.md
-      - uses: softprops/action-gh-release@v1
+      - uses: softprops/action-gh-release@v3
         with:
           files: packages/client/dist/**
           body_file: RELEASE_NOTES.md
