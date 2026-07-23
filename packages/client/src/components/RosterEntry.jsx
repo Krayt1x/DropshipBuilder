@@ -1,10 +1,6 @@
 import { useState } from 'react';
-import {
-  SLOTS,
-  DROP_POD_SIZE,
-  diceSummary,
-  sizeLabel,
-} from '../lib/constants.js';
+import { SLOTS, DROP_POD_SIZE, sizeLabel } from '../lib/constants.js';
+import DiceIcons from './DiceIcons.jsx';
 
 function LoadMechForm({ options, onAdd }) {
   return (
@@ -66,15 +62,20 @@ function SlotPicker({
       {options.map((item) => (
         <div
           key={item.id}
-          className={`slot-picker-row ${Number(selectedId) === Number(item.id) ? 'selected' : ''}`}
+          className={`slot-picker-row ${!isWeapon && item.effects ? 'slot-picker-row-stack' : ''} ${Number(selectedId) === Number(item.id) ? 'selected' : ''}`}
           onClick={() => onSelect(Number(item.id))}
         >
-          <span className="slot-picker-name">{item.name}</span>
-          <span className="slot-picker-stats">
-            {isWeapon
-              ? `${item.weight ?? 0}t · ${item.range || '—'} · ${item.heat_rating || '—'} · ${item.hit_dice || '—'}`
-              : `${item.weight ?? 0}t`}
-          </span>
+          <div className="slot-picker-row-main">
+            <span className="slot-picker-name">{item.name}</span>
+            <span className="slot-picker-stats">
+              {isWeapon
+                ? `${item.weight ?? 0}t · ${item.range || '—'} · ${item.heat_rating || '—'} · ${item.hit_dice || '—'}`
+                : `${item.weight ?? 0}t`}
+            </span>
+          </div>
+          {!isWeapon && item.effects && (
+            <span className="slot-picker-row-effects">{item.effects}</span>
+          )}
         </div>
       ))}
       {options.length === 0 && !allowNone && (
@@ -121,8 +122,13 @@ function RosterEntry({
     `Armor ${unit.armor || '—'}`,
     `HP ${unit.hp ?? 0}`,
     `Move ${unit.base_movement ?? 0}`,
-    `Dice ${diceSummary(unit)}`,
+    `Max wt ${unit.max_weight ?? 0}`,
+    `Max drop wt ${unit.max_drop_weight ?? 0}`,
   ].join(' · ');
+
+  const overDropWeight =
+    Number(unit.max_drop_weight) > 0 &&
+    totalWeight > Number(unit.max_drop_weight);
 
   const [openSlotKey, setOpenSlotKey] = useState(null);
 
@@ -195,11 +201,22 @@ function RosterEntry({
     >
       <div className="unit-info">
         <p className="unit-name">
+          {overDropWeight && (
+            <span
+              className="warning-icon"
+              title={`Over max drop weight (${unit.max_drop_weight} t)`}
+            >
+              ⚠️
+            </span>
+          )}
           {unit.name} {isDropPod && <span className="badge">Drop Pod</span>}
         </p>
         <p className="unit-meta">{totalWeight} t</p>
         <p className="unit-stats">{sizeLabel(unit.size)}</p>
         <p className="unit-stats">{statsLine}</p>
+        <p className="unit-stats">
+          <DiceIcons unit={unit} />
+        </p>
 
         {isDropPod ? (
           <div className="equipment-slots">
@@ -321,18 +338,19 @@ function RosterEntry({
               ))}
           </div>
         )}
+
+        <form
+          className="inline remove-row"
+          onSubmit={(e) => {
+            e.preventDefault();
+            onRemove();
+          }}
+        >
+          <button type="submit" className="danger-ghost">
+            ✕ Remove
+          </button>
+        </form>
       </div>
-      <form
-        className="inline"
-        onSubmit={(e) => {
-          e.preventDefault();
-          onRemove();
-        }}
-      >
-        <button type="submit" className="danger">
-          Remove
-        </button>
-      </form>
     </div>
   );
 }

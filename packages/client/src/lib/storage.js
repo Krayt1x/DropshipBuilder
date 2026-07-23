@@ -30,3 +30,11 @@ export function nextId(items) {
 export function makeKey(prefix) {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
+
+export function purgeCatalogCache() {
+  window.localStorage.removeItem('dropshipbuilder:manufacturers');
+  window.localStorage.removeItem('dropshipbuilder:units');
+  window.localStorage.removeItem('dropshipbuilder:equipment');
+  window.localStorage.removeItem('dropshipbuilder:dataVersion');
+  window.location.reload();
+}

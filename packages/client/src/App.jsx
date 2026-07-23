@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import Nav from './components/Nav.jsx';
 import ListBuilderPage from './pages/ListBuilderPage.jsx';
 import ManagePage from './pages/ManagePage.jsx';
-import { useLocalStorageState } from './lib/storage.js';
+import { useLocalStorageState, purgeCatalogCache } from './lib/storage.js';
+import { DATA_VERSION } from './lib/constants.js';
 import manufacturersSeed from './data/manufacturers.json';
 import unitsSeed from './data/units.json';
 import equipmentSeed from './data/equipment.json';
@@ -25,6 +26,11 @@ function App() {
     'dropshipbuilder:equipment',
     equipmentSeed,
   );
+  const [dataVersion] = useLocalStorageState(
+    'dropshipbuilder:dataVersion',
+    DATA_VERSION,
+  );
+  const dataOutOfDate = dataVersion !== DATA_VERSION;
 
   useEffect(() => {
     function onHashChange() {
@@ -37,6 +43,29 @@ function App() {
   return (
     <>
       <Nav page={page} />
+      {dataOutOfDate && (
+        <div className="stale-data-banner">
+          <span>
+            Local data is out of date — the unit and equipment catalogue has
+            been updated.
+          </span>
+          <button
+            type="button"
+            className="ghost"
+            onClick={() => {
+              if (
+                window.confirm(
+                  'This clears your saved manufacturers, units, and equipment and reloads the latest defaults. Your list and roster are not affected. Continue?',
+                )
+              ) {
+                purgeCatalogCache();
+              }
+            }}
+          >
+            Purge cache
+          </button>
+        </div>
+      )}
       {page === 'manage' ? (
         <ManagePage
           manufacturers={manufacturers}

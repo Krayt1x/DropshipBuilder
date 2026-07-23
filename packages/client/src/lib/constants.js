@@ -17,6 +17,10 @@ export const DICE_COLORS = ['blue', 'red', 'green'];
 export const SLOTS = ['Movement', 'Left', 'Right'];
 export const DROP_POD_SIZE = 'Drop Pod';
 export const EQUIPMENT_TYPES = ['Movement', 'Weapon'];
+// Bump this whenever the seed data (manufacturers/units/equipment.json)
+// changes, so browsers with older cached data get a "please purge cache"
+// warning instead of silently going stale.
+export const DATA_VERSION = 1;
 
 export function sizeLabel(size) {
   return UNIT_SIZES[size] ?? size;

@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useLocalStorageState, makeKey } from '../lib/storage.js';
 import { SLOTS, DROP_POD_SIZE, sizeLabel, sizeTier } from '../lib/constants.js';
 import RosterEntry from '../components/RosterEntry.jsx';
+import DiceIcons from '../components/DiceIcons.jsx';
 
 function emptyEquipmentSlots() {
   return SLOTS.reduce((acc, slot) => {
@@ -272,6 +273,13 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
                 <div className="unit-info">
                   <p className="unit-name">{unit.name}</p>
                   <p className="unit-meta">{unit.weight} t</p>
+                  <p className="unit-stats">
+                    Armor {unit.armor || '—'} · HP {unit.hp ?? 0} · Move{' '}
+                    {unit.base_movement ?? 0}
+                  </p>
+                  <p className="unit-stats">
+                    <DiceIcons unit={unit} />
+                  </p>
                 </div>
                 <span className="badge">{sizeLabel(unit.size)}</span>
                 <button type="button" onClick={() => addToList(unit.id)}>
