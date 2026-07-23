@@ -338,6 +338,13 @@ select.weapon-select {
   min-width: 220px;
 }
 
+.equipment-effects {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-style: italic;
+  max-width: 220px;
+}
+
 .carried-models {
   margin-top: 10px;
   padding-top: 10px;
