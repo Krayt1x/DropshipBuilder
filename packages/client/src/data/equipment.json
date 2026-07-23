@@ -105,7 +105,7 @@
         "manufacturer": "Corp A",
         "type": "Weapon",
         "effects": "",
-        "weight": 0,
+        "weight": 1,
         "range": "3",
         "heat_rating": "1/4",
         "hit_dice": "4d4",
