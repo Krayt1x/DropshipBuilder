@@ -1,6 +1,6 @@
 # DropshipBuilder
 
-A list-building web app for Dropship, a tabletop wargame — similar to army builders like NetRecruit or Warmachine's list-building tools.
+A list-building web app for Dropship, a tabletop wargame.
 
 ## Live Demo
 
