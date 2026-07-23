@@ -4,18 +4,24 @@
         "name": "Chicken Legs",
         "manufacturer": "Corp A",
         "type": "Movement",
-        "effects": "",
+        "effects": "+1 movement",
         "weight": 2,
-        "range": 0,
+        "range": "",
         "heat_rating": "",
         "hit_dice": "",
         "no_drop_pod": true
     },
     {
         "id": 2,
-        "name": "Laser rifle",
+        "name": "Long Range Bolt",
         "manufacturer": "Corp A",
-        "type": "Weapon"
+        "type": "Weapon",
+        "effects": "",
+        "weight": 4,
+        "range": "9",
+        "heat_rating": "4/6",
+        "hit_dice": "2d8",
+        "no_drop_pod": false
     },
     {
         "id": 3,
@@ -31,14 +37,15 @@
     },
     {
         "id": 4,
-        "name": "Auto-cannon",
+        "name": "Artillery",
         "manufacturer": "Corp A",
-        "effects": "Deals 2d6 damage. On a hit of 6, target is knocked prone.",
         "type": "Weapon",
-        "weight": 4,
-        "range": 6,
-        "heat_rating": "3/3",
-        "hit_dice": "1d4"
+        "effects": "Attack rolls are made against the target tile and all adjacent tiles",
+        "weight": 3,
+        "range": "3-9",
+        "heat_rating": "4/4",
+        "hit_dice": "3d6",
+        "no_drop_pod": false
     },
     {
         "id": 5,
@@ -59,9 +66,57 @@
         "type": "Movement",
         "effects": "",
         "weight": 0,
-        "range": 0,
+        "range": "",
         "heat_rating": "",
         "hit_dice": "",
         "no_drop_pod": true
+    },
+    {
+        "id": 7,
+        "name": "Heavy Assault",
+        "manufacturer": "Corp A",
+        "type": "Weapon",
+        "effects": "",
+        "weight": 3,
+        "range": "6",
+        "heat_rating": "2/4",
+        "hit_dice": "3d6",
+        "no_drop_pod": false
+    },
+    {
+        "id": 8,
+        "name": "Mid range assault",
+        "manufacturer": "Corp A",
+        "type": "Weapon",
+        "effects": "",
+        "weight": 2,
+        "range": "6",
+        "heat_rating": "2/4",
+        "hit_dice": "2d6",
+        "no_drop_pod": false
+    },
+    {
+        "id": 9,
+        "name": "Light Assault",
+        "manufacturer": "Corp A",
+        "type": "Weapon",
+        "effects": "",
+        "weight": 0,
+        "range": "3",
+        "heat_rating": "1/4",
+        "hit_dice": "4d4",
+        "no_drop_pod": false
+    },
+    {
+        "id": 10,
+        "name": "Flame Thrower",
+        "manufacturer": "Corp A",
+        "type": "Weapon",
+        "effects": "Damage is applied as heat",
+        "weight": 1,
+        "range": "3",
+        "heat_rating": "2/4",
+        "hit_dice": "2d4",
+        "no_drop_pod": false
     }
 ]
