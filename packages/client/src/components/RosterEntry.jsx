@@ -112,6 +112,14 @@ function RosterEntry({
                   </option>
                 ))}
               </select>
+              {(() => {
+                const selected = dropPodEquipmentOptions.find(
+                  (item) => Number(item.id) === Number(dropPodEquipmentId),
+                );
+                return selected?.effects ? (
+                  <span className="equipment-effects">{selected.effects}</span>
+                ) : null;
+              })()}
             </label>
           </div>
         ) : (
@@ -123,35 +131,49 @@ function RosterEntry({
               );
               const count = slotCounts[slot];
               const isWeaponSlot = requiredType === 'Weapon';
-              return Array.from({ length: count }, (_, i) => (
-                <label className="slot-label" key={`${slot}-${i}`}>
-                  {count > 1 ? `${slot} ${i + 1}` : slot}
-                  {isWeaponSlot && slotOptions.length > 0 && (
-                    <div className="weapon-col-header">
-                      {WEAPON_COLS.map((col) => (
-                        <span key={col.key} style={{ width: `${col.width}ch` }}>
-                          {col.label}
-                        </span>
+              return Array.from({ length: count }, (_, i) => {
+                const selectedId = entry.equipment?.[slot]?.[i] ?? 0;
+                const selected = slotOptions.find(
+                  (item) => Number(item.id) === Number(selectedId),
+                );
+                return (
+                  <label className="slot-label" key={`${slot}-${i}`}>
+                    {count > 1 ? `${slot} ${i + 1}` : slot}
+                    {isWeaponSlot && slotOptions.length > 0 && (
+                      <div className="weapon-col-header">
+                        {WEAPON_COLS.map((col) => (
+                          <span
+                            key={col.key}
+                            style={{ width: `${col.width}ch` }}
+                          >
+                            {col.label}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <select
+                      className={isWeaponSlot ? 'weapon-select' : undefined}
+                      value={selectedId}
+                      disabled={slotOptions.length === 0}
+                      onChange={(e) =>
+                        onAssignEquipment(slot, i, Number(e.target.value))
+                      }
+                    >
+                      <option value={0}>None</option>
+                      {slotOptions.map((item) => (
+                        <option key={item.id} value={item.id}>
+                          {isWeaponSlot ? formatWeaponOption(item) : item.name}
+                        </option>
                       ))}
-                    </div>
-                  )}
-                  <select
-                    className={isWeaponSlot ? 'weapon-select' : undefined}
-                    value={entry.equipment?.[slot]?.[i] ?? 0}
-                    disabled={slotOptions.length === 0}
-                    onChange={(e) =>
-                      onAssignEquipment(slot, i, Number(e.target.value))
-                    }
-                  >
-                    <option value={0}>None</option>
-                    {slotOptions.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {isWeaponSlot ? formatWeaponOption(item) : item.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              ));
+                    </select>
+                    {selected?.effects ? (
+                      <span className="equipment-effects">
+                        {selected.effects}
+                      </span>
+                    ) : null}
+                  </label>
+                );
+              });
             })}
           </div>
         )}
