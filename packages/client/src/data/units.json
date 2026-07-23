@@ -1,0 +1,69 @@
+[
+    {
+        "id": 1,
+        "name": "A10",
+        "manufacturer": "Corp A",
+        "size": "Medium",
+        "weight": 10,
+        "armor": 5,
+        "max_weight": 0,
+        "max_drop_weight": 0,
+        "hp": 20,
+        "base_movement": 0,
+        "dice_blue": 2,
+        "dice_red": 1,
+        "dice_green": 0,
+        "left_slots": 3,
+        "right_slots": 2
+    },
+    {
+        "id": 2,
+        "name": "A20",
+        "manufacturer": "Corp A",
+        "size": "Large",
+        "weight": 20
+    },
+    {
+        "id": 3,
+        "name": "A30",
+        "manufacturer": "Corp A",
+        "size": "Huge",
+        "weight": 30
+    },
+    {
+        "id": 7,
+        "name": "Ash troopers",
+        "manufacturer": "Corp B",
+        "size": "Small",
+        "weight": 60
+    },
+    {
+        "id": 8,
+        "name": "Cinder walker",
+        "manufacturer": "Corp B",
+        "size": "Large",
+        "weight": 130
+    },
+    {
+        "id": 9,
+        "name": "Pyre dropship",
+        "manufacturer": "Corp B",
+        "size": "Huge",
+        "weight": 235
+    },
+    {
+        "id": 11,
+        "name": "Alpha pod",
+        "manufacturer": "Corp A",
+        "size": "Drop Pod",
+        "weight": 40,
+        "armor": 0,
+        "max_weight": 0,
+        "max_drop_weight": 0,
+        "hp": 0,
+        "base_movement": 0,
+        "dice_blue": 0,
+        "dice_red": 0,
+        "dice_green": 0
+    }
+]
