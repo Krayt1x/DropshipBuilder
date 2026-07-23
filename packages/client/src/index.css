@@ -444,7 +444,7 @@ button.ghost {
 
 .remove-row {
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   margin-top: 10px;
 }
 
