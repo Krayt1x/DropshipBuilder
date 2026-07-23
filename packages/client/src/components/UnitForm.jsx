@@ -54,12 +54,11 @@ function UnitForm({ manufacturers, editing, onSubmit, onCancel }) {
         <div className="field">
           <label htmlFor="armor">Armor</label>
           <input
-            type="number"
+            type="text"
             id="armor"
             name="armor"
-            min="0"
-            step="1"
-            defaultValue={editing?.armor ?? 0}
+            placeholder="e.g. 2/2/2/1"
+            defaultValue={editing?.armor ?? ''}
           />
         </div>
         <div className="field">
@@ -108,7 +107,10 @@ function UnitForm({ manufacturers, editing, onSubmit, onCancel }) {
         </div>
       </div>
 
-      <div className="stat-grid" style={{ marginTop: 10 }}>
+      <div
+        className="stat-grid"
+        style={{ marginTop: 10, gridTemplateColumns: '1fr' }}
+      >
         <div className="field">
           <label htmlFor="dice_blue">Blue dice</label>
           <input

@@ -10,6 +10,43 @@ import UnitForm from '../components/UnitForm.jsx';
 import EquipmentForm from '../components/EquipmentForm.jsx';
 import ExportPanel from '../components/ExportPanel.jsx';
 
+function compareValues(a, b) {
+  const an = Number(a);
+  const bn = Number(b);
+  const aIsNum = a !== '' && a != null && !Number.isNaN(an);
+  const bIsNum = b !== '' && b != null && !Number.isNaN(bn);
+  if (aIsNum && bIsNum) return an - bn;
+  return String(a ?? '').localeCompare(String(b ?? ''));
+}
+
+function sortRows(rows, sort) {
+  return rows.slice().sort((a, b) => {
+    const cmp = compareValues(a[sort.key], b[sort.key]);
+    return sort.dir === 'asc' ? cmp : -cmp;
+  });
+}
+
+function toggleSort(setSort, key) {
+  setSort((s) =>
+    s.key === key
+      ? { key, dir: s.dir === 'asc' ? 'desc' : 'asc' }
+      : { key, dir: 'asc' },
+  );
+}
+
+function SortTh({ label, sortKey, sort, onSort }) {
+  const active = sort.key === sortKey;
+  return (
+    <th
+      onClick={() => onSort(sortKey)}
+      style={{ cursor: 'pointer', userSelect: 'none' }}
+    >
+      {label}
+      {active ? (sort.dir === 'asc' ? ' ▲' : ' ▼') : ''}
+    </th>
+  );
+}
+
 function ManagePage({
   manufacturers,
   setManufacturers,
@@ -21,6 +58,14 @@ function ManagePage({
   const [flash, setFlash] = useState(null);
   const [editingUnitId, setEditingUnitId] = useState(null);
   const [editingEquipmentId, setEditingEquipmentId] = useState(null);
+  const [showUnitForm, setShowUnitForm] = useState(false);
+  const [showEquipmentForm, setShowEquipmentForm] = useState(false);
+  const [unitSort, setUnitSort] = useState({ key: 'weight', dir: 'asc' });
+  const [movementSort, setMovementSort] = useState({
+    key: 'weight',
+    dir: 'asc',
+  });
+  const [weaponSort, setWeaponSort] = useState({ key: 'weight', dir: 'asc' });
 
   const editingUnit =
     editingUnitId != null
@@ -30,6 +75,9 @@ function ManagePage({
     editingEquipmentId != null
       ? equipment.find((e) => Number(e.id) === editingEquipmentId)
       : null;
+  const unitFormVisible = showUnitForm || editingUnit != null;
+  const equipmentFormVisible =
+    showEquipmentForm || editingEquipmentItem != null;
 
   function showFlash(message, isError = false) {
     setFlash({ message, isError });
@@ -118,7 +166,7 @@ function ManagePage({
     }
 
     const stats = {
-      armor: Number(form.get('armor')) || 0,
+      armor: (form.get('armor') || '').toString().trim(),
       max_weight: Number(form.get('max_weight')) || 0,
       max_drop_weight: Number(form.get('max_drop_weight')) || 0,
       hp: Number(form.get('hp')) || 0,
@@ -182,7 +230,7 @@ function ManagePage({
       type,
       effects: (form.get('effects') || '').toString().trim(),
       weight: Number(form.get('weight')) || 0,
-      range: Number(form.get('range')) || 0,
+      range: (form.get('range') || '').toString().trim(),
       heat_rating: (form.get('heat_rating') || '').toString().trim(),
       hit_dice: (form.get('hit_dice') || '').toString().trim(),
       no_drop_pod: form.get('no_drop_pod') === 'on',
@@ -246,39 +294,83 @@ function ManagePage({
       </div>
 
       <div className="card">
-        <h2 style={{ fontSize: 15, marginTop: 0 }}>
-          {editingUnit ? 'Edit unit' : 'Add a new unit'}
-        </h2>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <h2 style={{ fontSize: 15, margin: 0 }}>
+            {editingUnit ? 'Edit unit' : 'Add a new unit'}
+          </h2>
+          {manufacturers.length > 0 && !editingUnit && (
+            <button
+              type="button"
+              className="ghost"
+              onClick={() => setShowUnitForm((v) => !v)}
+            >
+              {showUnitForm ? 'Cancel' : 'Add unit'}
+            </button>
+          )}
+        </div>
         {manufacturers.length === 0 ? (
           <p className="empty">Add a manufacturer above before adding units.</p>
-        ) : (
-          <UnitForm
-            key={editingUnit?.id ?? 'new-unit'}
-            manufacturers={manufacturers}
-            editing={editingUnit}
-            onSubmit={submitUnit}
-            onCancel={() => setEditingUnitId(null)}
-          />
-        )}
+        ) : unitFormVisible ? (
+          <div style={{ marginTop: 10 }}>
+            <UnitForm
+              key={editingUnit?.id ?? 'new-unit'}
+              manufacturers={manufacturers}
+              editing={editingUnit}
+              onSubmit={submitUnit}
+              onCancel={() => {
+                setEditingUnitId(null);
+                setShowUnitForm(false);
+              }}
+            />
+          </div>
+        ) : null}
       </div>
 
       <div className="card">
-        <h2 style={{ fontSize: 15, marginTop: 0 }}>
-          {editingEquipmentItem ? 'Edit equipment' : 'Add equipment'}
-        </h2>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <h2 style={{ fontSize: 15, margin: 0 }}>
+            {editingEquipmentItem ? 'Edit equipment' : 'Add equipment'}
+          </h2>
+          {manufacturers.length > 0 && !editingEquipmentItem && (
+            <button
+              type="button"
+              className="ghost"
+              onClick={() => setShowEquipmentForm((v) => !v)}
+            >
+              {showEquipmentForm ? 'Cancel' : 'Add equipment'}
+            </button>
+          )}
+        </div>
         {manufacturers.length === 0 ? (
           <p className="empty">
             Add a manufacturer above before adding equipment.
           </p>
-        ) : (
-          <EquipmentForm
-            key={editingEquipmentItem?.id ?? 'new-equipment'}
-            manufacturers={manufacturers}
-            editing={editingEquipmentItem}
-            onSubmit={submitEquipment}
-            onCancel={() => setEditingEquipmentId(null)}
-          />
-        )}
+        ) : equipmentFormVisible ? (
+          <div style={{ marginTop: 10 }}>
+            <EquipmentForm
+              key={editingEquipmentItem?.id ?? 'new-equipment'}
+              manufacturers={manufacturers}
+              editing={editingEquipmentItem}
+              onSubmit={submitEquipment}
+              onCancel={() => {
+                setEditingEquipmentId(null);
+                setShowEquipmentForm(false);
+              }}
+            />
+          </div>
+        ) : null}
       </div>
 
       {manufacturers.map((manufacturer) => {
@@ -287,6 +379,16 @@ function ManagePage({
         );
         const manufacturerEquipment = equipment.filter(
           (e) => e.manufacturer === manufacturer,
+        );
+        const movementItems = sortRows(
+          manufacturerEquipment.filter(
+            (e) => (e.type ?? 'Movement') === 'Movement',
+          ),
+          movementSort,
+        );
+        const weaponItems = sortRows(
+          manufacturerEquipment.filter((e) => e.type === 'Weapon'),
+          weaponSort,
         );
         return (
           <div className="card" key={manufacturer}>
@@ -324,29 +426,79 @@ function ManagePage({
                 <table>
                   <thead>
                     <tr>
-                      <th>Name</th>
-                      <th>Size</th>
-                      <th>Weight (t)</th>
-                      <th>Armor</th>
-                      <th>Max wt</th>
-                      <th>Max drop wt</th>
-                      <th>HP</th>
-                      <th>Move</th>
+                      <SortTh
+                        label="Name"
+                        sortKey="name"
+                        sort={unitSort}
+                        onSort={(k) => toggleSort(setUnitSort, k)}
+                      />
+                      <SortTh
+                        label="Size"
+                        sortKey="size"
+                        sort={unitSort}
+                        onSort={(k) => toggleSort(setUnitSort, k)}
+                      />
+                      <SortTh
+                        label="Weight (t)"
+                        sortKey="weight"
+                        sort={unitSort}
+                        onSort={(k) => toggleSort(setUnitSort, k)}
+                      />
+                      <SortTh
+                        label="Armor"
+                        sortKey="armor"
+                        sort={unitSort}
+                        onSort={(k) => toggleSort(setUnitSort, k)}
+                      />
+                      <SortTh
+                        label="Max wt"
+                        sortKey="max_weight"
+                        sort={unitSort}
+                        onSort={(k) => toggleSort(setUnitSort, k)}
+                      />
+                      <SortTh
+                        label="Max drop wt"
+                        sortKey="max_drop_weight"
+                        sort={unitSort}
+                        onSort={(k) => toggleSort(setUnitSort, k)}
+                      />
+                      <SortTh
+                        label="HP"
+                        sortKey="hp"
+                        sort={unitSort}
+                        onSort={(k) => toggleSort(setUnitSort, k)}
+                      />
+                      <SortTh
+                        label="Move"
+                        sortKey="base_movement"
+                        sort={unitSort}
+                        onSort={(k) => toggleSort(setUnitSort, k)}
+                      />
                       <th>Dice</th>
-                      <th>L slots</th>
-                      <th>R slots</th>
+                      <SortTh
+                        label="L slots"
+                        sortKey="left_slots"
+                        sort={unitSort}
+                        onSort={(k) => toggleSort(setUnitSort, k)}
+                      />
+                      <SortTh
+                        label="R slots"
+                        sortKey="right_slots"
+                        sort={unitSort}
+                        onSort={(k) => toggleSort(setUnitSort, k)}
+                      />
                       <th></th>
                     </tr>
                   </thead>
                   <tbody>
-                    {manufacturerUnits.map((unit) => (
+                    {sortRows(manufacturerUnits, unitSort).map((unit) => (
                       <tr key={unit.id}>
                         <td>{unit.name}</td>
                         <td>
                           <span className="badge">{sizeLabel(unit.size)}</span>
                         </td>
                         <td>{unit.weight} t</td>
-                        <td>{unit.armor ?? 0}</td>
+                        <td>{unit.armor || '—'}</td>
                         <td>{unit.max_weight ?? 0}</td>
                         <td>{unit.max_drop_weight ?? 0}</td>
                         <td>{unit.hp ?? 0}</td>
@@ -388,66 +540,169 @@ function ManagePage({
             >
               Equipment
             </h3>
-            {manufacturerEquipment.length === 0 ? (
+
+            <h4
+              style={{
+                fontSize: 12,
+                color: 'var(--text-secondary)',
+                margin: '0 0 6px',
+              }}
+            >
+              Movement
+            </h4>
+            {movementItems.length === 0 ? (
               <p className="empty">
-                No equipment for this manufacturer yet. Add some above.
+                No movement equipment for this manufacturer yet.
               </p>
             ) : (
               <div className="table-scroll">
                 <table>
                   <thead>
                     <tr>
-                      <th>Name</th>
-                      <th>Type</th>
-                      <th>Weight</th>
-                      <th>Range</th>
-                      <th>Heat</th>
-                      <th>Hit dice</th>
-                      <th>Drop Pod</th>
+                      <SortTh
+                        label="Name"
+                        sortKey="name"
+                        sort={movementSort}
+                        onSort={(k) => toggleSort(setMovementSort, k)}
+                      />
+                      <SortTh
+                        label="Weight"
+                        sortKey="weight"
+                        sort={movementSort}
+                        onSort={(k) => toggleSort(setMovementSort, k)}
+                      />
+                      <SortTh
+                        label="Drop Pod"
+                        sortKey="no_drop_pod"
+                        sort={movementSort}
+                        onSort={(k) => toggleSort(setMovementSort, k)}
+                      />
                       <th>Effects</th>
                       <th></th>
                     </tr>
                   </thead>
                   <tbody>
-                    {manufacturerEquipment.map((item) => {
-                      const isWeapon = (item.type ?? 'Movement') === 'Weapon';
-                      return (
-                        <tr key={item.id}>
-                          <td>{item.name}</td>
-                          <td>
-                            <span className="badge">
-                              {item.type ?? 'Movement'}
-                            </span>
-                          </td>
-                          <td>{item.weight ?? 0} t</td>
-                          <td>{isWeapon ? (item.range ?? 0) : '—'}</td>
-                          <td>{isWeapon ? item.heat_rating || '—' : '—'}</td>
-                          <td>{isWeapon ? item.hit_dice || '—' : '—'}</td>
-                          <td>{item.no_drop_pod ? '✕' : ''}</td>
-                          <td>{item.effects || '—'}</td>
-                          <td>
-                            <div style={{ display: 'flex', gap: 8 }}>
-                              <button
-                                type="button"
-                                className="ghost"
-                                onClick={() =>
-                                  setEditingEquipmentId(Number(item.id))
-                                }
-                              >
-                                Edit
-                              </button>
-                              <button
-                                type="button"
-                                className="danger"
-                                onClick={() => deleteEquipment(Number(item.id))}
-                              >
-                                Remove
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
+                    {movementItems.map((item) => (
+                      <tr key={item.id}>
+                        <td>{item.name}</td>
+                        <td>{item.weight ?? 0} t</td>
+                        <td>{item.no_drop_pod ? '✕' : ''}</td>
+                        <td>{item.effects || '—'}</td>
+                        <td>
+                          <div style={{ display: 'flex', gap: 8 }}>
+                            <button
+                              type="button"
+                              className="ghost"
+                              onClick={() =>
+                                setEditingEquipmentId(Number(item.id))
+                              }
+                            >
+                              Edit
+                            </button>
+                            <button
+                              type="button"
+                              className="danger"
+                              onClick={() => deleteEquipment(Number(item.id))}
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            <h4
+              style={{
+                fontSize: 12,
+                color: 'var(--text-secondary)',
+                margin: '16px 0 6px',
+              }}
+            >
+              Weapons
+            </h4>
+            {weaponItems.length === 0 ? (
+              <p className="empty">No weapons for this manufacturer yet.</p>
+            ) : (
+              <div className="table-scroll">
+                <table>
+                  <thead>
+                    <tr>
+                      <SortTh
+                        label="Name"
+                        sortKey="name"
+                        sort={weaponSort}
+                        onSort={(k) => toggleSort(setWeaponSort, k)}
+                      />
+                      <SortTh
+                        label="Weight"
+                        sortKey="weight"
+                        sort={weaponSort}
+                        onSort={(k) => toggleSort(setWeaponSort, k)}
+                      />
+                      <SortTh
+                        label="Range"
+                        sortKey="range"
+                        sort={weaponSort}
+                        onSort={(k) => toggleSort(setWeaponSort, k)}
+                      />
+                      <SortTh
+                        label="Heat"
+                        sortKey="heat_rating"
+                        sort={weaponSort}
+                        onSort={(k) => toggleSort(setWeaponSort, k)}
+                      />
+                      <SortTh
+                        label="Hit dice"
+                        sortKey="hit_dice"
+                        sort={weaponSort}
+                        onSort={(k) => toggleSort(setWeaponSort, k)}
+                      />
+                      <SortTh
+                        label="Drop Pod"
+                        sortKey="no_drop_pod"
+                        sort={weaponSort}
+                        onSort={(k) => toggleSort(setWeaponSort, k)}
+                      />
+                      <th>Effects</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {weaponItems.map((item) => (
+                      <tr key={item.id}>
+                        <td>{item.name}</td>
+                        <td>{item.weight ?? 0} t</td>
+                        <td>{item.range || '—'}</td>
+                        <td>{item.heat_rating || '—'}</td>
+                        <td>{item.hit_dice || '—'}</td>
+                        <td>{item.no_drop_pod ? '✕' : ''}</td>
+                        <td>{item.effects || '—'}</td>
+                        <td>
+                          <div style={{ display: 'flex', gap: 8 }}>
+                            <button
+                              type="button"
+                              className="ghost"
+                              onClick={() =>
+                                setEditingEquipmentId(Number(item.id))
+                              }
+                            >
+                              Edit
+                            </button>
+                            <button
+                              type="button"
+                              className="danger"
+                              onClick={() => deleteEquipment(Number(item.id))}
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
