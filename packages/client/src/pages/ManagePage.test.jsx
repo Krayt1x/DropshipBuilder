@@ -19,13 +19,13 @@ describe('ManagePage', () => {
     );
 
     fireEvent.change(screen.getByLabelText('Name'), {
-      target: { value: 'Voidforge Syndicate' },
+      target: { value: 'Test Manufacturer' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Add manufacturer' }));
 
     expect(setManufacturers).toHaveBeenCalled();
     expect(
-      screen.getByText('Added manufacturer "Voidforge Syndicate".'),
+      screen.getByText('Added manufacturer "Test Manufacturer".'),
     ).toBeDefined();
   });
 
@@ -42,7 +42,7 @@ describe('ManagePage', () => {
       />,
     );
 
-    fireEvent.change(screen.getByPlaceholderText('Voidforge Syndicate'), {
+    fireEvent.change(screen.getByPlaceholderText('New Manufacturer'), {
       target: { value: 'Corp A' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Add manufacturer' }));

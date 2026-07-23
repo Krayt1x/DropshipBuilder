@@ -1,6 +1,10 @@
+import { useState } from 'react';
 import { EQUIPMENT_TYPES } from '../lib/constants.js';
 
 function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
+  const [type, setType] = useState(editing?.type ?? 'Movement');
+  const isWeapon = type === 'Weapon';
+
   return (
     <form onSubmit={onSubmit}>
       <div className="stat-grid">
@@ -10,7 +14,7 @@ function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
             type="text"
             id="equipment_name"
             name="name"
-            placeholder="Auto-cannon"
+            placeholder="New weapon"
             defaultValue={editing?.name ?? ''}
             required
           />
@@ -34,11 +38,12 @@ function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
           <select
             id="equipment_type"
             name="type"
-            defaultValue={editing?.type ?? 'Movement'}
+            value={type}
+            onChange={(e) => setType(e.target.value)}
           >
-            {EQUIPMENT_TYPES.map((type) => (
-              <option key={type} value={type}>
-                {type}
+            {EQUIPMENT_TYPES.map((t) => (
+              <option key={t} value={t}>
+                {t}
               </option>
             ))}
           </select>
@@ -55,38 +60,64 @@ function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
             required
           />
         </div>
-        <div className="field">
-          <label htmlFor="range">Range</label>
-          <input
-            type="number"
-            id="range"
-            name="range"
-            min="0"
-            step="1"
-            defaultValue={editing?.range ?? 0}
-          />
-        </div>
-        <div className="field">
-          <label htmlFor="heat_rating">Heat rating</label>
-          <input
-            type="text"
-            id="heat_rating"
-            name="heat_rating"
-            placeholder="e.g. 3/3"
-            defaultValue={editing?.heat_rating ?? ''}
-          />
-        </div>
-        <div className="field">
-          <label htmlFor="hit_dice">Hit dice</label>
-          <input
-            type="text"
-            id="hit_dice"
-            name="hit_dice"
-            placeholder="e.g. 1d4"
-            defaultValue={editing?.hit_dice ?? ''}
-          />
-        </div>
       </div>
+
+      {isWeapon && (
+        <div className="stat-grid" style={{ marginTop: 10 }}>
+          <div className="field">
+            <label htmlFor="range">Range</label>
+            <input
+              type="number"
+              id="range"
+              name="range"
+              min="0"
+              step="1"
+              defaultValue={editing?.range ?? 0}
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="heat_rating">Heat rating</label>
+            <input
+              type="text"
+              id="heat_rating"
+              name="heat_rating"
+              placeholder="e.g. 3/3"
+              defaultValue={editing?.heat_rating ?? ''}
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="hit_dice">Hit dice</label>
+            <input
+              type="text"
+              id="hit_dice"
+              name="hit_dice"
+              placeholder="e.g. 1d4"
+              defaultValue={editing?.hit_dice ?? ''}
+            />
+          </div>
+        </div>
+      )}
+
+      <div
+        className="field"
+        style={{
+          marginTop: 10,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 8,
+        }}
+      >
+        <input
+          type="checkbox"
+          id="no_drop_pod"
+          name="no_drop_pod"
+          defaultChecked={editing?.no_drop_pod ?? false}
+        />
+        <label htmlFor="no_drop_pod" style={{ margin: 0 }}>
+          Cannot be equipped on a Drop Pod
+        </label>
+      </div>
+
       <div className="field" style={{ marginTop: 10 }}>
         <label htmlFor="effects">Effects</label>
         <textarea
