@@ -277,6 +277,11 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
                     entry={entry}
                     units={units}
                     equipment={equipment}
+                    totalWeight={
+                      Number(entry.unit.weight) +
+                      equipmentWeight(entry.equipment, equipment, entry.unit) +
+                      carriedWeight(entry.carried, units)
+                    }
                     onRemove={() => removeFromList(entry.key)}
                     onAssignEquipment={(slot, slotIndex, equipmentId) =>
                       assignEquipment(entry.key, slot, slotIndex, equipmentId)
