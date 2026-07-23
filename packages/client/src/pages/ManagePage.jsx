@@ -388,6 +388,7 @@ function ManagePage({
                       <th>Range</th>
                       <th>Heat</th>
                       <th>Hit dice</th>
+                      <th>Drop Pod</th>
                       <th>Effects</th>
                       <th></th>
                     </tr>
@@ -397,12 +398,7 @@ function ManagePage({
                       const isWeapon = (item.type ?? 'Movement') === 'Weapon';
                       return (
                         <tr key={item.id}>
-                          <td>
-                            <p className="unit-name">{item.name}</p>
-                            {item.no_drop_pod && (
-                              <p className="unit-meta">Not for Drop Pods</p>
-                            )}
-                          </td>
+                          <td>{item.name}</td>
                           <td>
                             <span className="badge">
                               {item.type ?? 'Movement'}
@@ -412,6 +408,7 @@ function ManagePage({
                           <td>{isWeapon ? (item.range ?? 0) : '—'}</td>
                           <td>{isWeapon ? item.heat_rating || '—' : '—'}</td>
                           <td>{isWeapon ? item.hit_dice || '—' : '—'}</td>
+                          <td>{item.no_drop_pod ? '✕' : ''}</td>
                           <td>{item.effects || '—'}</td>
                           <td>
                             <div style={{ display: 'flex', gap: 8 }}>
