@@ -47,8 +47,8 @@
         "dice_blue": 0,
         "dice_red": 3,
         "dice_green": 0,
-        "left_slots": 2,
-        "right_slots": 2
+        "left_slots": 3,
+        "right_slots": 3
     },
     {
         "id": 7,
