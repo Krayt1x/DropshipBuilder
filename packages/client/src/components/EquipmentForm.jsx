@@ -10,7 +10,7 @@ function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
             type="text"
             id="equipment_name"
             name="name"
-            placeholder="Auto-cannon"
+            placeholder="New weapon"
             defaultValue={editing?.name ?? ''}
             required
           />

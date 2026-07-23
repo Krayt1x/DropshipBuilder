@@ -10,7 +10,7 @@ function UnitForm({ manufacturers, editing, onSubmit, onCancel }) {
             type="text"
             id="name"
             name="name"
-            placeholder="Shock trooper squad"
+            placeholder="New unit"
             defaultValue={editing?.name ?? ''}
             required
           />

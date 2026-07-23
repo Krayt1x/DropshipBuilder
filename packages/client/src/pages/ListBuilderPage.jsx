@@ -14,7 +14,7 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
   const [settings, setSettings] = useLocalStorageState(
     'dropshipbuilder:settings',
     {
-      list_name: 'Kestrel Vanguard',
+      list_name: 'New List',
       manufacturer: manufacturers[0] ?? '',
       weight_limit: 100,
     },

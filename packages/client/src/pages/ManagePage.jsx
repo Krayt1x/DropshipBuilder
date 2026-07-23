@@ -221,7 +221,7 @@ function ManagePage({
               type="text"
               id="manufacturer_name"
               name="name"
-              placeholder="Voidforge Syndicate"
+              placeholder="New Manufacturer"
               required
             />
           </div>
