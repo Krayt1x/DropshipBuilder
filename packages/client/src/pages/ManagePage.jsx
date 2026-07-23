@@ -5,7 +5,7 @@ import {
   diceLines,
   sizeLabel,
 } from '../lib/constants.js';
-import { nextId } from '../lib/storage.js';
+import { nextId, purgeCatalogCache } from '../lib/storage.js';
 import UnitForm from '../components/UnitForm.jsx';
 import EquipmentForm from '../components/EquipmentForm.jsx';
 import ExportPanel from '../components/ExportPanel.jsx';
@@ -83,8 +83,6 @@ function ManagePage({
     editingEquipmentId != null
       ? equipment.find((e) => Number(e.id) === editingEquipmentId)
       : null;
-  const unitFormVisible = showUnitForm || editingUnit != null;
-
   function showFlash(message, isError = false) {
     setFlash({ message, isError });
   }
@@ -281,10 +279,7 @@ function ManagePage({
     ) {
       return;
     }
-    window.localStorage.removeItem('dropshipbuilder:manufacturers');
-    window.localStorage.removeItem('dropshipbuilder:units');
-    window.localStorage.removeItem('dropshipbuilder:equipment');
-    window.location.reload();
+    purgeCatalogCache();
   }
 
   return (
@@ -320,7 +315,7 @@ function ManagePage({
               setEditingUnitId(null);
             }}
           >
-            {unitFormVisible ? 'Cancel' : 'Add unit'}
+            {showUnitForm ? 'Cancel' : 'Add unit'}
           </button>
           <button
             type="button"
@@ -363,20 +358,15 @@ function ManagePage({
         </div>
       )}
 
-      {manufacturers.length > 0 && unitFormVisible && (
+      {manufacturers.length > 0 && showUnitForm && (
         <div className="card">
-          <h2 style={{ fontSize: 15, marginTop: 0 }}>
-            {editingUnit ? 'Edit unit' : 'Add a new unit'}
-          </h2>
+          <h2 style={{ fontSize: 15, marginTop: 0 }}>Add a new unit</h2>
           <UnitForm
-            key={editingUnit?.id ?? 'new-unit'}
+            key="new-unit"
             manufacturers={manufacturers}
-            editing={editingUnit}
+            editing={null}
             onSubmit={submitUnit}
-            onCancel={() => {
-              setEditingUnitId(null);
-              setShowUnitForm(false);
-            }}
+            onCancel={() => setShowUnitForm(false)}
           />
         </div>
       )}
@@ -532,52 +522,68 @@ function ManagePage({
                     </thead>
                     <tbody>
                       {sortRows(manufacturerUnits, unitSort).map((unit) => (
-                        <tr key={unit.id}>
-                          <td>{unit.name}</td>
-                          <td>
-                            <span className="badge">
-                              {sizeLabel(unit.size)}
-                            </span>
-                          </td>
-                          <td>{unit.weight} t</td>
-                          <td>{unit.armor || '—'}</td>
-                          <td>{unit.max_weight ?? 0}</td>
-                          <td>{unit.max_drop_weight ?? 0}</td>
-                          <td>{unit.hp ?? 0}</td>
-                          <td>{unit.base_movement ?? 0}</td>
-                          <td style={{ whiteSpace: 'nowrap' }}>
-                            {diceLines(unit).length ? (
-                              diceLines(unit).map((line) => (
-                                <div key={line}>{line}</div>
-                              ))
-                            ) : (
-                              <div>None</div>
-                            )}
-                          </td>
-                          <td>{unit.left_slots ?? 1}</td>
-                          <td>{unit.right_slots ?? 1}</td>
-                          <td>
-                            <div style={{ display: 'flex', gap: 8 }}>
-                              <button
-                                type="button"
-                                className="ghost"
-                                onClick={() =>
-                                  setEditingUnitId(Number(unit.id))
-                                }
-                              >
-                                Edit
-                              </button>
-                              <button
-                                type="button"
-                                className="danger"
-                                aria-label="Remove"
-                                onClick={() => deleteUnit(Number(unit.id))}
-                              >
-                                ✕
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
+                        <Fragment key={unit.id}>
+                          <tr>
+                            <td>{unit.name}</td>
+                            <td>
+                              <span className="badge">
+                                {sizeLabel(unit.size)}
+                              </span>
+                            </td>
+                            <td>{unit.weight} t</td>
+                            <td>{unit.armor || '—'}</td>
+                            <td>{unit.max_weight ?? 0}</td>
+                            <td>{unit.max_drop_weight ?? 0}</td>
+                            <td>{unit.hp ?? 0}</td>
+                            <td>{unit.base_movement ?? 0}</td>
+                            <td style={{ whiteSpace: 'nowrap' }}>
+                              {diceLines(unit).length ? (
+                                diceLines(unit).map((line) => (
+                                  <div key={line}>{line}</div>
+                                ))
+                              ) : (
+                                <div>None</div>
+                              )}
+                            </td>
+                            <td>{unit.left_slots ?? 1}</td>
+                            <td>{unit.right_slots ?? 1}</td>
+                            <td>
+                              <div style={{ display: 'flex', gap: 8 }}>
+                                <button
+                                  type="button"
+                                  className="ghost"
+                                  onClick={() => {
+                                    setEditingUnitId(Number(unit.id));
+                                    setShowUnitForm(false);
+                                  }}
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  type="button"
+                                  className="danger"
+                                  aria-label="Remove"
+                                  onClick={() => deleteUnit(Number(unit.id))}
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                          {editingUnitId === Number(unit.id) && (
+                            <tr>
+                              <td colSpan={12}>
+                                <UnitForm
+                                  key={unit.id}
+                                  manufacturers={manufacturers}
+                                  editing={unit}
+                                  onSubmit={submitUnit}
+                                  onCancel={() => setEditingUnitId(null)}
+                                />
+                              </td>
+                            </tr>
+                          )}
+                        </Fragment>
                       ))}
                     </tbody>
                   </table>

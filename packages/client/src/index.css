@@ -327,6 +327,56 @@ button.ghost {
   min-width: 0;
 }
 
+.warning-icon {
+  margin-right: 4px;
+}
+
+.dice-icons {
+  display: inline-flex;
+  gap: 3px;
+  flex-wrap: wrap;
+}
+
+.dice-icons-empty {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.die-icon {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.die-icon.blue {
+  background: #2563eb;
+}
+
+.die-icon.red {
+  background: #dc2626;
+}
+
+.die-icon.green {
+  background: #16a34a;
+}
+
+.remove-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.danger-ghost {
+  background: transparent;
+  border: 1px solid #b91c1c;
+  color: #b91c1c;
+}
+
+.danger-ghost:hover {
+  background: #fee2e2;
+}
+
 .equipment-slots {
   display: flex;
   flex-wrap: wrap;
@@ -476,6 +526,30 @@ button.ghost {
   color: #d1d5db;
 }
 
+.slot-picker-row.slot-picker-row-stack {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.slot-picker-row-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1;
+  gap: 8px;
+}
+
+.slot-picker-row-effects {
+  font-size: 10px;
+  font-style: italic;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.slot-picker-row.selected .slot-picker-row-effects {
+  color: #d1d5db;
+}
+
 .equipment-effects {
   display: block;
   font-size: 11px;
@@ -596,6 +670,25 @@ form.inline {
   background: #fee2e2;
   color: #991b1b;
   border-color: #fecaca;
+}
+
+.stale-data-banner {
+  max-width: 960px;
+  margin: 0 auto 1rem;
+  padding: 10px 1.5rem;
+  background: #fef3c7;
+  color: #92400e;
+  border-bottom: 1px solid #fde68a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.stale-data-banner .ghost {
+  border-color: #92400e;
+  color: #92400e;
 }
 
 footer {
