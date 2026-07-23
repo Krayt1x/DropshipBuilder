@@ -51,5 +51,17 @@
         "heat_rating": "",
         "hit_dice": "",
         "no_drop_pod": true
+    },
+    {
+        "id": 6,
+        "name": "Legs",
+        "manufacturer": "Corp A",
+        "type": "Movement",
+        "effects": "",
+        "weight": 0,
+        "range": 0,
+        "heat_rating": "",
+        "hit_dice": "",
+        "no_drop_pod": true
     }
 ]
