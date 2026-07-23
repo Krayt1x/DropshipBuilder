@@ -38,7 +38,7 @@ function LoadMechForm({ options, onAdd }) {
   );
 }
 
-function SlotCard({ label, item, isOpen, disabled, onToggle }) {
+function SlotCard({ label, item, weightOverride, isOpen, disabled, onToggle }) {
   return (
     <button
       type="button"
@@ -48,7 +48,11 @@ function SlotCard({ label, item, isOpen, disabled, onToggle }) {
     >
       <span className="slot-card-label">{label}</span>
       <span className="slot-card-item">{item?.name ?? 'Empty'}</span>
-      {item && <span className="slot-card-wt">{item.weight ?? 0}t</span>}
+      {item && (
+        <span className="slot-card-wt">
+          {weightOverride ?? item.weight ?? 0}t
+        </span>
+      )}
       {!disabled && <span className="slot-card-edit">✎</span>}
     </button>
   );
@@ -204,6 +208,9 @@ function RosterEntry({
           key={key}
           label="Movement"
           item={selected}
+          weightOverride={
+            selected ? Number(selected.weight ?? 0) + tier : undefined
+          }
           isOpen={openSlotKey === key}
           disabled={slotOptions.length === 0}
           onToggle={() => toggleSlot(key)}
@@ -406,6 +413,12 @@ function RosterEntry({
             <SlotCard
               label="Equipment"
               item={dropPodSelected}
+              weightOverride={
+                dropPodSelected &&
+                (dropPodSelected.type ?? 'Movement') === 'Movement'
+                  ? Number(dropPodSelected.weight ?? 0) + tier
+                  : undefined
+              }
               isOpen={openSlotKey === 'equipment'}
               disabled={hasMech || dropPodEquipmentOptions.length === 0}
               onToggle={() => toggleSlot('equipment')}
