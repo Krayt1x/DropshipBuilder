@@ -60,6 +60,19 @@ function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
             required
           />
         </div>
+        {!isWeapon && (
+          <div className="field">
+            <label htmlFor="weight_ratio">Tonne × size ratio</label>
+            <input
+              type="number"
+              id="weight_ratio"
+              name="weight_ratio"
+              min="0"
+              step="0.1"
+              defaultValue={editing?.weight_ratio ?? 1}
+            />
+          </div>
+        )}
       </div>
 
       {isWeapon && (

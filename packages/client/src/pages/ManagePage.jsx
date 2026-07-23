@@ -1,14 +1,15 @@
 import { Fragment, useState } from 'react';
-import {
-  UNIT_SIZES,
-  EQUIPMENT_TYPES,
-  diceLines,
-  sizeLabel,
-} from '../lib/constants.js';
+import { UNIT_SIZES, EQUIPMENT_TYPES, sizeLabel } from '../lib/constants.js';
 import { nextId, purgeCatalogCache } from '../lib/storage.js';
 import UnitForm from '../components/UnitForm.jsx';
 import EquipmentForm from '../components/EquipmentForm.jsx';
 import ExportPanel from '../components/ExportPanel.jsx';
+import DiceIcons from '../components/DiceIcons.jsx';
+
+function trueWeight(item) {
+  const raw = Number(item.weight ?? 0) * Number(item.weight_ratio ?? 1);
+  return Number.isInteger(raw) ? raw : raw.toFixed(1);
+}
 
 function compareValues(a, b) {
   const an = Number(a);
@@ -184,6 +185,7 @@ function ManagePage({
       dice_green: Math.max(0, Number(form.get('dice_green')) || 0),
       left_slots: Math.max(0, Number(form.get('left_slots')) || 0),
       right_slots: Math.max(0, Number(form.get('right_slots')) || 0),
+      head_slots: Math.max(0, Number(form.get('head_slots')) || 0),
     };
 
     if (editingUnit) {
@@ -232,12 +234,17 @@ function ManagePage({
       return;
     }
 
+    const weightRatioRaw = form.get('weight_ratio');
     const payload = {
       name,
       manufacturer,
       type,
       effects: (form.get('effects') || '').toString().trim(),
       weight: Number(form.get('weight')) || 0,
+      weight_ratio:
+        weightRatioRaw != null && weightRatioRaw !== ''
+          ? Math.max(0, Number(weightRatioRaw))
+          : 1,
       range: (form.get('range') || '').toString().trim(),
       heat_rating: (form.get('heat_rating') || '').toString().trim(),
       hit_dice: (form.get('hit_dice') || '').toString().trim(),
@@ -447,6 +454,15 @@ function ManagePage({
                   </button>
                 </form>
               </div>
+              <h3
+                style={{
+                  fontSize: 13,
+                  color: 'var(--text-secondary)',
+                  margin: '16px 0 8px',
+                }}
+              >
+                Units
+              </h3>
               {manufacturerUnits.length === 0 ? (
                 <p className="empty">
                   No units for this manufacturer yet. Add one above.
@@ -517,6 +533,12 @@ function ManagePage({
                           sort={unitSort}
                           onSort={(k) => toggleSort(setUnitSort, k)}
                         />
+                        <SortTh
+                          label="H slots"
+                          sortKey="head_slots"
+                          sort={unitSort}
+                          onSort={(k) => toggleSort(setUnitSort, k)}
+                        />
                         <th></th>
                       </tr>
                     </thead>
@@ -537,16 +559,11 @@ function ManagePage({
                             <td>{unit.hp ?? 0}</td>
                             <td>{unit.base_movement ?? 0}</td>
                             <td style={{ whiteSpace: 'nowrap' }}>
-                              {diceLines(unit).length ? (
-                                diceLines(unit).map((line) => (
-                                  <div key={line}>{line}</div>
-                                ))
-                              ) : (
-                                <div>None</div>
-                              )}
+                              <DiceIcons unit={unit} />
                             </td>
                             <td>{unit.left_slots ?? 1}</td>
                             <td>{unit.right_slots ?? 1}</td>
+                            <td>{unit.head_slots ?? 0}</td>
                             <td>
                               <div style={{ display: 'flex', gap: 8 }}>
                                 <button
@@ -631,6 +648,13 @@ function ManagePage({
                           onSort={(k) => toggleSort(setMovementSort, k)}
                         />
                         <SortTh
+                          label="Ratio"
+                          sortKey="weight_ratio"
+                          sort={movementSort}
+                          onSort={(k) => toggleSort(setMovementSort, k)}
+                        />
+                        <th>True wt</th>
+                        <SortTh
                           label="Drop Pod"
                           sortKey="no_drop_pod"
                           sort={movementSort}
@@ -646,6 +670,8 @@ function ManagePage({
                           <tr>
                             <td>{item.name}</td>
                             <td>{item.weight ?? 0} t</td>
+                            <td>{item.weight_ratio ?? 1}</td>
+                            <td>{trueWeight(item)} t</td>
                             <td>{item.no_drop_pod ? '✕' : ''}</td>
                             <td>{item.effects || '—'}</td>
                             <td>

@@ -134,7 +134,7 @@ function UnitForm({ manufacturers, editing, onSubmit, onCancel }) {
           />
         </div>
         <div className="field">
-          <label htmlFor="dice_green">Green dice</label>
+          <label htmlFor="dice_green">Yellow dice</label>
           <input
             type="number"
             id="dice_green"
@@ -167,6 +167,17 @@ function UnitForm({ manufacturers, editing, onSubmit, onCancel }) {
             min="0"
             step="1"
             defaultValue={editing?.right_slots ?? 1}
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="head_slots">Head slots</label>
+          <input
+            type="number"
+            id="head_slots"
+            name="head_slots"
+            min="0"
+            step="1"
+            defaultValue={editing?.head_slots ?? 0}
           />
         </div>
       </div>

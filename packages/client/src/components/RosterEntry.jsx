@@ -1,6 +1,14 @@
 import { useState } from 'react';
-import { SLOTS, DROP_POD_SIZE, sizeLabel } from '../lib/constants.js';
+import { SLOTS, DROP_POD_SIZE, sizeLabel, sizeTier } from '../lib/constants.js';
 import DiceIcons from './DiceIcons.jsx';
+
+const WEIGHT_SEGMENT_COLORS = [
+  '#1d4ed8',
+  '#2563eb',
+  '#3b82f6',
+  '#60a5fa',
+  '#93c5fd',
+];
 
 function LoadMechForm({ options, onAdd }) {
   return (
@@ -46,8 +54,10 @@ function SlotPicker({
   selectedId,
   allowNone,
   isWeapon,
+  weightMultiplier,
   onSelect,
 }) {
+  const multiplier = weightMultiplier ?? 1;
   return (
     <div className="slot-picker">
       <p className="slot-picker-title">{title}</p>
@@ -70,7 +80,7 @@ function SlotPicker({
             <span className="slot-picker-stats">
               {isWeapon
                 ? `${item.weight ?? 0}t · ${item.range || '—'} · ${item.heat_rating || '—'} · ${item.hit_dice || '—'}`
-                : `${item.weight ?? 0}t`}
+                : `${(item.weight ?? 0) * Number(item.weight_ratio ?? 1) * multiplier}t`}
             </span>
           </div>
           {!isWeapon && item.effects && (
@@ -116,6 +126,7 @@ function RosterEntry({
     Movement: 1,
     Left: Math.max(0, Number(unit.left_slots ?? 1)),
     Right: Math.max(0, Number(unit.right_slots ?? 1)),
+    Head: Math.max(0, Number(unit.head_slots ?? 0)),
   };
 
   const statsLine = [
@@ -124,12 +135,11 @@ function RosterEntry({
     `Move ${unit.base_movement ?? 0}`,
   ].join(' · ');
 
-  const overDropWeight =
-    Number(unit.max_drop_weight) > 0 &&
-    totalWeight > Number(unit.max_drop_weight);
-
   const maxWeight = Number(unit.max_weight) || 0;
   const maxDropWeight = Number(unit.max_drop_weight) || 0;
+  const overMaxWeight = maxWeight > 0 && totalWeight > maxWeight;
+  const overDropWeight =
+    !overMaxWeight && maxDropWeight > 0 && totalWeight > maxDropWeight;
   const spareCapacity = maxWeight - totalWeight;
   const effectiveMovement = spareCapacity + Number(unit.base_movement ?? 0);
 
@@ -174,9 +184,24 @@ function RosterEntry({
   }
 
   const equippedWithEffects = [];
+  const equippedWeights = [];
+  const tier = sizeTier(unit.size);
   if (isDropPod) {
     if (dropPodSelected?.effects) {
       equippedWithEffects.push({ key: 'equipment', item: dropPodSelected });
+    }
+    if (dropPodSelected) {
+      const isMovement = (dropPodSelected.type ?? 'Movement') === 'Movement';
+      const ratio = isMovement ? Number(dropPodSelected.weight_ratio ?? 1) : 1;
+      const weight =
+        Number(dropPodSelected.weight ?? 0) * ratio * (isMovement ? tier : 1);
+      if (weight > 0) {
+        equippedWeights.push({
+          key: 'equipment',
+          name: dropPodSelected.name,
+          weight,
+        });
+      }
     }
   } else {
     SLOTS.forEach((slot) => {
@@ -193,20 +218,45 @@ function RosterEntry({
         if (selected?.effects) {
           equippedWithEffects.push({ key: `${slot}-${i}`, item: selected });
         }
+        if (selected) {
+          const isMovement = requiredType === 'Movement';
+          const ratio = isMovement ? Number(selected.weight_ratio ?? 1) : 1;
+          const weight =
+            Number(selected.weight ?? 0) * ratio * (isMovement ? tier : 1);
+          if (weight > 0) {
+            equippedWeights.push({
+              key: `${slot}-${i}`,
+              name: selected.name,
+              weight,
+            });
+          }
+        }
       }
     });
   }
+  const hullWeight = Math.max(
+    0,
+    totalWeight - equippedWeights.reduce((sum, item) => sum + item.weight, 0),
+  );
 
   return (
     <div
-      className="unit-row"
+      className={`unit-row ${overMaxWeight ? 'over-max-weight' : ''}`}
       style={{ alignItems: 'flex-start', flexWrap: 'wrap' }}
     >
       <div className="unit-info">
         <p className="unit-name">
+          {overMaxWeight && (
+            <span
+              className="warning-icon warning-icon-max"
+              title={`Over max weight (${unit.max_weight} t)`}
+            >
+              ⛔
+            </span>
+          )}
           {overDropWeight && (
             <span
-              className="warning-icon"
+              className="warning-icon warning-icon-drop"
               title={`Over max drop weight (${unit.max_drop_weight} t)`}
             >
               ⚠️
@@ -218,12 +268,27 @@ function RosterEntry({
         {maxWeight > 0 && (
           <div className="weight-bar-mini">
             <div className="weight-bar-mini-track">
-              <div
-                className="weight-bar-mini-fill"
-                style={{
-                  width: `${Math.min(100, (totalWeight / maxWeight) * 100)}%`,
-                }}
-              />
+              {hullWeight > 0 && (
+                <div
+                  className="weight-bar-mini-seg weight-bar-mini-seg-hull"
+                  style={{
+                    width: `${Math.min(100, (hullWeight / maxWeight) * 100)}%`,
+                  }}
+                  title={`${unit.name} hull: ${hullWeight}t`}
+                />
+              )}
+              {equippedWeights.map((item, i) => (
+                <div
+                  key={item.key}
+                  className="weight-bar-mini-seg"
+                  style={{
+                    width: `${Math.min(100, (item.weight / maxWeight) * 100)}%`,
+                    background:
+                      WEIGHT_SEGMENT_COLORS[i % WEIGHT_SEGMENT_COLORS.length],
+                  }}
+                  title={`${item.name}: ${item.weight}t`}
+                />
+              ))}
               {maxDropWeight > 0 && (
                 <div
                   className="weight-bar-mini-drop-marker"
@@ -238,6 +303,24 @@ function RosterEntry({
               {maxDropWeight > 0 && <span>Max drop {maxDropWeight}t</span>}
               <span>Max {maxWeight}t</span>
             </div>
+            {equippedWeights.length > 0 && (
+              <div className="weight-legend">
+                {equippedWeights.map((item, i) => (
+                  <span className="legend-chip" key={item.key}>
+                    <span
+                      className="legend-swatch"
+                      style={{
+                        background:
+                          WEIGHT_SEGMENT_COLORS[
+                            i % WEIGHT_SEGMENT_COLORS.length
+                          ],
+                      }}
+                    />
+                    {item.name} {item.weight}t
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         )}
         <p className="unit-stats">{sizeLabel(unit.size)}</p>
@@ -277,6 +360,12 @@ function RosterEntry({
               <div className="equipment-slots-panel-label">Movement</div>
               {renderSlotCards('Movement')}
             </div>
+            {slotCounts.Head > 0 && (
+              <div className="equipment-slots-panel equipment-slots-panel-head">
+                <div className="equipment-slots-panel-label">Head</div>
+                {renderSlotCards('Head')}
+              </div>
+            )}
           </div>
         )}
 
@@ -300,9 +389,14 @@ function RosterEntry({
             const [slot, indexStr] = openSlotKey.split('-');
             const i = Number(indexStr);
             const requiredType = slot === 'Movement' ? 'Movement' : 'Weapon';
-            const slotOptions = unitEquipment.filter(
-              (item) => (item.type ?? 'Movement') === requiredType,
-            );
+            const slotOptions = unitEquipment
+              .filter((item) => (item.type ?? 'Movement') === requiredType)
+              .sort((a, b) =>
+                slot === 'Movement'
+                  ? Number(a.weight ?? 0) * Number(a.weight_ratio ?? 1) -
+                    Number(b.weight ?? 0) * Number(b.weight_ratio ?? 1)
+                  : 0,
+              );
             const count = slotCounts[slot];
             const selectedId = entry.equipment?.[slot]?.[i] ?? 0;
             return (
@@ -312,6 +406,7 @@ function RosterEntry({
                 selectedId={selectedId}
                 allowNone={slot !== 'Movement'}
                 isWeapon={requiredType === 'Weapon'}
+                weightMultiplier={slot === 'Movement' ? tier : 1}
                 onSelect={(id) => {
                   onAssignEquipment(slot, i, id);
                   setOpenSlotKey(null);

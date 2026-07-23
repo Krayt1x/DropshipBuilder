@@ -14,7 +14,7 @@ export const UNIT_SIZE_TIER = {
 };
 
 export const DICE_COLORS = ['blue', 'red', 'green'];
-export const SLOTS = ['Movement', 'Left', 'Right'];
+export const SLOTS = ['Movement', 'Left', 'Right', 'Head'];
 export const DROP_POD_SIZE = 'Drop Pod';
 export const EQUIPMENT_TYPES = ['Movement', 'Weapon'];
 // Bump this whenever the seed data (manufacturers/units/equipment.json)
@@ -28,16 +28,4 @@ export function sizeLabel(size) {
 
 export function sizeTier(size) {
   return UNIT_SIZE_TIER[size] ?? 1;
-}
-
-export function diceLines(unit) {
-  return DICE_COLORS.filter((color) => Number(unit[`dice_${color}`]) > 0).map(
-    (color) =>
-      `${Number(unit[`dice_${color}`])} ${color[0].toUpperCase()}${color.slice(1)}`,
-  );
-}
-
-export function diceSummary(unit) {
-  const parts = diceLines(unit);
-  return parts.length ? parts.join(', ') : 'None';
 }
