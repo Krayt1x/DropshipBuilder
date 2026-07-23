@@ -51,6 +51,7 @@ function RosterEntry({
   entry,
   units,
   equipment,
+  totalWeight,
   onRemove,
   onAssignEquipment,
   onAddCarried,
@@ -92,7 +93,7 @@ function RosterEntry({
         <p className="unit-name">
           {unit.name} {isDropPod && <span className="badge">Drop Pod</span>}
         </p>
-        <p className="unit-meta">{unit.weight} t</p>
+        <p className="unit-meta">{totalWeight} t</p>
 
         {isDropPod ? (
           <div className="equipment-slots">
