@@ -1,12 +1,43 @@
 import { useState } from 'react';
-import { EQUIPMENT_TYPES, WEAPON_SIZES } from '../lib/constants.js';
+import {
+  EQUIPMENT_TYPES,
+  WEAPON_SIZES,
+  EFFECT_STATS,
+  effectStatLabel,
+} from '../lib/constants.js';
 
 function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
   const [type, setType] = useState(editing?.type ?? 'Movement');
+  const [statEffects, setStatEffects] = useState(editing?.effect_stats ?? []);
+  const [showEffectEditor, setShowEffectEditor] = useState(false);
+  const [newEffectStat, setNewEffectStat] = useState('');
+  const [newEffectAmount, setNewEffectAmount] = useState('');
   const isWeapon = type === 'Weapon';
+
+  function addStatEffect() {
+    const amount = Number(newEffectAmount);
+    if (!EFFECT_STATS.some((s) => s.key === newEffectStat) || !amount) return;
+    setStatEffects((current) => [
+      ...current,
+      { stat: newEffectStat, amount },
+    ]);
+    setShowEffectEditor(false);
+    setNewEffectStat('');
+    setNewEffectAmount('');
+  }
+
+  function removeStatEffect(index) {
+    setStatEffects((current) => current.filter((_, i) => i !== index));
+  }
 
   return (
     <form onSubmit={onSubmit}>
+      <input
+        type="hidden"
+        name="effect_stats"
+        value={JSON.stringify(statEffects)}
+        readOnly
+      />
       <div className="stat-grid">
         <div className="field">
           <label htmlFor="equipment_name">Name</label>
@@ -132,7 +163,7 @@ function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
       </div>
 
       <div className="field" style={{ marginTop: 10 }}>
-        <label htmlFor="effects">Effects</label>
+        <label htmlFor="effects">Effects (description)</label>
         <textarea
           id="effects"
           name="effects"
@@ -140,6 +171,73 @@ function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
           placeholder="What happens when this is equipped?"
           defaultValue={editing?.effects ?? ''}
         />
+      </div>
+
+      <div className="field" style={{ marginTop: 10 }}>
+        <label>Stat effects</label>
+        {statEffects.length > 0 && (
+          <div className="effect-chips">
+            {statEffects.map((effect, i) => (
+              <span className="effect-chip" key={`${effect.stat}-${i}`}>
+                {effect.amount > 0 ? '+' : ''}
+                {effect.amount} {effectStatLabel(effect.stat)}
+                <button
+                  type="button"
+                  className="effect-chip-remove"
+                  aria-label="Remove effect"
+                  onClick={() => removeStatEffect(i)}
+                >
+                  ✕
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
+        <button
+          type="button"
+          className="add-effect-btn"
+          onClick={() => setShowEffectEditor((v) => !v)}
+        >
+          {showEffectEditor ? 'Cancel' : '+ Add an effect'}
+        </button>
+        {showEffectEditor && (
+          <div
+            className="effect-editor"
+            style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}
+          >
+            <div className="field" style={{ flex: 2 }}>
+              <label htmlFor="effect_stat">Stat</label>
+              <select
+                id="effect_stat"
+                value={newEffectStat}
+                onChange={(e) => setNewEffectStat(e.target.value)}
+              >
+                <option value="" disabled>
+                  Choose a stat
+                </option>
+                {EFFECT_STATS.map((s) => (
+                  <option key={s.key} value={s.key}>
+                    {s.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="field" style={{ flex: 1 }}>
+              <label htmlFor="effect_amount">Amount</label>
+              <input
+                type="number"
+                id="effect_amount"
+                step="1"
+                placeholder="+2"
+                value={newEffectAmount}
+                onChange={(e) => setNewEffectAmount(e.target.value)}
+              />
+            </div>
+            <button type="button" onClick={addStatEffect}>
+              Add
+            </button>
+          </div>
+        )}
       </div>
       <div
         style={{
