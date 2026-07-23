@@ -1,34 +1,10 @@
+import { useState } from 'react';
 import {
   SLOTS,
   DROP_POD_SIZE,
   diceSummary,
   sizeLabel,
 } from '../lib/constants.js';
-
-const WEAPON_COLS = [
-  { key: 'name', label: 'Name', width: 10 },
-  { key: 'weight', label: 'Wt', width: 4 },
-  { key: 'range', label: 'Range', width: 5 },
-  { key: 'heat_rating', label: 'Heat', width: 5 },
-  { key: 'hit_dice', label: 'Hit dice', width: 8 },
-];
-
-function pad(value, width) {
-  return String(value ?? '')
-    .padEnd(width)
-    .slice(0, width);
-}
-
-function formatWeaponOption(item) {
-  return WEAPON_COLS.map((col) => {
-    if (col.key === 'name') return pad(item.name, col.width);
-    if (col.key === 'weight') return pad(`${item.weight ?? 0}t`, col.width);
-    if (col.key === 'range') return pad(item.range || '—', col.width);
-    if (col.key === 'heat_rating')
-      return pad(item.heat_rating || '—', col.width);
-    return pad(item.hit_dice || '—', col.width);
-  }).join(' ');
-}
 
 function LoadMechForm({ options, onAdd }) {
   return (
@@ -49,6 +25,64 @@ function LoadMechForm({ options, onAdd }) {
       </select>
       <button type="submit">Load mech</button>
     </form>
+  );
+}
+
+function SlotCard({ label, item, isOpen, disabled, onToggle }) {
+  return (
+    <button
+      type="button"
+      className={`slot-card ${isOpen ? 'open' : ''}`}
+      disabled={disabled}
+      onClick={onToggle}
+    >
+      <span className="slot-card-label">{label}</span>
+      <span className="slot-card-item">{item?.name ?? 'Empty'}</span>
+      {item && <span className="slot-card-wt">{item.weight ?? 0}t</span>}
+      {!disabled && <span className="slot-card-edit">✎</span>}
+    </button>
+  );
+}
+
+function SlotPicker({
+  title,
+  options,
+  selectedId,
+  allowNone,
+  isWeapon,
+  onSelect,
+}) {
+  return (
+    <div className="slot-picker">
+      <p className="slot-picker-title">{title}</p>
+      {allowNone && (
+        <div
+          className={`slot-picker-row ${Number(selectedId) === 0 ? 'selected' : ''}`}
+          onClick={() => onSelect(0)}
+        >
+          <span className="slot-picker-name">— None —</span>
+        </div>
+      )}
+      {options.map((item) => (
+        <div
+          key={item.id}
+          className={`slot-picker-row ${Number(selectedId) === Number(item.id) ? 'selected' : ''}`}
+          onClick={() => onSelect(Number(item.id))}
+        >
+          <span className="slot-picker-name">{item.name}</span>
+          <span className="slot-picker-stats">
+            {isWeapon
+              ? `${item.weight ?? 0}t · ${item.range || '—'} · ${item.heat_rating || '—'} · ${item.hit_dice || '—'}`
+              : `${item.weight ?? 0}t`}
+          </span>
+        </div>
+      ))}
+      {options.length === 0 && !allowNone && (
+        <p className="empty" style={{ padding: '6px 0' }}>
+          No options available.
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -94,11 +128,44 @@ function RosterEntry({
       : [`L ${unit.left_slots ?? 1} / R ${unit.right_slots ?? 1}`]),
   ].join(' · ');
 
+  const [openSlotKey, setOpenSlotKey] = useState(null);
+
   const dropPodEquipmentId = entry.equipment?.Movement?.[0] ?? 0;
   const hasEquipment = Boolean(dropPodEquipmentId);
   const dropPodEquipmentOptions = unitEquipment.filter(
     (item) => !item.no_drop_pod,
   );
+  const dropPodSelected = dropPodEquipmentOptions.find(
+    (item) => Number(item.id) === Number(dropPodEquipmentId),
+  );
+
+  function toggleSlot(key) {
+    setOpenSlotKey((current) => (current === key ? null : key));
+  }
+
+  const equippedWithEffects = [];
+  if (isDropPod) {
+    if (dropPodSelected?.effects) {
+      equippedWithEffects.push({ key: 'equipment', item: dropPodSelected });
+    }
+  } else {
+    SLOTS.forEach((slot) => {
+      const requiredType = slot === 'Movement' ? 'Movement' : 'Weapon';
+      const slotOptions = unitEquipment.filter(
+        (item) => (item.type ?? 'Movement') === requiredType,
+      );
+      const count = slotCounts[slot];
+      for (let i = 0; i < count; i += 1) {
+        const selectedId = entry.equipment?.[slot]?.[i] ?? 0;
+        const selected = slotOptions.find(
+          (item) => Number(item.id) === Number(selectedId),
+        );
+        if (selected?.effects) {
+          equippedWithEffects.push({ key: `${slot}-${i}`, item: selected });
+        }
+      }
+    });
+  }
 
   return (
     <div
@@ -114,31 +181,13 @@ function RosterEntry({
 
         {isDropPod ? (
           <div className="equipment-slots">
-            <label className="slot-label">
-              Equipment
-              <select
-                value={dropPodEquipmentId}
-                disabled={hasMech || dropPodEquipmentOptions.length === 0}
-                onChange={(e) =>
-                  onAssignEquipment('Movement', 0, Number(e.target.value))
-                }
-              >
-                <option value={0}>None</option>
-                {dropPodEquipmentOptions.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
-                ))}
-              </select>
-              {(() => {
-                const selected = dropPodEquipmentOptions.find(
-                  (item) => Number(item.id) === Number(dropPodEquipmentId),
-                );
-                return selected?.effects ? (
-                  <span className="equipment-effects">{selected.effects}</span>
-                ) : null;
-              })()}
-            </label>
+            <SlotCard
+              label="Equipment"
+              item={dropPodSelected}
+              isOpen={openSlotKey === 'equipment'}
+              disabled={hasMech || dropPodEquipmentOptions.length === 0}
+              onToggle={() => toggleSlot('equipment')}
+            />
           </div>
         ) : (
           <div className="equipment-slots">
@@ -148,54 +197,72 @@ function RosterEntry({
                 (item) => (item.type ?? 'Movement') === requiredType,
               );
               const count = slotCounts[slot];
-              const isWeaponSlot = requiredType === 'Weapon';
-              const isMovementSlot = slot === 'Movement';
               return Array.from({ length: count }, (_, i) => {
                 const selectedId = entry.equipment?.[slot]?.[i] ?? 0;
                 const selected = slotOptions.find(
                   (item) => Number(item.id) === Number(selectedId),
                 );
+                const key = `${slot}-${i}`;
                 return (
-                  <label className="slot-label" key={`${slot}-${i}`}>
-                    {count > 1 ? `${slot} ${i + 1}` : slot}
-                    {isWeaponSlot && slotOptions.length > 0 && (
-                      <div className="weapon-col-header">
-                        {WEAPON_COLS.map((col) => (
-                          <span
-                            key={col.key}
-                            style={{ width: `${col.width}ch` }}
-                          >
-                            {col.label}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                    <select
-                      className={isWeaponSlot ? 'weapon-select' : undefined}
-                      value={selectedId}
-                      disabled={slotOptions.length === 0}
-                      onChange={(e) =>
-                        onAssignEquipment(slot, i, Number(e.target.value))
-                      }
-                    >
-                      {!isMovementSlot && <option value={0}>None</option>}
-                      {slotOptions.map((item) => (
-                        <option key={item.id} value={item.id}>
-                          {isWeaponSlot ? formatWeaponOption(item) : item.name}
-                        </option>
-                      ))}
-                    </select>
-                    {selected?.effects ? (
-                      <span className="equipment-effects">
-                        {selected.effects}
-                      </span>
-                    ) : null}
-                  </label>
+                  <SlotCard
+                    key={key}
+                    label={count > 1 ? `${slot} ${i + 1}` : slot}
+                    item={selected}
+                    isOpen={openSlotKey === key}
+                    disabled={slotOptions.length === 0}
+                    onToggle={() => toggleSlot(key)}
+                  />
                 );
               });
             })}
           </div>
         )}
+
+        {isDropPod && openSlotKey === 'equipment' && (
+          <SlotPicker
+            title="Equipment"
+            options={dropPodEquipmentOptions}
+            selectedId={dropPodEquipmentId}
+            allowNone
+            isWeapon={false}
+            onSelect={(id) => {
+              onAssignEquipment('Movement', 0, id);
+              setOpenSlotKey(null);
+            }}
+          />
+        )}
+
+        {!isDropPod &&
+          openSlotKey &&
+          (() => {
+            const [slot, indexStr] = openSlotKey.split('-');
+            const i = Number(indexStr);
+            const requiredType = slot === 'Movement' ? 'Movement' : 'Weapon';
+            const slotOptions = unitEquipment.filter(
+              (item) => (item.type ?? 'Movement') === requiredType,
+            );
+            const count = slotCounts[slot];
+            const selectedId = entry.equipment?.[slot]?.[i] ?? 0;
+            return (
+              <SlotPicker
+                title={count > 1 ? `${slot} ${i + 1}` : slot}
+                options={slotOptions}
+                selectedId={selectedId}
+                allowNone={slot !== 'Movement'}
+                isWeapon={requiredType === 'Weapon'}
+                onSelect={(id) => {
+                  onAssignEquipment(slot, i, id);
+                  setOpenSlotKey(null);
+                }}
+              />
+            );
+          })()}
+
+        {equippedWithEffects.map(({ key, item }) => (
+          <p key={key} className="equipment-effects">
+            {item.name}: {item.effects}
+          </p>
+        ))}
 
         {isDropPod && (
           <div className="carried-models">
