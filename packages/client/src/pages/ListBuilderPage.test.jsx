@@ -65,11 +65,9 @@ describe('ListBuilderPage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Add' }));
 
-    const movementSelect = container.querySelector('.equipment-slots select');
-    fireEvent.change(movementSelect, { target: { value: '1' } });
-
-    // A10 is size "Medium" (tier 2), so 2t movement gear should cost 2 * 2 = 4t,
-    // for a total of 10 (unit) + 4 (equipment) = 14t.
+    // Adding a unit auto-equips its cheapest movement item — "Heavy Legs" is
+    // the only option here. A10 is size "Medium" (tier 2), so 2t movement
+    // gear costs 2 * 2 = 4t, for a total of 10 (unit) + 4 (equipment) = 14t.
     const weightValue = container.querySelector(
       '.weight-label span:last-child',
     );
