@@ -125,5 +125,79 @@
         "heat_rating": "2/4",
         "hit_dice": "2d4",
         "no_drop_pod": false
+    },
+    {
+        "id": 11,
+        "name": "Weapon Slot Recalibration",
+        "manufacturer": "Corp A",
+        "type": "Weapon",
+        "effects": "",
+        "effect_stats": [
+            { "stat": "right_slots", "amount": 1 },
+            { "stat": "left_slots", "amount": -1 }
+        ],
+        "weight": 1,
+        "size": "Small",
+        "range": "",
+        "heat_rating": "",
+        "hit_dice": "",
+        "no_drop_pod": true,
+        "head_only": true
+    },
+    {
+        "id": 12,
+        "name": "Synchronized Firing Pattern",
+        "manufacturer": "Corp A",
+        "type": "Weapon",
+        "effects": "Artillery weapons can target models in either the left or right arcs.",
+        "weight": 1,
+        "size": "Small",
+        "range": "",
+        "heat_rating": "",
+        "hit_dice": "",
+        "no_drop_pod": true,
+        "head_only": true
+    },
+    {
+        "id": 13,
+        "name": "Repair Module",
+        "manufacturer": "Corp A",
+        "type": "Weapon",
+        "effects": "Actions can be used to repair 1d4 damage.",
+        "weight": 1,
+        "size": "Small",
+        "range": "",
+        "heat_rating": "",
+        "hit_dice": "",
+        "no_drop_pod": true,
+        "head_only": true
+    },
+    {
+        "id": 14,
+        "name": "Drop Pod Buff",
+        "manufacturer": "Corp A",
+        "type": "Weapon",
+        "effects": "When dropping a drop pod, a player may select the deviation direction and halve the deviation distance.",
+        "weight": 1,
+        "size": "Small",
+        "range": "",
+        "heat_rating": "",
+        "hit_dice": "",
+        "no_drop_pod": true,
+        "head_only": true
+    },
+    {
+        "id": 15,
+        "name": "A-Corp Heat Management Upgrade",
+        "manufacturer": "Corp A",
+        "type": "Weapon",
+        "effects": "Only apply the Heat Effect that you rolled on the table.",
+        "weight": 1,
+        "size": "Small",
+        "range": "",
+        "heat_rating": "",
+        "hit_dice": "",
+        "no_drop_pod": true,
+        "head_only": true
     }
 ]

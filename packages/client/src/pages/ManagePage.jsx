@@ -288,6 +288,7 @@ function ManagePage({
     if (type === 'Weapon') {
       const sizeRaw = (form.get('size') || '').toString();
       payload.size = WEAPON_SIZES.includes(sizeRaw) ? sizeRaw : 'Small';
+      payload.head_only = form.get('head_only') === 'on';
     }
 
     if (editingEquipmentItem) {
@@ -809,6 +810,12 @@ function ManagePage({
                           sort={weaponSort}
                           onSort={(k) => toggleSort(setWeaponSort, k)}
                         />
+                        <SortTh
+                          label="Head only"
+                          sortKey="head_only"
+                          sort={weaponSort}
+                          onSort={(k) => toggleSort(setWeaponSort, k)}
+                        />
                         <th>Effects</th>
                         <th></th>
                       </tr>
@@ -824,6 +831,7 @@ function ManagePage({
                             <td>{item.heat_rating || '—'}</td>
                             <td>{item.hit_dice || '—'}</td>
                             <td>{item.no_drop_pod ? '✕' : ''}</td>
+                            <td>{item.head_only ? '✕' : ''}</td>
                             <td>
                               <EffectsCell item={item} />
                             </td>
@@ -854,7 +862,7 @@ function ManagePage({
                           </tr>
                           {editingEquipmentId === Number(item.id) && (
                             <tr>
-                              <td colSpan={9}>
+                              <td colSpan={10}>
                                 <EquipmentForm
                                   key={item.id}
                                   manufacturers={manufacturers}

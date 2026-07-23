@@ -212,7 +212,9 @@ function RosterEntry({
 
   function weaponUsage(slot) {
     const slotOptions = unitEquipment.filter(
-      (item) => (item.type ?? 'Movement') === 'Weapon',
+      (item) =>
+        (item.type ?? 'Movement') === 'Weapon' &&
+        (slot === 'Head' || !item.head_only),
     );
     const equippedItems = (entry.equipment?.[slot] ?? [])
       .filter(Boolean)
