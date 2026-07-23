@@ -19,6 +19,7 @@ describe('ManagePage', () => {
       />,
     );
 
+    fireEvent.click(screen.getByRole('button', { name: 'Add manufacturer' }));
     fireEvent.change(screen.getByLabelText('Name'), {
       target: { value: 'Test Manufacturer' },
     });
@@ -54,6 +55,7 @@ describe('ManagePage', () => {
       />,
     );
 
+    fireEvent.click(screen.getByRole('button', { name: 'Add manufacturer' }));
     fireEvent.change(screen.getByPlaceholderText('New Manufacturer'), {
       target: { value: 'Corp A' },
     });
