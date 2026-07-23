@@ -64,6 +64,10 @@ function App() {
             Claude Code
           </a>
         </p>
+        <p>
+          v{__APP_VERSION__} · Last updated{' '}
+          {new Date(__BUILD_TIME__).toLocaleString()}
+        </p>
       </footer>
     </>
   );
