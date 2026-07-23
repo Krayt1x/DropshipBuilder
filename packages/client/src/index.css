@@ -398,6 +398,11 @@ button.ghost {
   margin-top: 2px;
 }
 
+.weight-bar-mini-labels .max-drop-exceeded {
+  color: #d97706;
+  font-weight: 700;
+}
+
 .unit-info {
   flex: 1;
   min-width: 0;
