@@ -619,7 +619,7 @@ function RosterEntry({
         )}
 
         <form
-          className="inline remove-row"
+          className="remove-row"
           onSubmit={(e) => {
             e.preventDefault();
             onRemove();
