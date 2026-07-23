@@ -1,5 +1,10 @@
 import { Fragment, useState } from 'react';
-import { UNIT_SIZES, EQUIPMENT_TYPES, sizeLabel } from '../lib/constants.js';
+import {
+  UNIT_SIZES,
+  EQUIPMENT_TYPES,
+  WEAPON_SIZES,
+  sizeLabel,
+} from '../lib/constants.js';
 import { nextId, purgeCatalogCache } from '../lib/storage.js';
 import UnitForm from '../components/UnitForm.jsx';
 import EquipmentForm from '../components/EquipmentForm.jsx';
@@ -250,6 +255,11 @@ function ManagePage({
       hit_dice: (form.get('hit_dice') || '').toString().trim(),
       no_drop_pod: form.get('no_drop_pod') === 'on',
     };
+
+    if (type === 'Weapon') {
+      const sizeRaw = (form.get('size') || '').toString();
+      payload.size = WEAPON_SIZES.includes(sizeRaw) ? sizeRaw : 'Small';
+    }
 
     if (editingEquipmentItem) {
       const id = editingEquipmentItem.id;
@@ -742,6 +752,12 @@ function ManagePage({
                           onSort={(k) => toggleSort(setWeaponSort, k)}
                         />
                         <SortTh
+                          label="Size"
+                          sortKey="size"
+                          sort={weaponSort}
+                          onSort={(k) => toggleSort(setWeaponSort, k)}
+                        />
+                        <SortTh
                           label="Weight"
                           sortKey="weight"
                           sort={weaponSort}
@@ -780,6 +796,7 @@ function ManagePage({
                         <Fragment key={item.id}>
                           <tr>
                             <td>{item.name}</td>
+                            <td>{item.size ?? 'Small'}</td>
                             <td>{item.weight ?? 0} t</td>
                             <td>{item.range || '—'}</td>
                             <td>{item.heat_rating || '—'}</td>
@@ -813,7 +830,7 @@ function ManagePage({
                           </tr>
                           {editingEquipmentId === Number(item.id) && (
                             <tr>
-                              <td colSpan={8}>
+                              <td colSpan={9}>
                                 <EquipmentForm
                                   key={item.id}
                                   manufacturers={manufacturers}

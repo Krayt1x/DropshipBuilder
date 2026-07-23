@@ -608,6 +608,19 @@ button.ghost {
   align-items: stretch;
 }
 
+.slot-picker-row.slot-picker-row-nofit {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.slot-picker-row.slot-picker-row-nofit .slot-picker-name {
+  text-decoration: line-through;
+}
+
+.slot-picker-row.slot-picker-row-nofit:hover {
+  background: var(--bg-card);
+}
+
 .slot-picker-row-main {
   display: flex;
   justify-content: space-between;

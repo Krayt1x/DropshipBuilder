@@ -160,7 +160,13 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
         }
         const nextEquipment = { ...(entry.equipment ?? emptyEquipmentSlots()) };
         const slotList = [...(nextEquipment[slot] ?? [])];
-        slotList[slotIndex] = equipmentId > 0 ? equipmentId : null;
+        if (slotIndex === -1) {
+          if (equipmentId > 0) slotList.push(equipmentId);
+        } else if (equipmentId > 0) {
+          slotList[slotIndex] = equipmentId;
+        } else {
+          slotList.splice(slotIndex, 1);
+        }
         nextEquipment[slot] = slotList;
         return { ...entry, equipment: nextEquipment };
       }),

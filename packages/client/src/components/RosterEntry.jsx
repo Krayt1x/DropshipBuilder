@@ -1,5 +1,11 @@
 import { useState } from 'react';
-import { SLOTS, DROP_POD_SIZE, sizeLabel, sizeTier } from '../lib/constants.js';
+import {
+  SLOTS,
+  DROP_POD_SIZE,
+  sizeLabel,
+  sizeTier,
+  weaponSlotCost,
+} from '../lib/constants.js';
 import DiceIcons from './DiceIcons.jsx';
 
 const WEIGHT_SEGMENT_COLORS = [
@@ -55,6 +61,7 @@ function SlotPicker({
   allowNone,
   isWeapon,
   weightMultiplier,
+  weaponFit,
   onSelect,
 }) {
   const multiplier = weightMultiplier ?? 1;
@@ -69,25 +76,34 @@ function SlotPicker({
           <span className="slot-picker-name">— None —</span>
         </div>
       )}
-      {options.map((item) => (
-        <div
-          key={item.id}
-          className={`slot-picker-row ${!isWeapon && item.effects ? 'slot-picker-row-stack' : ''} ${Number(selectedId) === Number(item.id) ? 'selected' : ''}`}
-          onClick={() => onSelect(Number(item.id))}
-        >
-          <div className="slot-picker-row-main">
-            <span className="slot-picker-name">{item.name}</span>
-            <span className="slot-picker-stats">
-              {isWeapon
-                ? `${item.weight ?? 0}t · ${item.range || '—'} · ${item.heat_rating || '—'} · ${item.hit_dice || '—'}`
-                : `${(item.weight ?? 0) * Number(item.weight_ratio ?? 1) * multiplier}t`}
-            </span>
+      {options.map((item) => {
+        const isSelected = Number(selectedId) === Number(item.id);
+        const fits = !isWeapon || !weaponFit || isSelected || weaponFit(item);
+        return (
+          <div
+            key={item.id}
+            className={`slot-picker-row ${(!isWeapon && item.effects) || (isWeapon && !fits) ? 'slot-picker-row-stack' : ''} ${isSelected ? 'selected' : ''} ${!fits ? 'slot-picker-row-nofit' : ''}`}
+            onClick={() => fits && onSelect(Number(item.id))}
+          >
+            <div className="slot-picker-row-main">
+              <span className="slot-picker-name">{item.name}</span>
+              <span className="slot-picker-stats">
+                {isWeapon
+                  ? `${item.size ?? 'Small'} (${weaponSlotCost(item)} slot${weaponSlotCost(item) > 1 ? 's' : ''}) · ${item.weight ?? 0}t · ${item.range || '—'} · ${item.heat_rating || '—'} · ${item.hit_dice || '—'}`
+                  : `${(item.weight ?? 0) * Number(item.weight_ratio ?? 1) * multiplier}t`}
+              </span>
+            </div>
+            {!isWeapon && item.effects && (
+              <span className="slot-picker-row-effects">{item.effects}</span>
+            )}
+            {isWeapon && !fits && (
+              <span className="slot-picker-row-effects">
+                Not enough room in this slot
+              </span>
+            )}
           </div>
-          {!isWeapon && item.effects && (
-            <span className="slot-picker-row-effects">{item.effects}</span>
-          )}
-        </div>
-      ))}
+        );
+      })}
       {options.length === 0 && !allowNone && (
         <p className="empty" style={{ padding: '6px 0' }}>
           No options available.
@@ -158,29 +174,71 @@ function RosterEntry({
     setOpenSlotKey((current) => (current === key ? null : key));
   }
 
-  function renderSlotCards(slot) {
-    const requiredType = slot === 'Movement' ? 'Movement' : 'Weapon';
+  function weaponUsage(slot) {
     const slotOptions = unitEquipment.filter(
-      (item) => (item.type ?? 'Movement') === requiredType,
+      (item) => (item.type ?? 'Movement') === 'Weapon',
     );
-    const count = slotCounts[slot];
-    return Array.from({ length: count }, (_, i) => {
-      const selectedId = entry.equipment?.[slot]?.[i] ?? 0;
+    const equippedItems = (entry.equipment?.[slot] ?? [])
+      .filter(Boolean)
+      .map((id) => slotOptions.find((item) => Number(item.id) === Number(id)))
+      .filter(Boolean);
+    const used = equippedItems.reduce(
+      (sum, item) => sum + weaponSlotCost(item),
+      0,
+    );
+    return { capacity: slotCounts[slot], used, equippedItems, slotOptions };
+  }
+
+  function renderSlotCards(slot) {
+    if (slot === 'Movement') {
+      const slotOptions = unitEquipment.filter(
+        (item) => (item.type ?? 'Movement') === 'Movement',
+      );
+      const selectedId = entry.equipment?.Movement?.[0] ?? 0;
       const selected = slotOptions.find(
         (item) => Number(item.id) === Number(selectedId),
       );
-      const key = `${slot}-${i}`;
-      return (
+      const key = 'Movement-0';
+      return [
         <SlotCard
           key={key}
-          label={count > 1 ? `${slot} ${i + 1}` : slot}
+          label="Movement"
           item={selected}
           isOpen={openSlotKey === key}
           disabled={slotOptions.length === 0}
           onToggle={() => toggleSlot(key)}
+        />,
+      ];
+    }
+
+    const { capacity, used, equippedItems, slotOptions } = weaponUsage(slot);
+    const cards = equippedItems.map((item, i) => {
+      const key = `${slot}-${i}`;
+      return (
+        <SlotCard
+          key={key}
+          label={`${slot} ${i + 1}`}
+          item={item}
+          isOpen={openSlotKey === key}
+          disabled={false}
+          onToggle={() => toggleSlot(key)}
         />
       );
     });
+    if (used < capacity) {
+      const addKey = `${slot}-new`;
+      cards.push(
+        <SlotCard
+          key={addKey}
+          label={slot}
+          item={null}
+          isOpen={openSlotKey === addKey}
+          disabled={slotOptions.length === 0}
+          onToggle={() => toggleSlot(addKey)}
+        />,
+      );
+    }
+    return cards;
   }
 
   const equippedWithEffects = [];
@@ -209,9 +267,8 @@ function RosterEntry({
       const slotOptions = unitEquipment.filter(
         (item) => (item.type ?? 'Movement') === requiredType,
       );
-      const count = slotCounts[slot];
-      for (let i = 0; i < count; i += 1) {
-        const selectedId = entry.equipment?.[slot]?.[i] ?? 0;
+      const ids = entry.equipment?.[slot] ?? [];
+      ids.forEach((selectedId, i) => {
         const selected = slotOptions.find(
           (item) => Number(item.id) === Number(selectedId),
         );
@@ -231,7 +288,7 @@ function RosterEntry({
             });
           }
         }
-      }
+      });
     });
   }
   const hullWeight = Math.max(
@@ -349,11 +406,15 @@ function RosterEntry({
         ) : (
           <div className="equipment-slots-grid">
             <div className="equipment-slots-panel">
-              <div className="equipment-slots-panel-label">Left</div>
+              <div className="equipment-slots-panel-label">
+                Left ({weaponUsage('Left').used}/{slotCounts.Left})
+              </div>
               {renderSlotCards('Left')}
             </div>
             <div className="equipment-slots-panel">
-              <div className="equipment-slots-panel-label">Right</div>
+              <div className="equipment-slots-panel-label">
+                Right ({weaponUsage('Right').used}/{slotCounts.Right})
+              </div>
               {renderSlotCards('Right')}
             </div>
             <div className="equipment-slots-panel equipment-slots-panel-movement">
@@ -362,7 +423,9 @@ function RosterEntry({
             </div>
             {slotCounts.Head > 0 && (
               <div className="equipment-slots-panel equipment-slots-panel-head">
-                <div className="equipment-slots-panel-label">Head</div>
+                <div className="equipment-slots-panel-label">
+                  Head ({weaponUsage('Head').used}/{slotCounts.Head})
+                </div>
                 {renderSlotCards('Head')}
               </div>
             )}
@@ -387,28 +450,58 @@ function RosterEntry({
           openSlotKey &&
           (() => {
             const [slot, indexStr] = openSlotKey.split('-');
-            const i = Number(indexStr);
-            const requiredType = slot === 'Movement' ? 'Movement' : 'Weapon';
-            const slotOptions = unitEquipment
-              .filter((item) => (item.type ?? 'Movement') === requiredType)
-              .sort((a, b) =>
-                slot === 'Movement'
-                  ? Number(a.weight ?? 0) * Number(a.weight_ratio ?? 1) -
-                    Number(b.weight ?? 0) * Number(b.weight_ratio ?? 1)
-                  : 0,
+
+            if (slot === 'Movement') {
+              const slotOptions = unitEquipment
+                .filter((item) => (item.type ?? 'Movement') === 'Movement')
+                .sort(
+                  (a, b) =>
+                    Number(a.weight ?? 0) * Number(a.weight_ratio ?? 1) -
+                    Number(b.weight ?? 0) * Number(b.weight_ratio ?? 1),
+                );
+              const selectedId = entry.equipment?.Movement?.[0] ?? 0;
+              return (
+                <SlotPicker
+                  title="Movement"
+                  options={slotOptions}
+                  selectedId={selectedId}
+                  allowNone={false}
+                  isWeapon={false}
+                  weightMultiplier={tier}
+                  onSelect={(id) => {
+                    onAssignEquipment('Movement', 0, id);
+                    setOpenSlotKey(null);
+                  }}
+                />
               );
-            const count = slotCounts[slot];
-            const selectedId = entry.equipment?.[slot]?.[i] ?? 0;
+            }
+
+            const { capacity, equippedItems, slotOptions } = weaponUsage(slot);
+            const isNew = indexStr === 'new';
+            const i = isNew ? equippedItems.length : Number(indexStr);
+            const usedExcludingCurrent = equippedItems.reduce(
+              (sum, item, idx) =>
+                !isNew && idx === i ? sum : sum + weaponSlotCost(item),
+              0,
+            );
+            const remaining = capacity - usedExcludingCurrent;
+            const selectedId = isNew ? 0 : (equippedItems[i]?.id ?? 0);
             return (
               <SlotPicker
-                title={count > 1 ? `${slot} ${i + 1}` : slot}
+                title={`${slot} ${i + 1}`}
                 options={slotOptions}
                 selectedId={selectedId}
-                allowNone={slot !== 'Movement'}
-                isWeapon={requiredType === 'Weapon'}
-                weightMultiplier={slot === 'Movement' ? tier : 1}
+                allowNone={!isNew}
+                isWeapon
+                weaponFit={(item) => weaponSlotCost(item) <= remaining}
                 onSelect={(id) => {
-                  onAssignEquipment(slot, i, id);
+                  if (id > 0) {
+                    const item = slotOptions.find(
+                      (it) => Number(it.id) === Number(id),
+                    );
+                    if (item && weaponSlotCost(item) > remaining) return;
+                  }
+                  onAssignEquipment(slot, isNew ? -1 : i, id);
                   setOpenSlotKey(null);
                 }}
               />
