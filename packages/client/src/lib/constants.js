@@ -6,6 +6,13 @@ export const UNIT_SIZES = {
   'Drop Pod': 'Drop Pod (special)',
 };
 
+export const UNIT_SIZE_TIER = {
+  Small: 1,
+  Medium: 2,
+  Large: 3,
+  Huge: 4,
+};
+
 export const DICE_COLORS = ['blue', 'red', 'green'];
 export const SLOTS = ['Movement', 'Left', 'Right'];
 export const DROP_POD_SIZE = 'Drop Pod';
@@ -13,6 +20,10 @@ export const EQUIPMENT_TYPES = ['Movement', 'Weapon'];
 
 export function sizeLabel(size) {
   return UNIT_SIZES[size] ?? size;
+}
+
+export function sizeTier(size) {
+  return UNIT_SIZE_TIER[size] ?? 1;
 }
 
 export function diceSummary(unit) {

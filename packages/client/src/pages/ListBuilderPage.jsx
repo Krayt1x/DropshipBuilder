@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useLocalStorageState, makeKey } from '../lib/storage.js';
-import { SLOTS, sizeLabel } from '../lib/constants.js';
+import { SLOTS, sizeLabel, sizeTier } from '../lib/constants.js';
 import RosterEntry from '../components/RosterEntry.jsx';
 
 function emptyEquipmentSlots() {
@@ -10,7 +10,8 @@ function emptyEquipmentSlots() {
   }, {});
 }
 
-function equipmentWeight(entrySlots, equipmentCatalog) {
+function equipmentWeight(entrySlots, equipmentCatalog, unit) {
+  const tier = sizeTier(unit.size);
   return SLOTS.reduce((sum, slot) => {
     const ids = entrySlots?.[slot] ?? [];
     return (
@@ -18,7 +19,10 @@ function equipmentWeight(entrySlots, equipmentCatalog) {
       ids.reduce((slotSum, id) => {
         if (!id) return slotSum;
         const item = equipmentCatalog.find((e) => Number(e.id) === Number(id));
-        return slotSum + Number(item?.weight ?? 0);
+        if (!item) return slotSum;
+        const isMovement = (item.type ?? 'Movement') === 'Movement';
+        const weight = Number(item.weight ?? 0);
+        return slotSum + (isMovement ? weight * tier : weight);
       }, 0)
     );
   }, 0);
@@ -83,7 +87,7 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
     (sum, entry) =>
       sum +
       Number(entry.unit.weight) +
-      equipmentWeight(entry.equipment, equipment) +
+      equipmentWeight(entry.equipment, equipment, entry.unit) +
       carriedWeight(entry.carried, units),
     0,
   );
