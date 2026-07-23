@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useLocalStorageState, makeKey } from '../lib/storage.js';
-import { SLOTS, sizeLabel, sizeTier } from '../lib/constants.js';
+import { SLOTS, DROP_POD_SIZE, sizeLabel, sizeTier } from '../lib/constants.js';
 import RosterEntry from '../components/RosterEntry.jsx';
 
 function emptyEquipmentSlots() {
@@ -8,6 +8,18 @@ function emptyEquipmentSlots() {
     acc[slot] = [];
     return acc;
   }, {});
+}
+
+function cheapestMovementId(equipmentCatalog, manufacturer) {
+  const options = equipmentCatalog
+    .filter(
+      (item) =>
+        item.manufacturer === manufacturer &&
+        (item.type ?? 'Movement') === 'Movement',
+    )
+    .slice()
+    .sort((a, b) => Number(a.weight ?? 0) - Number(b.weight ?? 0));
+  return options[0]?.id ?? null;
 }
 
 function equipmentWeight(entrySlots, equipmentCatalog, unit) {
@@ -116,12 +128,18 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
   }
 
   function addToList(unitId) {
+    const unit = units.find((u) => Number(u.id) === Number(unitId));
+    const initialEquipment = emptyEquipmentSlots();
+    if (unit && unit.size !== DROP_POD_SIZE) {
+      const cheapest = cheapestMovementId(equipment, unit.manufacturer);
+      if (cheapest != null) initialEquipment.Movement = [cheapest];
+    }
     setRoster((r) => [
       ...r,
       {
         key: makeKey('r'),
         unit_id: unitId,
-        equipment: emptyEquipmentSlots(),
+        equipment: initialEquipment,
         carried: [],
       },
     ]);
