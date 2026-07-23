@@ -279,6 +279,12 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
                 <div className="unit-info">
                   <p className="unit-name">{unit.name}</p>
                   <p className="unit-meta">{unit.weight} t</p>
+                  {Number(unit.max_weight ?? 0) > 0 && (
+                    <p className="unit-stats">
+                      Max weight {unit.max_weight}t · Max drop{' '}
+                      {unit.max_drop_weight ?? 0}t
+                    </p>
+                  )}
                   <p className="unit-stats">
                     Armor {unit.armor || '—'} · HP {unit.hp ?? 0} · Move{' '}
                     {unit.base_movement ?? 0}

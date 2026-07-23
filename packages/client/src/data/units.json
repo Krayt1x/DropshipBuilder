@@ -14,7 +14,8 @@
         "dice_red": 0,
         "dice_green": 0,
         "left_slots": 1,
-        "right_slots": 1
+        "right_slots": 1,
+        "head_slots": 1
     },
     {
         "id": 2,
@@ -31,7 +32,8 @@
         "dice_red": 1,
         "dice_green": 0,
         "left_slots": 2,
-        "right_slots": 2
+        "right_slots": 2,
+        "head_slots": 1
     },
     {
         "id": 3,
@@ -48,7 +50,8 @@
         "dice_red": 3,
         "dice_green": 0,
         "left_slots": 3,
-        "right_slots": 3
+        "right_slots": 3,
+        "head_slots": 1
     },
     {
         "id": 7,
