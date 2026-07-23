@@ -305,6 +305,11 @@ button.ghost {
   margin-bottom: 0;
 }
 
+.unit-row.over-max-weight {
+  border-color: #dc2626;
+  border-width: 2px;
+}
+
 .unit-name {
   font-size: 14px;
   margin: 0;

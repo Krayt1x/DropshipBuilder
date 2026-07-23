@@ -124,12 +124,11 @@ function RosterEntry({
     `Move ${unit.base_movement ?? 0}`,
   ].join(' · ');
 
-  const overDropWeight =
-    Number(unit.max_drop_weight) > 0 &&
-    totalWeight > Number(unit.max_drop_weight);
-
   const maxWeight = Number(unit.max_weight) || 0;
   const maxDropWeight = Number(unit.max_drop_weight) || 0;
+  const overMaxWeight = maxWeight > 0 && totalWeight > maxWeight;
+  const overDropWeight =
+    !overMaxWeight && maxDropWeight > 0 && totalWeight > maxDropWeight;
   const spareCapacity = maxWeight - totalWeight;
   const effectiveMovement = spareCapacity + Number(unit.base_movement ?? 0);
 
@@ -199,14 +198,22 @@ function RosterEntry({
 
   return (
     <div
-      className="unit-row"
+      className={`unit-row ${overMaxWeight ? 'over-max-weight' : ''}`}
       style={{ alignItems: 'flex-start', flexWrap: 'wrap' }}
     >
       <div className="unit-info">
         <p className="unit-name">
+          {overMaxWeight && (
+            <span
+              className="warning-icon warning-icon-max"
+              title={`Over max weight (${unit.max_weight} t)`}
+            >
+              ⛔
+            </span>
+          )}
           {overDropWeight && (
             <span
-              className="warning-icon"
+              className="warning-icon warning-icon-drop"
               title={`Over max drop weight (${unit.max_drop_weight} t)`}
             >
               ⚠️
@@ -300,9 +307,13 @@ function RosterEntry({
             const [slot, indexStr] = openSlotKey.split('-');
             const i = Number(indexStr);
             const requiredType = slot === 'Movement' ? 'Movement' : 'Weapon';
-            const slotOptions = unitEquipment.filter(
-              (item) => (item.type ?? 'Movement') === requiredType,
-            );
+            const slotOptions = unitEquipment
+              .filter((item) => (item.type ?? 'Movement') === requiredType)
+              .sort((a, b) =>
+                slot === 'Movement'
+                  ? Number(a.weight ?? 0) - Number(b.weight ?? 0)
+                  : 0,
+              );
             const count = slotCounts[slot];
             const selectedId = entry.equipment?.[slot]?.[i] ?? 0;
             return (
