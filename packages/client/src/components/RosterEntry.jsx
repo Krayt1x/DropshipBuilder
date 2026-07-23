@@ -357,7 +357,15 @@ function RosterEntry({
             </div>
             <div className="weight-bar-mini-labels">
               <span>0t</span>
-              {maxDropWeight > 0 && <span>Max drop {maxDropWeight}t</span>}
+              {maxDropWeight > 0 && (
+                <span
+                  className={
+                    totalWeight > maxDropWeight ? 'max-drop-exceeded' : ''
+                  }
+                >
+                  Max drop {maxDropWeight}t
+                </span>
+              )}
               <span>Max {maxWeight}t</span>
             </div>
             {equippedWeights.length > 0 && (

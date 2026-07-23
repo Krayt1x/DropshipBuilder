@@ -286,6 +286,12 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
                   <p className="unit-stats">
                     <DiceIcons unit={unit} />
                   </p>
+                  <p className="unit-stats">
+                    Slots: L {unit.left_slots ?? 1} · R {unit.right_slots ?? 1}
+                    {Number(unit.head_slots ?? 0) > 0
+                      ? ` · H ${unit.head_slots}`
+                      : ''}
+                  </p>
                 </div>
                 <span className="badge">{sizeLabel(unit.size)}</span>
                 <button type="button" onClick={() => addToList(unit.id)}>
