@@ -204,7 +204,7 @@ function ManagePage({
         ...u,
         { id: nextId(u), name, manufacturer, size, weight, ...stats },
       ]);
-      showFlash(`Added "${name}" to the catalog.`);
+      showFlash(`Added "${name}" to the catalogue.`);
       e.target.reset();
     }
   }
@@ -213,7 +213,7 @@ function ManagePage({
     const unit = units.find((u) => Number(u.id) === id);
     setUnits((u) => u.filter((item) => Number(item.id) !== id));
     showFlash(
-      unit ? `Removed "${unit.name}" from the catalog.` : 'Unit removed.',
+      unit ? `Removed "${unit.name}" from the catalogue.` : 'Unit removed.',
     );
     if (editingUnitId === id) setEditingUnitId(null);
   }
@@ -257,7 +257,7 @@ function ManagePage({
       setEditingEquipmentId(null);
     } else {
       setEquipment((eq) => [...eq, { id: nextId(eq), ...payload }]);
-      showFlash(`Added "${name}" to the equipment catalog.`);
+      showFlash(`Added "${name}" to the equipment catalogue.`);
       e.target.reset();
     }
   }
@@ -267,7 +267,7 @@ function ManagePage({
     setEquipment((eq) => eq.filter((entry) => Number(entry.id) !== id));
     showFlash(
       item
-        ? `Removed "${item.name}" from the equipment catalog.`
+        ? `Removed "${item.name}" from the equipment catalogue.`
         : 'Equipment removed.',
     );
     if (editingEquipmentId === id) setEditingEquipmentId(null);
@@ -809,7 +809,7 @@ function ManagePage({
       />
 
       <div className="card">
-        <h2 style={{ fontSize: 15, marginTop: 0 }}>Reset catalog</h2>
+        <h2 style={{ fontSize: 15, marginTop: 0 }}>Reset catalogue</h2>
         <p className="unit-meta" style={{ marginBottom: 10 }}>
           Clears your saved manufacturers, units, and equipment and reloads the
           app&apos;s latest defaults. Your list and roster are not affected.
