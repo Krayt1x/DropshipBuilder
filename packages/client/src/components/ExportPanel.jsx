@@ -9,7 +9,7 @@ function ExportPanel({ manufacturers, units, equipment }) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'dropshipbuilder-catalog.json';
+    a.download = 'dropshipbuilder-catalogue.json';
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -20,19 +20,19 @@ function ExportPanel({ manufacturers, units, equipment }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // Clipboard API unavailable (e.g. insecure context) — the textarea below still works.
+      // Clipboard API unavailable (e.g. insecure context) — Download JSON still works.
     }
   }
 
   return (
     <div className="card">
-      <h2 style={{ fontSize: 15, marginTop: 0 }}>Export catalog</h2>
+      <h2 style={{ fontSize: 15, marginTop: 0 }}>Export catalogue</h2>
       <p className="unit-meta" style={{ marginBottom: 10 }}>
         Your edits are only saved in this browser. To make them the new defaults
         for everyone, download or copy this JSON and send it to Claude to commit
         into the repo.
       </p>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+      <div style={{ display: 'flex', gap: 8 }}>
         <button type="button" onClick={download}>
           Download JSON
         </button>
@@ -40,13 +40,6 @@ function ExportPanel({ manufacturers, units, equipment }) {
           {copied ? 'Copied!' : 'Copy to clipboard'}
         </button>
       </div>
-      <textarea
-        readOnly
-        rows={8}
-        value={json}
-        style={{ width: '100%', fontFamily: 'monospace', fontSize: 12 }}
-        onFocus={(e) => e.target.select()}
-      />
     </div>
   );
 }

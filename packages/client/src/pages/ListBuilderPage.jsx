@@ -260,7 +260,7 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
 
       <div className="columns">
         <div>
-          <h2 style={{ fontSize: 15 }}>Unit catalog — {manufacturer}</h2>
+          <h2 style={{ fontSize: 15 }}>Unit catalogue — {manufacturer}</h2>
           {catalog.length === 0 ? (
             <p className="empty">
               No units available for this manufacturer yet. Add some on the
