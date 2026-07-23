@@ -10,6 +10,29 @@ function emptyEquipmentSlots() {
   }, {});
 }
 
+function equipmentWeight(entrySlots, equipmentCatalog) {
+  return SLOTS.reduce((sum, slot) => {
+    const ids = entrySlots?.[slot] ?? [];
+    return (
+      sum +
+      ids.reduce((slotSum, id) => {
+        if (!id) return slotSum;
+        const item = equipmentCatalog.find((e) => Number(e.id) === Number(id));
+        return slotSum + Number(item?.weight ?? 0);
+      }, 0)
+    );
+  }, 0);
+}
+
+function carriedWeight(carried, unitsCatalog) {
+  return (carried ?? []).reduce((sum, c) => {
+    const carriedUnit = unitsCatalog.find(
+      (u) => Number(u.id) === Number(c.unit_id),
+    );
+    return sum + Number(carriedUnit?.weight ?? 0);
+  }, 0);
+}
+
 function ListBuilderPage({ manufacturers, units, equipment }) {
   const [settings, setSettings] = useLocalStorageState(
     'dropshipbuilder:settings',
@@ -57,7 +80,11 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
   );
 
   const totalWeight = rosterUnits.reduce(
-    (sum, entry) => sum + Number(entry.unit.weight),
+    (sum, entry) =>
+      sum +
+      Number(entry.unit.weight) +
+      equipmentWeight(entry.equipment, equipment) +
+      carriedWeight(entry.carried, units),
     0,
   );
   const weightLimit = Number(settings.weight_limit) || 0;
@@ -104,6 +131,9 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
     setRoster((r) =>
       r.map((entry) => {
         if (entry.key !== key) return entry;
+        if (equipmentId > 0 && (entry.carried ?? []).length > 0) {
+          return entry;
+        }
         const nextEquipment = { ...(entry.equipment ?? emptyEquipmentSlots()) };
         const slotList = [...(nextEquipment[slot] ?? [])];
         slotList[slotIndex] = equipmentId > 0 ? equipmentId : null;
@@ -115,17 +145,15 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
 
   function addCarriedModel(key, carriedUnitId) {
     setRoster((r) =>
-      r.map((entry) =>
-        entry.key === key
-          ? {
-              ...entry,
-              carried: [
-                ...(entry.carried ?? []),
-                { key: makeKey('c'), unit_id: carriedUnitId },
-              ],
-            }
-          : entry,
-      ),
+      r.map((entry) => {
+        if (entry.key !== key || (entry.carried ?? []).length > 0) {
+          return entry;
+        }
+        return {
+          ...entry,
+          carried: [{ key: makeKey('c'), unit_id: carriedUnitId }],
+        };
+      }),
     );
   }
 
