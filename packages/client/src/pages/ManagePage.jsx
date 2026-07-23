@@ -47,6 +47,21 @@ function ManagePage({
       return;
     }
     setManufacturers((m) => [...m, name]);
+    setEquipment((eq) => [
+      ...eq,
+      {
+        id: nextId(eq),
+        name: 'Standard Movement',
+        manufacturer: name,
+        type: 'Movement',
+        effects: '',
+        weight: 0,
+        range: 0,
+        heat_rating: '',
+        hit_dice: '',
+        no_drop_pod: false,
+      },
+    ]);
     showFlash(`Added manufacturer "${name}".`);
     e.target.reset();
   }

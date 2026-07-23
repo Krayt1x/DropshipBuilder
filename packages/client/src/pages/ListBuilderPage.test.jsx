@@ -46,4 +46,33 @@ describe('ListBuilderPage', () => {
 
     expect(screen.getByText('No units added yet.')).toBeDefined();
   });
+
+  it("scales movement equipment weight by the unit's size tier", () => {
+    const movementItem = {
+      id: 1,
+      name: 'Heavy Legs',
+      manufacturer: 'Corp A',
+      type: 'Movement',
+      weight: 2,
+    };
+    const { container } = render(
+      <ListBuilderPage
+        manufacturers={manufacturers}
+        units={units}
+        equipment={[movementItem]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+
+    const movementSelect = container.querySelector('.equipment-slots select');
+    fireEvent.change(movementSelect, { target: { value: '1' } });
+
+    // A10 is size "Medium" (tier 2), so 2t movement gear should cost 2 * 2 = 4t,
+    // for a total of 10 (unit) + 4 (equipment) = 14t.
+    const weightValue = container.querySelector(
+      '.weight-label span:last-child',
+    );
+    expect(weightValue.textContent).toBe('14 t / 100 t');
+  });
 });

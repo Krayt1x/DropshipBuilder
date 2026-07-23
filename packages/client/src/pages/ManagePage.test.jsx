@@ -5,8 +5,9 @@ import ManagePage from './ManagePage.jsx';
 afterEach(cleanup);
 
 describe('ManagePage', () => {
-  it('adds a new manufacturer', () => {
+  it('adds a new manufacturer and a free Standard Movement item for it', () => {
     const setManufacturers = vi.fn();
+    const setEquipment = vi.fn();
     render(
       <ManagePage
         manufacturers={[]}
@@ -14,7 +15,7 @@ describe('ManagePage', () => {
         units={[]}
         setUnits={() => {}}
         equipment={[]}
-        setEquipment={() => {}}
+        setEquipment={setEquipment}
       />,
     );
 
@@ -27,6 +28,17 @@ describe('ManagePage', () => {
     expect(
       screen.getByText('Added manufacturer "Test Manufacturer".'),
     ).toBeDefined();
+
+    expect(setEquipment).toHaveBeenCalled();
+    const nextEquipment = setEquipment.mock.calls[0][0]([]);
+    expect(nextEquipment).toEqual([
+      expect.objectContaining({
+        name: 'Standard Movement',
+        manufacturer: 'Test Manufacturer',
+        type: 'Movement',
+        weight: 0,
+      }),
+    ]);
   });
 
   it('rejects a duplicate manufacturer name', () => {
