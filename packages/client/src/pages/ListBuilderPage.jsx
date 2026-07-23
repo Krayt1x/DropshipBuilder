@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useLocalStorageState, makeKey } from '../lib/storage.js';
-import { SLOTS, DROP_POD_SIZE, sizeLabel, sizeTier } from '../lib/constants.js';
+import { SLOTS, DROP_POD_SIZE, sizeLabel } from '../lib/constants.js';
 import RosterEntry from '../components/RosterEntry.jsx';
 import DiceIcons from '../components/DiceIcons.jsx';
 
@@ -11,7 +11,7 @@ function emptyEquipmentSlots() {
   }, {});
 }
 
-function cheapestMovementId(equipmentCatalog, manufacturer) {
+function bestMovementId(equipmentCatalog, manufacturer) {
   const options = equipmentCatalog
     .filter(
       (item) =>
@@ -19,12 +19,11 @@ function cheapestMovementId(equipmentCatalog, manufacturer) {
         (item.type ?? 'Movement') === 'Movement',
     )
     .slice()
-    .sort((a, b) => Number(a.weight ?? 0) - Number(b.weight ?? 0));
+    .sort((a, b) => Number(b.movement ?? 0) - Number(a.movement ?? 0));
   return options[0]?.id ?? null;
 }
 
-function equipmentWeight(entrySlots, equipmentCatalog, unit) {
-  const tier = sizeTier(unit.size);
+function equipmentWeight(entrySlots, equipmentCatalog) {
   return SLOTS.reduce((sum, slot) => {
     const ids = entrySlots?.[slot] ?? [];
     return (
@@ -33,9 +32,7 @@ function equipmentWeight(entrySlots, equipmentCatalog, unit) {
         if (!id) return slotSum;
         const item = equipmentCatalog.find((e) => Number(e.id) === Number(id));
         if (!item) return slotSum;
-        const isMovement = (item.type ?? 'Movement') === 'Movement';
-        const weight = Number(item.weight ?? 0);
-        return slotSum + (isMovement ? weight + tier : weight);
+        return slotSum + Number(item.weight ?? 0);
       }, 0)
     );
   }, 0);
@@ -100,7 +97,7 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
     (sum, entry) =>
       sum +
       Number(entry.unit.weight) +
-      equipmentWeight(entry.equipment, equipment, entry.unit) +
+      equipmentWeight(entry.equipment, equipment) +
       carriedWeight(entry.carried, units),
     0,
   );
@@ -132,8 +129,8 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
     const unit = units.find((u) => Number(u.id) === Number(unitId));
     const initialEquipment = emptyEquipmentSlots();
     if (unit && unit.size !== DROP_POD_SIZE) {
-      const cheapest = cheapestMovementId(equipment, unit.manufacturer);
-      if (cheapest != null) initialEquipment.Movement = [cheapest];
+      const best = bestMovementId(equipment, unit.manufacturer);
+      if (best != null) initialEquipment.Movement = [best];
     }
     setRoster((r) => [
       ...r,
@@ -286,8 +283,7 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
                     </p>
                   )}
                   <p className="unit-stats">
-                    Armor {unit.armor || '—'} · HP {unit.hp ?? 0} · Move{' '}
-                    {unit.base_movement ?? 0}
+                    Armor {unit.armor || '—'} · HP {unit.hp ?? 0}
                   </p>
                   <p className="unit-stats">
                     <DiceIcons unit={unit} />
@@ -323,7 +319,7 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
                     equipment={equipment}
                     totalWeight={
                       Number(entry.unit.weight) +
-                      equipmentWeight(entry.equipment, equipment, entry.unit) +
+                      equipmentWeight(entry.equipment, equipment) +
                       carriedWeight(entry.carried, units)
                     }
                     onRemove={() => removeFromList(entry.key)}

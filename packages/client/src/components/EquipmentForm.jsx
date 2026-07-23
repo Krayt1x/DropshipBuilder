@@ -13,6 +13,7 @@ function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
   const [newEffectStat, setNewEffectStat] = useState('');
   const [newEffectAmount, setNewEffectAmount] = useState('');
   const isWeapon = type === 'Weapon';
+  const isMovement = type === 'Movement';
 
   function addStatEffect() {
     const amount = Number(newEffectAmount);
@@ -89,6 +90,22 @@ function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
           />
         </div>
       </div>
+
+      {isMovement && (
+        <div className="stat-grid" style={{ marginTop: 10 }}>
+          <div className="field">
+            <label htmlFor="movement">Movement</label>
+            <input
+              type="number"
+              id="movement"
+              name="movement"
+              min="0"
+              step="1"
+              defaultValue={editing?.movement ?? 0}
+            />
+          </div>
+        </div>
+      )}
 
       {isWeapon && (
         <div className="stat-grid" style={{ marginTop: 10 }}>

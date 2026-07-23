@@ -94,17 +94,6 @@ function UnitForm({ manufacturers, editing, onSubmit, onCancel }) {
             defaultValue={editing?.hp ?? 0}
           />
         </div>
-        <div className="field">
-          <label htmlFor="base_movement">Base movement</label>
-          <input
-            type="number"
-            id="base_movement"
-            name="base_movement"
-            min="0"
-            step="1"
-            defaultValue={editing?.base_movement ?? 0}
-          />
-        </div>
       </div>
 
       <div
