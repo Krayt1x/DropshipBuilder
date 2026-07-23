@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { EQUIPMENT_TYPES } from '../lib/constants.js';
+import { EQUIPMENT_TYPES, WEAPON_SIZES } from '../lib/constants.js';
 
 function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
   const [type, setType] = useState(editing?.type ?? 'Movement');
@@ -77,6 +77,20 @@ function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
 
       {isWeapon && (
         <div className="stat-grid" style={{ marginTop: 10 }}>
+          <div className="field">
+            <label htmlFor="size">Weapon size</label>
+            <select
+              id="size"
+              name="size"
+              defaultValue={editing?.size ?? 'Small'}
+            >
+              {WEAPON_SIZES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </div>
           <div className="field">
             <label htmlFor="range">Range</label>
             <input
