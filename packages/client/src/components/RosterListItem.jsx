@@ -1,9 +1,20 @@
-import { SLOTS, sizeLabel } from '../lib/constants.js';
+import { sizeLabel } from '../lib/constants.js';
 import {
   WEIGHT_SEGMENT_COLORS,
   computeRosterStats,
 } from '../lib/rosterEntry.js';
 import DiceIcons from './DiceIcons.jsx';
+
+function CondensedTile({ badge, item }) {
+  return (
+    <div className="roster-condensed-tile">
+      <span className="roster-condensed-badge">{badge}</span>
+      <span className="roster-condensed-name">
+        {item ? item.name : 'Empty'}
+      </span>
+    </div>
+  );
+}
 
 function RosterListItem({
   entry,
@@ -31,75 +42,79 @@ function RosterListItem({
     equippedWeights,
   } = stats;
 
-  function renderCompactChips() {
+  function renderCondensedGrid() {
     if (isDropPod) {
-      const chips = [];
-      if (dropPodSelected) {
-        chips.push(
-          <div
-            className="slot-card"
-            style={{ cursor: 'default' }}
-            key="equipment"
-          >
-            <span className="slot-card-label">Equipment</span>
-            <span className="slot-card-item">{dropPodSelected.name}</span>
-            <span className="slot-card-wt">{dropPodSelected.weight ?? 0}t</span>
-          </div>,
-        );
-      }
-      carried.forEach((carriedEntry) => {
-        const carriedUnit = units.find(
-          (u) => Number(u.id) === Number(carriedEntry.unit_id),
-        );
-        if (!carriedUnit) return;
-        chips.push(
-          <div
-            className="slot-card"
-            style={{ cursor: 'default' }}
-            key={carriedEntry.key}
-          >
-            <span className="slot-card-label">Carried</span>
-            <span className="slot-card-item">{carriedUnit.name}</span>
-            <span className="slot-card-wt">{carriedUnit.weight}t</span>
-          </div>,
-        );
-      });
-      if (chips.length === 0) {
+      const carriedTiles = carried
+        .map((carriedEntry) => {
+          const carriedUnit = units.find(
+            (u) => Number(u.id) === Number(carriedEntry.unit_id),
+          );
+          if (!carriedUnit) return null;
+          return (
+            <div className="roster-condensed-tile" key={carriedEntry.key}>
+              <span className="roster-condensed-badge">C</span>
+              <span className="roster-condensed-name">{carriedUnit.name}</span>
+            </div>
+          );
+        })
+        .filter(Boolean);
+
+      if (!dropPodSelected && carriedTiles.length === 0) {
         return (
           <p className="empty" style={{ padding: '4px 0' }}>
             Nothing loaded yet.
           </p>
         );
       }
-      return <div className="equipment-slots">{chips}</div>;
-    }
-
-    const chips = SLOTS.flatMap((slot) => {
-      if (slot === 'Head' && slotCounts.Head <= 0) return [];
-      return resolveEquippedItems(slot).map((item, i) => (
-        <div
-          className="slot-card"
-          style={{ cursor: 'default' }}
-          key={`${slot}-${i}`}
-        >
-          <span className="slot-card-label">{slot}</span>
-          <span className="slot-card-item">{item.name}</span>
-          <span className="slot-card-wt">
-            {slot === 'Movement'
-              ? `${item.movement ?? 0} move`
-              : `${item.weight ?? 0}t`}
-          </span>
-        </div>
-      ));
-    });
-    if (chips.length === 0) {
       return (
-        <p className="empty" style={{ padding: '4px 0' }}>
-          No equipment equipped.
-        </p>
+        <div className="roster-condensed-grid">
+          <CondensedTile badge="E" item={dropPodSelected} />
+          {carriedTiles}
+        </div>
       );
     }
-    return <div className="equipment-slots">{chips}</div>;
+
+    const headItems = slotCounts.Head > 0 ? resolveEquippedItems('Head') : [];
+    const leftItems = resolveEquippedItems('Left');
+    const rightItems = resolveEquippedItems('Right');
+    const movementItem = resolveEquippedItems('Movement')[0] ?? null;
+
+    return (
+      <div className="roster-condensed-grid">
+        {slotCounts.Head > 0 && (
+          <div className="roster-condensed-cell roster-condensed-head">
+            {headItems.length > 0 ? (
+              headItems.map((item, i) => (
+                <CondensedTile badge="H" item={item} key={`head-${i}`} />
+              ))
+            ) : (
+              <CondensedTile badge="H" item={null} />
+            )}
+          </div>
+        )}
+        <div className="roster-condensed-cell">
+          {leftItems.length > 0 ? (
+            leftItems.map((item, i) => (
+              <CondensedTile badge="L" item={item} key={`left-${i}`} />
+            ))
+          ) : (
+            <CondensedTile badge="L" item={null} />
+          )}
+        </div>
+        <div className="roster-condensed-cell">
+          {rightItems.length > 0 ? (
+            rightItems.map((item, i) => (
+              <CondensedTile badge="R" item={item} key={`right-${i}`} />
+            ))
+          ) : (
+            <CondensedTile badge="R" item={null} />
+          )}
+        </div>
+        <div className="roster-condensed-cell roster-condensed-move">
+          <CondensedTile badge="M" item={movementItem} />
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -191,12 +206,16 @@ function RosterListItem({
             </div>
           </div>
         )}
-        <p className="unit-stats">{sizeLabel(unit.size)}</p>
-        <p className="unit-stats">{statsLine}</p>
-        <p className="unit-stats">
-          <DiceIcons unit={unit} />
-        </p>
-        {renderCompactChips()}
+        <div className="roster-list-split">
+          <div>
+            <p className="unit-stats">{sizeLabel(unit.size)}</p>
+            <p className="unit-stats">{statsLine}</p>
+            <p className="unit-stats">
+              <DiceIcons unit={unit} />
+            </p>
+          </div>
+          {renderCondensedGrid()}
+        </div>
       </div>
     </div>
   );

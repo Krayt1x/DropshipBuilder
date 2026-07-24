@@ -471,6 +471,64 @@ button.ghost:hover {
   box-shadow: inset 3px 0 0 var(--accent);
 }
 
+.roster-list-split {
+  display: grid;
+  grid-template-columns: 1fr 128px;
+  gap: 8px;
+  margin-top: 6px;
+  align-items: start;
+}
+
+.roster-condensed-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.roster-condensed-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.roster-condensed-head,
+.roster-condensed-move {
+  grid-column: 1 / -1;
+}
+
+.roster-condensed-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: var(--bg-track);
+  border-radius: 5px;
+  padding: 5px 4px;
+  font-size: 9px;
+}
+
+.roster-condensed-badge {
+  flex-shrink: 0;
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 7px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.roster-condensed-name {
+  font-weight: 700;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .unit-name {
   font-size: 14px;
   margin: 0;
@@ -635,12 +693,6 @@ button.ghost:hover {
 .equipment-slots-panel-head {
   grid-column: 1 / -1;
   align-items: center;
-}
-
-.equipment-slots-panel-movement .slot-card {
-  width: 60%;
-  align-items: center;
-  text-align: center;
 }
 
 .slot-card {
