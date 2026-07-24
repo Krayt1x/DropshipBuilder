@@ -1039,3 +1039,129 @@ footer a {
   background: var(--bg-track);
   margin-top: 8px;
 }
+
+.map-dimensions-form {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.map-editor-layout {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .map-editor-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.map-editor-board {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+  overflow: auto;
+}
+
+.hex-grid {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.hex-tile {
+  stroke: var(--border-input);
+  stroke-width: 1;
+  fill: var(--bg-track);
+  cursor: pointer;
+}
+
+.hex-tile:hover {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.hex-tile-empty {
+  fill: var(--bg-track);
+}
+
+.tile-palette-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.tile-swatch-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tile-swatch-row .tile-swatch-btn {
+  flex: 1;
+}
+
+.tile-swatch-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid var(--border-input);
+  color: var(--text-primary);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.tile-swatch-btn:hover {
+  background: var(--bg-track);
+}
+
+.tile-swatch-btn.selected {
+  border-color: var(--accent);
+  border-width: 2px;
+  background: var(--bg-track);
+}
+
+.tile-swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  border: 1px solid var(--border-input);
+}
+
+.tile-swatch-eraser {
+  background: repeating-conic-gradient(
+    var(--bg-page) 0% 25%,
+    var(--bg-track) 0% 50%
+  );
+  background-size: 8px 8px;
+}
+
+.tile-swatch-remove {
+  padding: 4px 8px;
+  font-size: 11px;
+}
+
+.tile-palette-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tile-palette-form input[type='color'] {
+  padding: 2px;
+  height: 36px;
+  width: 100%;
+  cursor: pointer;
+}

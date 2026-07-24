@@ -24,6 +24,9 @@ function Nav({ page }) {
         <a href="#rulebook" className={page === 'rulebook' ? 'active' : ''}>
           Rule book
         </a>
+        <a href="#map" className={page === 'map' ? 'active' : ''}>
+          Map editor
+        </a>
         <button
           type="button"
           className="hamburger-btn"
@@ -64,6 +67,13 @@ function Nav({ page }) {
             onClick={closeMenu}
           >
             Rule book
+          </a>
+          <a
+            href="#map"
+            className={page === 'map' ? 'active' : ''}
+            onClick={closeMenu}
+          >
+            Map editor
           </a>
         </div>
       )}
