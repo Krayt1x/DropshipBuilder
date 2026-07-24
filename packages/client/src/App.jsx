@@ -4,7 +4,11 @@ import ListBuilderPage from './pages/ListBuilderPage.jsx';
 import ManagePage from './pages/ManagePage.jsx';
 import MathReferencePage from './pages/MathReferencePage.jsx';
 import RuleBookPage from './pages/RuleBookPage.jsx';
-import { useLocalStorageState, purgeCatalogCache } from './lib/storage.js';
+import {
+  useLocalStorageState,
+  mergeSeedRecords,
+  mergeManufacturers,
+} from './lib/storage.js';
 import { DATA_VERSION } from './lib/constants.js';
 import manufacturersSeed from './data/manufacturers.json';
 import unitsSeed from './data/units.json';
@@ -31,11 +35,10 @@ function App() {
     'dropshipbuilder:equipment',
     equipmentSeed,
   );
-  const [dataVersion] = useLocalStorageState(
+  const [dataVersion, setDataVersion] = useLocalStorageState(
     'dropshipbuilder:dataVersion',
     DATA_VERSION,
   );
-  const dataOutOfDate = dataVersion !== DATA_VERSION;
 
   useEffect(() => {
     function onHashChange() {
@@ -45,32 +48,41 @@ function App() {
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
+  useEffect(() => {
+    if (dataVersion === DATA_VERSION) return;
+
+    let snapshot = { units: [], equipment: [] };
+    try {
+      const raw = window.localStorage.getItem('dropshipbuilder:seedSnapshot');
+      if (raw) snapshot = JSON.parse(raw);
+    } catch {
+      // no usable snapshot — merge falls back to "only add new records"
+    }
+
+    setManufacturers((current) =>
+      mergeManufacturers(current, manufacturersSeed),
+    );
+    setUnits((current) =>
+      mergeSeedRecords(current, snapshot.units ?? [], unitsSeed),
+    );
+    setEquipment((current) =>
+      mergeSeedRecords(current, snapshot.equipment ?? [], equipmentSeed),
+    );
+    setDataVersion(DATA_VERSION);
+
+    try {
+      window.localStorage.setItem(
+        'dropshipbuilder:seedSnapshot',
+        JSON.stringify({ units: unitsSeed, equipment: equipmentSeed }),
+      );
+    } catch {
+      // localStorage unavailable — merge still applied for this session
+    }
+  }, [dataVersion, setManufacturers, setUnits, setEquipment, setDataVersion]);
+
   return (
     <>
       <Nav page={page} />
-      {dataOutOfDate && (
-        <div className="stale-data-banner">
-          <span>
-            Local data is out of date — the unit and equipment catalogue has
-            been updated.
-          </span>
-          <button
-            type="button"
-            className="ghost"
-            onClick={() => {
-              if (
-                window.confirm(
-                  'This clears your saved manufacturers, units, and equipment and reloads the latest defaults. Your list and roster are not affected. Continue?',
-                )
-              ) {
-                purgeCatalogCache();
-              }
-            }}
-          >
-            Purge cache
-          </button>
-        </div>
-      )}
       {page === 'manage' ? (
         <ManagePage
           manufacturers={manufacturers}
