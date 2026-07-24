@@ -477,14 +477,16 @@ button.ghost:hover {
 
 .roster-condensed-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 4px;
+  min-width: 0;
 }
 
 .roster-condensed-cell {
   display: flex;
   flex-direction: column;
   gap: 3px;
+  min-width: 0;
 }
 
 .roster-condensed-head,
@@ -497,10 +499,16 @@ button.ghost:hover {
   align-items: center;
   justify-content: center;
   gap: 4px;
+  min-width: 0;
   background: var(--bg-track);
   border-radius: 5px;
   padding: 5px 4px;
   font-size: 9px;
+  border: 1px solid transparent;
+}
+
+.roster-condensed-tile.invalid {
+  border-color: #dc2626;
 }
 
 .roster-condensed-badge {
@@ -518,6 +526,7 @@ button.ghost:hover {
 }
 
 .roster-condensed-name {
+  min-width: 0;
   font-weight: 700;
   color: var(--text-primary);
   overflow: hidden;
@@ -719,6 +728,11 @@ button.ghost:hover {
 
 .slot-card.open {
   border-color: var(--accent);
+}
+
+.slot-card.invalid {
+  border-color: #dc2626;
+  border-width: 2px;
 }
 
 .slot-card:hover:not(:disabled) {

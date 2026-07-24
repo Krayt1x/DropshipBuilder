@@ -34,11 +34,11 @@ function LoadMechForm({ options, onAdd }) {
   );
 }
 
-function SlotCard({ label, item, isOpen, disabled, onToggle }) {
+function SlotCard({ label, item, isOpen, disabled, invalid, onToggle }) {
   return (
     <button
       type="button"
-      className={`slot-card ${isOpen ? 'open' : ''}`}
+      className={`slot-card ${isOpen ? 'open' : ''} ${invalid ? 'invalid' : ''}`}
       disabled={disabled}
       onClick={onToggle}
     >
@@ -195,6 +195,7 @@ function RosterConfigPanel({
     }
 
     const { capacity, used, equippedItems, slotOptions } = weaponUsage(slot);
+    const overCapacity = used > capacity;
     const cards = equippedItems.map((item, i) => {
       const key = `${slot}-${i}`;
       return (
@@ -204,6 +205,7 @@ function RosterConfigPanel({
           item={item}
           isOpen={openSlotKey === key}
           disabled={false}
+          invalid={overCapacity}
           onToggle={() => toggleSlot(key)}
         />
       );

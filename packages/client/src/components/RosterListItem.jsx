@@ -5,9 +5,9 @@ import {
 } from '../lib/rosterEntry.js';
 import DiceIcons from './DiceIcons.jsx';
 
-function CondensedTile({ badge, item }) {
+function CondensedTile({ badge, item, invalid }) {
   return (
-    <div className="roster-condensed-tile">
+    <div className={`roster-condensed-tile ${invalid ? 'invalid' : ''}`}>
       <span className="roster-condensed-badge">{badge}</span>
       <span className="roster-condensed-name">
         {item ? item.name : 'Empty'}
@@ -37,6 +37,7 @@ function RosterListItem({
     maxDropWeight,
     overMaxWeight,
     overDropWeight,
+    overCapacitySlots,
     statsLine,
     hullWeight,
     equippedWeights,
@@ -85,7 +86,12 @@ function RosterListItem({
           <div className="roster-condensed-cell roster-condensed-head">
             {headItems.length > 0 ? (
               headItems.map((item, i) => (
-                <CondensedTile badge="H" item={item} key={`head-${i}`} />
+                <CondensedTile
+                  badge="H"
+                  item={item}
+                  invalid={overCapacitySlots.Head}
+                  key={`head-${i}`}
+                />
               ))
             ) : (
               <CondensedTile badge="H" item={null} />
@@ -95,7 +101,12 @@ function RosterListItem({
         <div className="roster-condensed-cell">
           {leftItems.length > 0 ? (
             leftItems.map((item, i) => (
-              <CondensedTile badge="L" item={item} key={`left-${i}`} />
+              <CondensedTile
+                badge="L"
+                item={item}
+                invalid={overCapacitySlots.Left}
+                key={`left-${i}`}
+              />
             ))
           ) : (
             <CondensedTile badge="L" item={null} />
@@ -104,7 +115,12 @@ function RosterListItem({
         <div className="roster-condensed-cell">
           {rightItems.length > 0 ? (
             rightItems.map((item, i) => (
-              <CondensedTile badge="R" item={item} key={`right-${i}`} />
+              <CondensedTile
+                badge="R"
+                item={item}
+                invalid={overCapacitySlots.Right}
+                key={`right-${i}`}
+              />
             ))
           ) : (
             <CondensedTile badge="R" item={null} />

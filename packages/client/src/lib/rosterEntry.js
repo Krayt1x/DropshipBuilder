@@ -98,6 +98,17 @@ export function computeRosterStats(entry, units, equipment, totalWeight) {
   const overDropWeight =
     !overMaxWeight && maxDropWeight > 0 && totalWeight > maxDropWeight;
 
+  const overCapacitySlots = {};
+  if (!isDropPod) {
+    ['Left', 'Right', 'Head'].forEach((slot) => {
+      const usedCost = resolveEquippedItems(slot).reduce(
+        (sum, item) => sum + weaponSlotCost(item),
+        0,
+      );
+      overCapacitySlots[slot] = usedCost > slotCounts[slot];
+    });
+  }
+
   const movementItem = isDropPod ? null : resolveEquippedItems('Movement')[0];
   const movementGearStat =
     Number(movementItem?.movement ?? 0) + statBonus.base_movement;
@@ -176,6 +187,7 @@ export function computeRosterStats(entry, units, equipment, totalWeight) {
     maxDropWeight,
     overMaxWeight,
     overDropWeight,
+    overCapacitySlots,
     movementGearStat,
     excessDropWeight,
     effectiveMovement,
