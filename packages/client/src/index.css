@@ -290,16 +290,75 @@ button.ghost:hover {
   color: var(--text-secondary);
 }
 
-.columns {
+.workspace-columns {
   display: grid;
-  grid-template-columns: 1.3fr 1fr;
+  grid-template-columns: 0.7fr 1fr 1.3fr;
   gap: 1.25rem;
   align-items: start;
 }
 
+.workspace-tabs {
+  display: none;
+}
+
+.workspace-back-link {
+  display: block;
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 0;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+
+.roster-config-panel {
+  padding: 0.75rem;
+}
+
 @media (max-width: 700px) {
-  .columns {
+  .workspace-columns {
     grid-template-columns: 1fr;
+  }
+
+  .workspace-tabs {
+    display: flex;
+    margin-bottom: 12px;
+  }
+
+  .workspace-tab {
+    flex: 1;
+    background: var(--bg-track);
+    border: 1px solid var(--border-input);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 10px;
+    cursor: pointer;
+  }
+
+  .workspace-tab:first-child {
+    border-radius: 8px 0 0 8px;
+  }
+
+  .workspace-tab:last-child {
+    border-radius: 0 8px 8px 0;
+    border-left: none;
+  }
+
+  .workspace-tab.active {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border-color: var(--accent);
+  }
+
+  .workspace-col {
+    display: none;
+  }
+
+  .workspace-col.mobile-active {
+    display: block;
   }
 }
 
@@ -320,6 +379,12 @@ button.ghost:hover {
 .unit-row.over-max-weight {
   border-color: #dc2626;
   border-width: 2px;
+}
+
+.roster-list-item.selected {
+  border-color: var(--accent);
+  background: var(--bg-track);
+  box-shadow: inset 3px 0 0 var(--accent);
 }
 
 .unit-name {
