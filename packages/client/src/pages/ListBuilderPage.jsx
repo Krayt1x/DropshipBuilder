@@ -428,10 +428,10 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
           {configureMobileActive && (
             <button
               type="button"
-              className="workspace-back-link"
+              className="ghost workspace-back-button"
               onClick={() => setSelectedRosterKey(null)}
             >
-              ‹ Roster
+              ‹ Back to roster
             </button>
           )}
           {selectedEntry ? (
