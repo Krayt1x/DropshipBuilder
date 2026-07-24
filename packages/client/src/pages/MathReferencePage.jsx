@@ -25,28 +25,30 @@ function MathReferencePage() {
           Each weapon has a size that determines how many slots it takes up in a
           Left, Right, or Head slot bank:
         </p>
-        <table style={{ marginTop: 8 }}>
-          <thead>
-            <tr>
-              <th>Size</th>
-              <th>Slots used</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Small</td>
-              <td>1</td>
-            </tr>
-            <tr>
-              <td>Medium</td>
-              <td>2</td>
-            </tr>
-            <tr>
-              <td>Large</td>
-              <td>3</td>
-            </tr>
-          </tbody>
-        </table>
+        <div className="table-scroll">
+          <table style={{ marginTop: 8 }}>
+            <thead>
+              <tr>
+                <th>Size</th>
+                <th>Slots used</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Small</td>
+                <td>1</td>
+              </tr>
+              <tr>
+                <td>Medium</td>
+                <td>2</td>
+              </tr>
+              <tr>
+                <td>Large</td>
+                <td>3</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         <p className="unit-stats" style={{ fontSize: 13, marginTop: 8 }}>
           A weapon can only be equipped if its slot cost fits within the
           remaining capacity of that slot bank — options that don&apos;t fit
