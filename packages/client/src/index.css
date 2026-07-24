@@ -614,6 +614,11 @@ button.ghost:hover {
   font-weight: 700;
 }
 
+.weight-bar-mini-labels .max-weight-exceeded {
+  color: #dc2626;
+  font-weight: 700;
+}
+
 .unit-info {
   flex: 1;
   min-width: 0;

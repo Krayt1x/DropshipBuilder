@@ -202,7 +202,9 @@ function RosterListItem({
                   MSW {maxDropWeight}t
                 </span>
               )}
-              <span>Max {maxWeight}t</span>
+              <span className={overMaxWeight ? 'max-weight-exceeded' : ''}>
+                Max {maxWeight}t
+              </span>
             </div>
           </div>
         )}
