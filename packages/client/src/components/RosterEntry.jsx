@@ -464,6 +464,14 @@ function RosterEntry({
           </div>
         ) : (
           <div className="equipment-slots-grid">
+            {slotCounts.Head > 0 && (
+              <div className="equipment-slots-panel equipment-slots-panel-head">
+                <div className="equipment-slots-panel-label">
+                  Head ({weaponUsage('Head').used}/{slotCounts.Head})
+                </div>
+                {renderSlotCards('Head')}
+              </div>
+            )}
             <div className="equipment-slots-panel">
               <div className="equipment-slots-panel-label">
                 Left ({weaponUsage('Left').used}/{slotCounts.Left})
@@ -480,14 +488,6 @@ function RosterEntry({
               <div className="equipment-slots-panel-label">Movement</div>
               {renderSlotCards('Movement')}
             </div>
-            {slotCounts.Head > 0 && (
-              <div className="equipment-slots-panel equipment-slots-panel-head">
-                <div className="equipment-slots-panel-label">
-                  Head ({weaponUsage('Head').used}/{slotCounts.Head})
-                </div>
-                {renderSlotCards('Head')}
-              </div>
-            )}
           </div>
         )}
 
