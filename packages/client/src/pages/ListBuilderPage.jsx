@@ -1,7 +1,8 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useLocalStorageState, makeKey } from '../lib/storage.js';
 import { SLOTS, DROP_POD_SIZE, sizeLabel } from '../lib/constants.js';
-import RosterEntry from '../components/RosterEntry.jsx';
+import RosterListItem from '../components/RosterListItem.jsx';
+import RosterConfigPanel from '../components/RosterConfigPanel.jsx';
 import DiceIcons from '../components/DiceIcons.jsx';
 
 function emptyEquipmentSlots() {
@@ -60,6 +61,8 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
     'dropshipbuilder:roster',
     [],
   );
+  const [selectedRosterKey, setSelectedRosterKey] = useState(null);
+  const [activeMobileTab, setActiveMobileTab] = useState('catalogue');
 
   const manufacturer = manufacturers.includes(settings.manufacturer)
     ? settings.manufacturer
@@ -145,6 +148,11 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
 
   function removeFromList(key) {
     setRoster((r) => r.filter((entry) => entry.key !== key));
+    setSelectedRosterKey((current) => (current === key ? null : current));
+  }
+
+  function selectRoster(key) {
+    setSelectedRosterKey((current) => (current === key ? null : key));
   }
 
   function assignEquipment(key, slot, slotIndex, equipmentId) {
@@ -200,7 +208,15 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
 
   function clearList() {
     setRoster([]);
+    setSelectedRosterKey(null);
   }
+
+  const selectedEntry =
+    rosterUnits.find((entry) => entry.key === selectedRosterKey) ?? null;
+  const catalogueMobileActive = activeMobileTab === 'catalogue';
+  const rosterListMobileActive = activeMobileTab === 'roster' && !selectedEntry;
+  const configureMobileActive =
+    activeMobileTab === 'roster' && Boolean(selectedEntry);
 
   return (
     <div className="container">
@@ -262,8 +278,27 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
         </div>
       </div>
 
-      <div className="columns">
-        <div>
+      <div className="workspace-tabs">
+        <button
+          type="button"
+          className={`workspace-tab ${catalogueMobileActive ? 'active' : ''}`}
+          onClick={() => setActiveMobileTab('catalogue')}
+        >
+          Catalogue
+        </button>
+        <button
+          type="button"
+          className={`workspace-tab ${activeMobileTab === 'roster' ? 'active' : ''}`}
+          onClick={() => setActiveMobileTab('roster')}
+        >
+          Roster
+        </button>
+      </div>
+
+      <div className="workspace-columns">
+        <div
+          className={`workspace-col ${catalogueMobileActive ? 'mobile-active' : ''}`}
+        >
           <h2 style={{ fontSize: 15 }}>Unit catalogue — {manufacturer}</h2>
           {catalog.length === 0 ? (
             <p className="empty">
@@ -304,7 +339,9 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
           )}
         </div>
 
-        <div>
+        <div
+          className={`workspace-col ${rosterListMobileActive ? 'mobile-active' : ''}`}
+        >
           <h2 style={{ fontSize: 15 }}>Your roster</h2>
           <div className="card" style={{ padding: '0.75rem' }}>
             {rosterUnits.length === 0 ? (
@@ -312,7 +349,7 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
             ) : (
               <>
                 {rosterUnits.map((entry) => (
-                  <RosterEntry
+                  <RosterListItem
                     key={entry.key}
                     entry={entry}
                     units={units}
@@ -322,16 +359,9 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
                       equipmentWeight(entry.equipment, equipment) +
                       carriedWeight(entry.carried, units)
                     }
+                    selected={entry.key === selectedRosterKey}
+                    onSelect={() => selectRoster(entry.key)}
                     onRemove={() => removeFromList(entry.key)}
-                    onAssignEquipment={(slot, slotIndex, equipmentId) =>
-                      assignEquipment(entry.key, slot, slotIndex, equipmentId)
-                    }
-                    onAddCarried={(carriedUnitId) =>
-                      addCarriedModel(entry.key, carriedUnitId)
-                    }
-                    onRemoveCarried={(carriedKey) =>
-                      removeCarriedModel(entry.key, carriedKey)
-                    }
                   />
                 ))}
                 <form
@@ -349,6 +379,46 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
               </>
             )}
           </div>
+        </div>
+
+        <div
+          className={`workspace-col ${configureMobileActive ? 'mobile-active' : ''}`}
+        >
+          <h2 style={{ fontSize: 15 }}>Configure</h2>
+          {configureMobileActive && (
+            <button
+              type="button"
+              className="workspace-back-link"
+              onClick={() => setSelectedRosterKey(null)}
+            >
+              ‹ Roster
+            </button>
+          )}
+          {selectedEntry ? (
+            <RosterConfigPanel
+              entry={selectedEntry}
+              units={units}
+              equipment={equipment}
+              totalWeight={
+                Number(selectedEntry.unit.weight) +
+                equipmentWeight(selectedEntry.equipment, equipment) +
+                carriedWeight(selectedEntry.carried, units)
+              }
+              onAssignEquipment={(slot, slotIndex, equipmentId) =>
+                assignEquipment(selectedEntry.key, slot, slotIndex, equipmentId)
+              }
+              onAddCarried={(carriedUnitId) =>
+                addCarriedModel(selectedEntry.key, carriedUnitId)
+              }
+              onRemoveCarried={(carriedKey) =>
+                removeCarriedModel(selectedEntry.key, carriedKey)
+              }
+            />
+          ) : (
+            <p className="empty" style={{ padding: '2rem 1rem' }}>
+              Select a unit from your roster to configure it.
+            </p>
+          )}
         </div>
       </div>
     </div>
