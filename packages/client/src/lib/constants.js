@@ -20,8 +20,9 @@ export const EFFECT_STATS = [
   { key: 'head_slots', label: 'Head slots' },
 ];
 // Bump this whenever the seed data (manufacturers/units/equipment.json)
-// changes, so browsers with older cached data get a "please purge cache"
-// warning instead of silently going stale.
+// changes, so browsers with older cached data merge in the new seed
+// content instead of silently going stale (see mergeSeedRecords in
+// lib/storage.js).
 export const DATA_VERSION = 15;
 
 export function sizeLabel(size) {
