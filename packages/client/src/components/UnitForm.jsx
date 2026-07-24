@@ -73,7 +73,7 @@ function UnitForm({ manufacturers, editing, onSubmit, onCancel }) {
           />
         </div>
         <div className="field">
-          <label htmlFor="max_drop_weight">Max drop weight</label>
+          <label htmlFor="max_drop_weight">Maximum Safe Weight (MSW)</label>
           <input
             type="number"
             id="max_drop_weight"
