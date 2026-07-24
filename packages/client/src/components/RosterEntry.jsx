@@ -16,6 +16,12 @@ const WEIGHT_SEGMENT_COLORS = [
   '#93c5fd',
 ];
 
+function requiredTypeForSlot(slot) {
+  if (slot === 'Movement') return 'Movement';
+  if (slot === 'Head') return 'Augment';
+  return 'Weapon';
+}
+
 function LoadMechForm({ options, onAdd }) {
   return (
     <form
@@ -80,11 +86,12 @@ function SlotPicker({
       )}
       {options.map((item) => {
         const isSelected = Number(selectedId) === Number(item.id);
-        const fits = !isWeapon || !weaponFit || isSelected || weaponFit(item);
+        const fits = !weaponFit || isSelected || weaponFit(item);
+        const itemType = item.type ?? 'Movement';
         return (
           <div
             key={item.id}
-            className={`slot-picker-row ${(!isWeapon && item.effects) || (isWeapon && !fits) ? 'slot-picker-row-stack' : ''} ${isSelected ? 'selected' : ''} ${!fits ? 'slot-picker-row-nofit' : ''}`}
+            className={`slot-picker-row ${(!isWeapon && item.effects) || (weaponFit && !fits) ? 'slot-picker-row-stack' : ''} ${isSelected ? 'selected' : ''} ${!fits ? 'slot-picker-row-nofit' : ''}`}
             onClick={() => fits && onSelect(Number(item.id))}
           >
             <div className="slot-picker-row-main">
@@ -92,15 +99,17 @@ function SlotPicker({
               <span className="slot-picker-stats">
                 {isWeapon
                   ? `${item.size ?? 'Small'} (${weaponSlotCost(item)} slot${weaponSlotCost(item) > 1 ? 's' : ''}) · ${item.weight ?? 0}t · ${item.range || '—'} · ${item.heat_rating || '—'} · ${item.hit_dice || '—'}`
-                  : (item.type ?? 'Movement') === 'Movement'
+                  : itemType === 'Movement'
                     ? `${item.movement ?? 0} movement · ${item.weight ?? 0}t`
-                    : `${item.weight ?? 0}t`}
+                    : itemType === 'Augment'
+                      ? `${weaponSlotCost(item)} slot${weaponSlotCost(item) > 1 ? 's' : ''} · ${item.weight ?? 0}t`
+                      : `${item.weight ?? 0}t`}
               </span>
             </div>
             {!isWeapon && item.effects && (
               <span className="slot-picker-row-effects">{item.effects}</span>
             )}
-            {isWeapon && !fits && (
+            {weaponFit && !fits && (
               <span className="slot-picker-row-effects">
                 Not enough room in this slot
               </span>
@@ -155,7 +164,7 @@ function RosterEntry({
   );
 
   function resolveEquippedItems(slot) {
-    const requiredType = slot === 'Movement' ? 'Movement' : 'Weapon';
+    const requiredType = requiredTypeForSlot(slot);
     const slotOptions = unitEquipment.filter(
       (item) => (item.type ?? 'Movement') === requiredType,
     );
@@ -213,10 +222,9 @@ function RosterEntry({
   }
 
   function weaponUsage(slot) {
+    const requiredType = requiredTypeForSlot(slot);
     const slotOptions = unitEquipment.filter(
-      (item) =>
-        (item.type ?? 'Movement') === 'Weapon' &&
-        (slot === 'Head' || !item.head_only),
+      (item) => (item.type ?? 'Movement') === requiredType,
     );
     const equippedItems = (entry.equipment?.[slot] ?? [])
       .filter(Boolean)
@@ -300,7 +308,7 @@ function RosterEntry({
     }
   } else {
     SLOTS.forEach((slot) => {
-      const requiredType = slot === 'Movement' ? 'Movement' : 'Weapon';
+      const requiredType = requiredTypeForSlot(slot);
       const slotOptions = unitEquipment.filter(
         (item) => (item.type ?? 'Movement') === requiredType,
       );
@@ -540,7 +548,7 @@ function RosterEntry({
                 options={slotOptions}
                 selectedId={selectedId}
                 allowNone={!isNew}
-                isWeapon
+                isWeapon={requiredTypeForSlot(slot) === 'Weapon'}
                 weaponFit={(item) => weaponSlotCost(item) <= remaining}
                 onSelect={(id) => {
                   if (id > 0) {

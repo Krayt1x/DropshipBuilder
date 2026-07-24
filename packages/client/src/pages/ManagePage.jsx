@@ -91,6 +91,7 @@ function ManagePage({
     dir: 'desc',
   });
   const [weaponSort, setWeaponSort] = useState({ key: 'weight', dir: 'asc' });
+  const [augmentSort, setAugmentSort] = useState({ key: 'name', dir: 'asc' });
   const [activeManufacturer, setActiveManufacturer] = useState(
     manufacturers[0] ?? null,
   );
@@ -288,7 +289,6 @@ function ManagePage({
     if (type === 'Weapon') {
       const sizeRaw = (form.get('size') || '').toString();
       payload.size = WEAPON_SIZES.includes(sizeRaw) ? sizeRaw : 'Small';
-      payload.head_only = form.get('head_only') === 'on';
     }
 
     if (type === 'Movement') {
@@ -470,6 +470,10 @@ function ManagePage({
           const weaponItems = sortRows(
             manufacturerEquipment.filter((e) => e.type === 'Weapon'),
             weaponSort,
+          );
+          const augmentItems = sortRows(
+            manufacturerEquipment.filter((e) => e.type === 'Augment'),
+            augmentSort,
           );
           return (
             <div className="card">
@@ -814,12 +818,6 @@ function ManagePage({
                           sort={weaponSort}
                           onSort={(k) => toggleSort(setWeaponSort, k)}
                         />
-                        <SortTh
-                          label="Head only"
-                          sortKey="head_only"
-                          sort={weaponSort}
-                          onSort={(k) => toggleSort(setWeaponSort, k)}
-                        />
                         <th>Effects</th>
                         <th></th>
                       </tr>
@@ -835,7 +833,6 @@ function ManagePage({
                             <td>{item.heat_rating || '—'}</td>
                             <td>{item.hit_dice || '—'}</td>
                             <td>{item.no_drop_pod ? '✕' : ''}</td>
-                            <td>{item.head_only ? '✕' : ''}</td>
                             <td>
                               <EffectsCell item={item} />
                             </td>
@@ -866,7 +863,102 @@ function ManagePage({
                           </tr>
                           {editingEquipmentId === Number(item.id) && (
                             <tr>
-                              <td colSpan={10}>
+                              <td colSpan={9}>
+                                <EquipmentForm
+                                  key={item.id}
+                                  manufacturers={manufacturers}
+                                  editing={item}
+                                  onSubmit={submitEquipment}
+                                  onCancel={() => setEditingEquipmentId(null)}
+                                />
+                              </td>
+                            </tr>
+                          )}
+                        </Fragment>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              <h4
+                style={{
+                  fontSize: 12,
+                  color: 'var(--text-secondary)',
+                  margin: '16px 0 6px',
+                }}
+              >
+                Augmentation Chips
+              </h4>
+              {augmentItems.length === 0 ? (
+                <p className="empty">
+                  No augmentation chips for this manufacturer yet.
+                </p>
+              ) : (
+                <div className="table-scroll">
+                  <table>
+                    <thead>
+                      <tr>
+                        <SortTh
+                          label="Name"
+                          sortKey="name"
+                          sort={augmentSort}
+                          onSort={(k) => toggleSort(setAugmentSort, k)}
+                        />
+                        <SortTh
+                          label="Weight"
+                          sortKey="weight"
+                          sort={augmentSort}
+                          onSort={(k) => toggleSort(setAugmentSort, k)}
+                        />
+                        <SortTh
+                          label="Drop Pod"
+                          sortKey="no_drop_pod"
+                          sort={augmentSort}
+                          onSort={(k) => toggleSort(setAugmentSort, k)}
+                        />
+                        <th>Effects</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {augmentItems.map((item) => (
+                        <Fragment key={item.id}>
+                          <tr>
+                            <td>{item.name}</td>
+                            <td>{item.weight ?? 0} t</td>
+                            <td>{item.no_drop_pod ? '✕' : ''}</td>
+                            <td>
+                              <EffectsCell item={item} />
+                            </td>
+                            <td>
+                              <div style={{ display: 'flex', gap: 8 }}>
+                                <button
+                                  type="button"
+                                  className="ghost"
+                                  onClick={() => {
+                                    setEditingEquipmentId(Number(item.id));
+                                    setShowEquipmentForm(false);
+                                  }}
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  type="button"
+                                  className="danger"
+                                  aria-label="Remove"
+                                  onClick={() =>
+                                    deleteEquipment(Number(item.id))
+                                  }
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                          {editingEquipmentId === Number(item.id) && (
+                            <tr>
+                              <td colSpan={5}>
                                 <EquipmentForm
                                   key={item.id}
                                   manufacturers={manufacturers}

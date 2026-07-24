@@ -176,28 +176,6 @@ function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
         </label>
       </div>
 
-      {isWeapon && (
-        <div
-          className="field"
-          style={{
-            marginTop: 10,
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 8,
-          }}
-        >
-          <input
-            type="checkbox"
-            id="head_only"
-            name="head_only"
-            defaultChecked={editing?.head_only ?? false}
-          />
-          <label htmlFor="head_only" style={{ margin: 0 }}>
-            Head slot only (cannot be equipped on Left/Right)
-          </label>
-        </div>
-      )}
-
       <div className="field" style={{ marginTop: 10 }}>
         <label htmlFor="effects">Effects (description)</label>
         <textarea
