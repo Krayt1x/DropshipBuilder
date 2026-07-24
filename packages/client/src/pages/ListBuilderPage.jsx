@@ -303,7 +303,7 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
             onClick={shareList}
             disabled={rosterUnits.length === 0}
           >
-            {shareStatus === 'copied' ? 'Copied!' : '📤 Share'}
+            {shareStatus === 'copied' ? 'Copied!' : 'Share'}
           </button>
           <button type="button" className="ghost" onClick={openSettings}>
             Edit settings

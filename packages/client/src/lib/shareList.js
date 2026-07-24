@@ -41,6 +41,6 @@ export function buildShareText({
     lines.push('');
   });
 
-  lines.push('Built with DropshipBuilder');
+  if (lines[lines.length - 1] === '') lines.pop();
   return lines.join('\n');
 }

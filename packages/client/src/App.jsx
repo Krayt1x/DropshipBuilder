@@ -3,6 +3,7 @@ import Nav from './components/Nav.jsx';
 import ListBuilderPage from './pages/ListBuilderPage.jsx';
 import ManagePage from './pages/ManagePage.jsx';
 import MathReferencePage from './pages/MathReferencePage.jsx';
+import RuleBookPage from './pages/RuleBookPage.jsx';
 import { useLocalStorageState, purgeCatalogCache } from './lib/storage.js';
 import { DATA_VERSION } from './lib/constants.js';
 import manufacturersSeed from './data/manufacturers.json';
@@ -12,6 +13,7 @@ import equipmentSeed from './data/equipment.json';
 function currentPage() {
   if (window.location.hash === '#manage') return 'manage';
   if (window.location.hash === '#math') return 'math';
+  if (window.location.hash === '#rulebook') return 'rulebook';
   return 'list';
 }
 
@@ -80,6 +82,8 @@ function App() {
         />
       ) : page === 'math' ? (
         <MathReferencePage />
+      ) : page === 'rulebook' ? (
+        <RuleBookPage />
       ) : (
         <ListBuilderPage
           manufacturers={manufacturers}

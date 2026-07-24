@@ -21,6 +21,9 @@ function Nav({ page }) {
         <a href="#math" className={page === 'math' ? 'active' : ''}>
           Math reference
         </a>
+        <a href="#rulebook" className={page === 'rulebook' ? 'active' : ''}>
+          Rule book
+        </a>
         <button
           type="button"
           className="hamburger-btn"
@@ -54,6 +57,13 @@ function Nav({ page }) {
             onClick={closeMenu}
           >
             Math reference
+          </a>
+          <a
+            href="#rulebook"
+            className={page === 'rulebook' ? 'active' : ''}
+            onClick={closeMenu}
+          >
+            Rule book
           </a>
         </div>
       )}
