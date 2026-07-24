@@ -153,6 +153,7 @@ function RosterEntry({
     : [];
 
   const [openSlotKey, setOpenSlotKey] = useState(null);
+  const [expanded, setExpanded] = useState(false);
 
   const dropPodEquipmentId = entry.equipment?.Movement?.[0] ?? 0;
   const hasEquipment = Boolean(dropPodEquipmentId);
@@ -338,31 +339,121 @@ function RosterEntry({
     totalWeight - equippedWeights.reduce((sum, item) => sum + item.weight, 0),
   );
 
+  function renderCompactChips() {
+    if (isDropPod) {
+      const chips = [];
+      if (dropPodSelected) {
+        chips.push(
+          <div
+            className="slot-card"
+            style={{ cursor: 'default' }}
+            key="equipment"
+          >
+            <span className="slot-card-label">Equipment</span>
+            <span className="slot-card-item">{dropPodSelected.name}</span>
+            <span className="slot-card-wt">{dropPodSelected.weight ?? 0}t</span>
+          </div>,
+        );
+      }
+      carried.forEach((carriedEntry) => {
+        const carriedUnit = units.find(
+          (u) => Number(u.id) === Number(carriedEntry.unit_id),
+        );
+        if (!carriedUnit) return;
+        chips.push(
+          <div
+            className="slot-card"
+            style={{ cursor: 'default' }}
+            key={carriedEntry.key}
+          >
+            <span className="slot-card-label">Carried</span>
+            <span className="slot-card-item">{carriedUnit.name}</span>
+            <span className="slot-card-wt">{carriedUnit.weight}t</span>
+          </div>,
+        );
+      });
+      if (chips.length === 0) {
+        return (
+          <p className="empty" style={{ padding: '4px 0' }}>
+            Nothing loaded yet.
+          </p>
+        );
+      }
+      return <div className="equipment-slots">{chips}</div>;
+    }
+
+    const chips = SLOTS.flatMap((slot) => {
+      if (slot === 'Head' && slotCounts.Head <= 0) return [];
+      return resolveEquippedItems(slot).map((item, i) => (
+        <div
+          className="slot-card"
+          style={{ cursor: 'default' }}
+          key={`${slot}-${i}`}
+        >
+          <span className="slot-card-label">{slot}</span>
+          <span className="slot-card-item">{item.name}</span>
+          <span className="slot-card-wt">
+            {slot === 'Movement'
+              ? `${item.movement ?? 0} move`
+              : `${item.weight ?? 0}t`}
+          </span>
+        </div>
+      ));
+    });
+    if (chips.length === 0) {
+      return (
+        <p className="empty" style={{ padding: '4px 0' }}>
+          No equipment equipped.
+        </p>
+      );
+    }
+    return <div className="equipment-slots">{chips}</div>;
+  }
+
   return (
     <div
       className={`unit-row ${overMaxWeight ? 'over-max-weight' : ''}`}
       style={{ alignItems: 'flex-start', flexWrap: 'wrap' }}
     >
       <div className="unit-info">
-        <p className="unit-name">
-          {overMaxWeight && (
-            <span
-              className="warning-icon warning-icon-max"
-              title={`Over max weight (${unit.max_weight} t)`}
-            >
-              ⛔
-            </span>
-          )}
-          {overDropWeight && (
-            <span
-              className="warning-icon warning-icon-drop"
-              title={`Over Maximum Safe Weight (${unit.max_drop_weight} t)`}
-            >
-              ⚠️
-            </span>
-          )}
-          {unit.name} {isDropPod && <span className="badge">Drop Pod</span>}
-        </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <p className="unit-name" style={{ flex: 1, minWidth: 0 }}>
+            {overMaxWeight && (
+              <span
+                className="warning-icon warning-icon-max"
+                title={`Over max weight (${unit.max_weight} t)`}
+              >
+                ⛔
+              </span>
+            )}
+            {overDropWeight && (
+              <span
+                className="warning-icon warning-icon-drop"
+                title={`Over Maximum Safe Weight (${unit.max_drop_weight} t)`}
+              >
+                ⚠️
+              </span>
+            )}
+            {unit.name} {isDropPod && <span className="badge">Drop Pod</span>}
+          </p>
+          <button
+            type="button"
+            className="ghost"
+            aria-label="Remove"
+            style={{ padding: '4px 8px', fontSize: 12 }}
+            onClick={onRemove}
+          >
+            ✕
+          </button>
+          <button
+            type="button"
+            className="ghost"
+            style={{ padding: '4px 8px', fontSize: 12 }}
+            onClick={() => setExpanded((current) => !current)}
+          >
+            {expanded ? 'Collapse ▴' : 'Details ▾'}
+          </button>
+        </div>
         <p className="unit-meta">{totalWeight} t</p>
         {maxWeight > 0 && (
           <div className="weight-bar-mini">
@@ -410,7 +501,7 @@ function RosterEntry({
               )}
               <span>Max {maxWeight}t</span>
             </div>
-            {equippedWeights.length > 0 && (
+            {expanded && equippedWeights.length > 0 && (
               <div className="weight-legend">
                 {equippedWeights.map((item, i) => (
                   <span className="legend-chip" key={item.key}>
@@ -435,7 +526,10 @@ function RosterEntry({
         <p className="unit-stats">
           <DiceIcons unit={unit} />
         </p>
-        {maxWeight > 0 && (
+
+        {!expanded && renderCompactChips()}
+
+        {expanded && maxWeight > 0 && (
           <p className="unit-stats">
             Effective movement: <b>{effectiveMovement}</b> (gear movement{' '}
             {movementGearStat}
@@ -443,52 +537,53 @@ function RosterEntry({
           </p>
         )}
 
-        {isDropPod ? (
-          <div className="equipment-slots">
-            <SlotCard
-              label="Equipment"
-              item={dropPodSelected}
-              statOverride={
-                dropPodSelected &&
-                (dropPodSelected.type ?? 'Movement') === 'Movement'
-                  ? `${dropPodSelected.movement ?? 0} move`
-                  : undefined
-              }
-              isOpen={openSlotKey === 'equipment'}
-              disabled={hasMech || dropPodEquipmentOptions.length === 0}
-              onToggle={() => toggleSlot('equipment')}
-            />
-          </div>
-        ) : (
-          <div className="equipment-slots-grid">
-            {slotCounts.Head > 0 && (
-              <div className="equipment-slots-panel equipment-slots-panel-head">
-                <div className="equipment-slots-panel-label">
-                  Head ({weaponUsage('Head').used}/{slotCounts.Head})
+        {expanded &&
+          (isDropPod ? (
+            <div className="equipment-slots">
+              <SlotCard
+                label="Equipment"
+                item={dropPodSelected}
+                statOverride={
+                  dropPodSelected &&
+                  (dropPodSelected.type ?? 'Movement') === 'Movement'
+                    ? `${dropPodSelected.movement ?? 0} move`
+                    : undefined
+                }
+                isOpen={openSlotKey === 'equipment'}
+                disabled={hasMech || dropPodEquipmentOptions.length === 0}
+                onToggle={() => toggleSlot('equipment')}
+              />
+            </div>
+          ) : (
+            <div className="equipment-slots-grid">
+              {slotCounts.Head > 0 && (
+                <div className="equipment-slots-panel equipment-slots-panel-head">
+                  <div className="equipment-slots-panel-label">
+                    Head ({weaponUsage('Head').used}/{slotCounts.Head})
+                  </div>
+                  {renderSlotCards('Head')}
                 </div>
-                {renderSlotCards('Head')}
+              )}
+              <div className="equipment-slots-panel">
+                <div className="equipment-slots-panel-label">
+                  Left ({weaponUsage('Left').used}/{slotCounts.Left})
+                </div>
+                {renderSlotCards('Left')}
               </div>
-            )}
-            <div className="equipment-slots-panel">
-              <div className="equipment-slots-panel-label">
-                Left ({weaponUsage('Left').used}/{slotCounts.Left})
+              <div className="equipment-slots-panel">
+                <div className="equipment-slots-panel-label">
+                  Right ({weaponUsage('Right').used}/{slotCounts.Right})
+                </div>
+                {renderSlotCards('Right')}
               </div>
-              {renderSlotCards('Left')}
-            </div>
-            <div className="equipment-slots-panel">
-              <div className="equipment-slots-panel-label">
-                Right ({weaponUsage('Right').used}/{slotCounts.Right})
+              <div className="equipment-slots-panel equipment-slots-panel-movement">
+                <div className="equipment-slots-panel-label">Movement</div>
+                {renderSlotCards('Movement')}
               </div>
-              {renderSlotCards('Right')}
             </div>
-            <div className="equipment-slots-panel equipment-slots-panel-movement">
-              <div className="equipment-slots-panel-label">Movement</div>
-              {renderSlotCards('Movement')}
-            </div>
-          </div>
-        )}
+          ))}
 
-        {isDropPod && openSlotKey === 'equipment' && (
+        {expanded && isDropPod && openSlotKey === 'equipment' && (
           <SlotPicker
             title="Equipment"
             options={dropPodEquipmentOptions}
@@ -502,7 +597,8 @@ function RosterEntry({
           />
         )}
 
-        {!isDropPod &&
+        {expanded &&
+          !isDropPod &&
           openSlotKey &&
           (() => {
             const [slot, indexStr] = openSlotKey.split('-');
@@ -559,20 +655,24 @@ function RosterEntry({
             );
           })()}
 
-        {equippedWithEffects.map(({ key, item }) => (
-          <p key={key} className="equipment-effects">
-            {item.name}: {item.effects}
-            {item.effects && item.effect_stats?.length > 0 ? ' · ' : ''}
-            {item.effect_stats?.map((effect, i) => (
-              <span className="effect-chip" key={`${key}-${effect.stat}-${i}`}>
-                {effect.amount > 0 ? '+' : ''}
-                {effect.amount} {effectStatLabel(effect.stat)}
-              </span>
-            ))}
-          </p>
-        ))}
+        {expanded &&
+          equippedWithEffects.map(({ key, item }) => (
+            <p key={key} className="equipment-effects">
+              {item.name}: {item.effects}
+              {item.effects && item.effect_stats?.length > 0 ? ' · ' : ''}
+              {item.effect_stats?.map((effect, i) => (
+                <span
+                  className="effect-chip"
+                  key={`${key}-${effect.stat}-${i}`}
+                >
+                  {effect.amount > 0 ? '+' : ''}
+                  {effect.amount} {effectStatLabel(effect.stat)}
+                </span>
+              ))}
+            </p>
+          ))}
 
-        {isDropPod && (
+        {expanded && isDropPod && (
           <div className="carried-models">
             <p className="carried-heading">Carried mech</p>
             {hasMech ? (
@@ -619,18 +719,6 @@ function RosterEntry({
               ))}
           </div>
         )}
-
-        <form
-          className="remove-row"
-          onSubmit={(e) => {
-            e.preventDefault();
-            onRemove();
-          }}
-        >
-          <button type="submit" className="danger-ghost">
-            ✕ Remove
-          </button>
-        </form>
       </div>
     </div>
   );
