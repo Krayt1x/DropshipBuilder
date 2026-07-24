@@ -1,4 +1,4 @@
-import { SLOTS, DROP_POD_SIZE } from './constants.js';
+import { SLOTS, DROP_POD_SIZE, weaponSlotCost } from './constants.js';
 
 export const WEIGHT_SEGMENT_COLORS = [
   '#1d4ed8',
@@ -12,6 +12,23 @@ export function requiredTypeForSlot(slot) {
   if (slot === 'Movement') return 'Movement';
   if (slot === 'Head') return 'Augment';
   return 'Weapon';
+}
+
+export function itemStatSummary(item) {
+  if (!item) return '';
+  const itemType = item.type ?? 'Movement';
+  if (itemType === 'Weapon') {
+    const slots = weaponSlotCost(item);
+    return `${item.size ?? 'Small'} (${slots} slot${slots > 1 ? 's' : ''}) · ${item.weight ?? 0}t · Range ${item.range || '—'} · Heat ${item.heat_rating || '—'} · ${item.hit_dice || '—'}`;
+  }
+  if (itemType === 'Movement') {
+    return `${item.movement ?? 0} move · ${item.weight ?? 0}t`;
+  }
+  if (itemType === 'Augment') {
+    const slots = weaponSlotCost(item);
+    return `${slots} slot${slots > 1 ? 's' : ''} · ${item.weight ?? 0}t`;
+  }
+  return `${item.weight ?? 0}t`;
 }
 
 export function computeRosterStats(entry, units, equipment, totalWeight) {

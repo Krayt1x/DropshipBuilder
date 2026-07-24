@@ -8,6 +8,7 @@ import {
   WEIGHT_SEGMENT_COLORS,
   requiredTypeForSlot,
   computeRosterStats,
+  itemStatSummary,
 } from '../lib/rosterEntry.js';
 import DiceIcons from './DiceIcons.jsx';
 
@@ -33,7 +34,7 @@ function LoadMechForm({ options, onAdd }) {
   );
 }
 
-function SlotCard({ label, item, statOverride, isOpen, disabled, onToggle }) {
+function SlotCard({ label, item, isOpen, disabled, onToggle }) {
   return (
     <button
       type="button"
@@ -43,10 +44,9 @@ function SlotCard({ label, item, statOverride, isOpen, disabled, onToggle }) {
     >
       <span className="slot-card-label">{label}</span>
       <span className="slot-card-item">{item?.name ?? 'Empty'}</span>
-      {item && (
-        <span className="slot-card-wt">
-          {statOverride ?? `${item.weight ?? 0}t`}
-        </span>
+      {item && <span className="slot-card-wt">{itemStatSummary(item)}</span>}
+      {item?.effects && (
+        <span className="slot-card-effects">{item.effects}</span>
       )}
       {!disabled && <span className="slot-card-edit">✎</span>}
     </button>
@@ -187,7 +187,6 @@ function RosterConfigPanel({
           key={key}
           label="Movement"
           item={selected}
-          statOverride={selected ? `${selected.movement ?? 0} move` : undefined}
           isOpen={openSlotKey === key}
           disabled={slotOptions.length === 0}
           onToggle={() => toggleSlot(key)}
@@ -332,12 +331,6 @@ function RosterConfigPanel({
           <SlotCard
             label="Equipment"
             item={dropPodSelected}
-            statOverride={
-              dropPodSelected &&
-              (dropPodSelected.type ?? 'Movement') === 'Movement'
-                ? `${dropPodSelected.movement ?? 0} move`
-                : undefined
-            }
             isOpen={openSlotKey === 'equipment'}
             disabled={hasMech || dropPodEquipmentOptions.length === 0}
             onToggle={() => toggleSlot('equipment')}
