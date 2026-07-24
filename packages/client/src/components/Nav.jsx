@@ -18,6 +18,9 @@ function Nav({ page }) {
         <a href="#manage" className={page === 'manage' ? 'active' : ''}>
           Manage available models
         </a>
+        <a href="#math" className={page === 'math' ? 'active' : ''}>
+          Math reference
+        </a>
         <button
           type="button"
           className="hamburger-btn"
@@ -44,6 +47,13 @@ function Nav({ page }) {
             onClick={closeMenu}
           >
             Manage available models
+          </a>
+          <a
+            href="#math"
+            className={page === 'math' ? 'active' : ''}
+            onClick={closeMenu}
+          >
+            Math reference
           </a>
         </div>
       )}

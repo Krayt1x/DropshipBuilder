@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import Nav from './components/Nav.jsx';
 import ListBuilderPage from './pages/ListBuilderPage.jsx';
 import ManagePage from './pages/ManagePage.jsx';
+import MathReferencePage from './pages/MathReferencePage.jsx';
 import { useLocalStorageState, purgeCatalogCache } from './lib/storage.js';
 import { DATA_VERSION } from './lib/constants.js';
 import manufacturersSeed from './data/manufacturers.json';
@@ -9,7 +10,9 @@ import unitsSeed from './data/units.json';
 import equipmentSeed from './data/equipment.json';
 
 function currentPage() {
-  return window.location.hash === '#manage' ? 'manage' : 'list';
+  if (window.location.hash === '#manage') return 'manage';
+  if (window.location.hash === '#math') return 'math';
+  return 'list';
 }
 
 function App() {
@@ -75,6 +78,8 @@ function App() {
           equipment={equipment}
           setEquipment={setEquipment}
         />
+      ) : page === 'math' ? (
+        <MathReferencePage />
       ) : (
         <ListBuilderPage
           manufacturers={manufacturers}
