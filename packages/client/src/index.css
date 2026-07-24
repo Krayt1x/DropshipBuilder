@@ -598,6 +598,11 @@ button.ghost:hover {
   display: inline-block;
 }
 
+.legend-swatch-hull {
+  background: var(--text-muted);
+  opacity: 0.5;
+}
+
 .weight-bar-mini-drop-marker {
   position: absolute;
   top: -2px;
