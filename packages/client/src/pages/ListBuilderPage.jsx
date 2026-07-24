@@ -115,21 +115,28 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
       : 0;
   const over = totalWeight > weightLimit;
 
-  function updateSettings(e) {
+  function handleSplashSubmit(e) {
     e.preventDefault();
     const form = new FormData(e.target);
+    const nextManufacturer = manufacturers.includes(form.get('manufacturer'))
+      ? form.get('manufacturer')
+      : manufacturer;
+
+    if (nextManufacturer !== manufacturer && roster.length > 0) {
+      const confirmed = window.confirm(
+        'Changing manufacturers will start a new list and clear your current roster. Continue?',
+      );
+      if (!confirmed) return;
+      setRoster([]);
+      setSelectedRosterKey(null);
+    }
+
     setSettings({
       list_name:
         (form.get('list_name') || '').toString().trim() || 'Untitled list',
-      manufacturer: manufacturers.includes(form.get('manufacturer'))
-        ? form.get('manufacturer')
-        : manufacturer,
+      manufacturer: nextManufacturer,
       weight_limit: Math.max(1, Number(form.get('weight_limit')) || 100),
     });
-  }
-
-  function handleSplashSubmit(e) {
-    updateSettings(e);
     setShowSplash(false);
   }
 
