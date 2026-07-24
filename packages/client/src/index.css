@@ -606,6 +606,12 @@ button.ghost:hover {
   color: var(--text-secondary);
 }
 
+.slot-card-effects {
+  font-size: 10px;
+  font-style: italic;
+  color: var(--text-muted);
+}
+
 .slot-card-edit {
   position: absolute;
   top: 6px;
