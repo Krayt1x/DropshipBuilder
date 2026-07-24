@@ -534,7 +534,7 @@ button.ghost {
 .slot-card-label {
   font-size: 9px;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
 .slot-card-item {
