@@ -12,28 +12,6 @@ import {
 } from '../lib/rosterEntry.js';
 import DiceIcons from './DiceIcons.jsx';
 
-function LoadMechForm({ options, onAdd }) {
-  return (
-    <form
-      className="inline carried-add"
-      onSubmit={(e) => {
-        e.preventDefault();
-        const id = Number(new FormData(e.target).get('carried_unit_id'));
-        if (id > 0) onAdd(id);
-      }}
-    >
-      <select name="carried_unit_id" defaultValue={options[0]?.id}>
-        {options.map((option) => (
-          <option key={option.id} value={option.id}>
-            {option.name} ({option.weight} t)
-          </option>
-        ))}
-      </select>
-      <button type="submit">Load mech</button>
-    </form>
-  );
-}
-
 function SlotCard({ label, item, isOpen, disabled, invalid, onToggle }) {
   return (
     <button
@@ -121,19 +99,13 @@ function RosterConfigPanel({
   equipment,
   totalWeight,
   onAssignEquipment,
-  onAddCarried,
-  onRemoveCarried,
 }) {
   const stats = computeRosterStats(entry, units, equipment, totalWeight);
   const {
     unit,
     isDropPod,
     unitEquipment,
-    carried,
-    hasMech,
-    carryOptions,
     dropPodEquipmentId,
-    hasEquipment,
     dropPodEquipmentOptions,
     dropPodSelected,
     slotCounts,
@@ -342,7 +314,7 @@ function RosterConfigPanel({
             label="Equipment"
             item={dropPodSelected}
             isOpen={openSlotKey === 'equipment'}
-            disabled={hasMech || dropPodEquipmentOptions.length === 0}
+            disabled={dropPodEquipmentOptions.length === 0}
             onToggle={() => toggleSlot('equipment')}
           />
         </div>
@@ -458,52 +430,6 @@ function RosterConfigPanel({
           ))}
         </p>
       ))}
-
-      {isDropPod && (
-        <div className="carried-models">
-          <p className="carried-heading">Carried mech</p>
-          {hasMech ? (
-            carried.map((carriedEntry) => {
-              const carriedUnit = units.find(
-                (u) => Number(u.id) === Number(carriedEntry.unit_id),
-              );
-              if (!carriedUnit) return null;
-              return (
-                <div className="carried-row" key={carriedEntry.key}>
-                  <span>
-                    {carriedUnit.name}{' '}
-                    <span className="unit-meta">({carriedUnit.weight} t)</span>
-                  </span>
-                  <form
-                    className="inline"
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      onRemoveCarried(carriedEntry.key);
-                    }}
-                  >
-                    <button type="submit" className="danger">
-                      Remove
-                    </button>
-                  </form>
-                </div>
-              );
-            })
-          ) : (
-            <p className="empty" style={{ padding: '6px 0' }}>
-              Nothing loaded yet.
-            </p>
-          )}
-          {!hasMech &&
-            !hasEquipment &&
-            (carryOptions.length > 0 ? (
-              <LoadMechForm options={carryOptions} onAdd={onAddCarried} />
-            ) : (
-              <p className="empty" style={{ padding: '6px 0' }}>
-                No other {unit.manufacturer} models to load.
-              </p>
-            ))}
-        </div>
-      )}
     </div>
   );
 }

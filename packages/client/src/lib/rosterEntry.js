@@ -37,19 +37,7 @@ export function computeRosterStats(entry, units, equipment, totalWeight) {
   const unitEquipment = equipment.filter(
     (item) => item.manufacturer === unit.manufacturer,
   );
-  const carried = entry.carried ?? [];
-  const hasMech = carried.length > 0;
-  const carryOptions = isDropPod
-    ? units.filter(
-        (u) =>
-          u.manufacturer === unit.manufacturer &&
-          u.size !== DROP_POD_SIZE &&
-          Number(u.id) !== Number(unit.id),
-      )
-    : [];
-
   const dropPodEquipmentId = entry.equipment?.Movement?.[0] ?? 0;
-  const hasEquipment = Boolean(dropPodEquipmentId);
   const dropPodEquipmentOptions = unitEquipment.filter(
     (item) => !item.no_drop_pod,
   );
@@ -174,11 +162,7 @@ export function computeRosterStats(entry, units, equipment, totalWeight) {
     unit,
     isDropPod,
     unitEquipment,
-    carried,
-    hasMech,
-    carryOptions,
     dropPodEquipmentId,
-    hasEquipment,
     dropPodEquipmentOptions,
     dropPodSelected,
     resolveEquippedItems,

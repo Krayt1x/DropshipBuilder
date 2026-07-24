@@ -25,12 +25,6 @@ export function buildShareText({
       if (stats.dropPodSelected) {
         lines.push(`  Equipment: ${stats.dropPodSelected.name}`);
       }
-      entry.carried.forEach((c) => {
-        const carriedUnit = units.find(
-          (u) => Number(u.id) === Number(c.unit_id),
-        );
-        if (carriedUnit) lines.push(`  Carried: ${carriedUnit.name}`);
-      });
     } else {
       stats
         .resolveEquippedItems('Head')
