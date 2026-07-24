@@ -298,8 +298,14 @@ function RosterConfigPanel({
               Max {maxWeight}t
             </span>
           </div>
-          {equippedWeights.length > 0 && (
+          {(hullWeight > 0 || equippedWeights.length > 0) && (
             <div className="weight-legend">
+              {hullWeight > 0 && (
+                <span className="legend-chip">
+                  <span className="legend-swatch legend-swatch-hull" />
+                  {unit.name} chassis {hullWeight}t
+                </span>
+              )}
               {equippedWeights.map((item, i) => (
                 <span className="legend-chip" key={item.key}>
                   <span
