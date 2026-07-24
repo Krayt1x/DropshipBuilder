@@ -292,7 +292,9 @@ function RosterConfigPanel({
                 MSW {maxDropWeight}t
               </span>
             )}
-            <span>Max {maxWeight}t</span>
+            <span className={overMaxWeight ? 'max-weight-exceeded' : ''}>
+              Max {maxWeight}t
+            </span>
           </div>
           {equippedWeights.length > 0 && (
             <div className="weight-legend">
