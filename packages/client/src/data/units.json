@@ -84,10 +84,10 @@
     },
     {
         "id": 11,
-        "name": "Droppod",
+        "name": "Delivery Capsule",
         "manufacturer": "Corp A",
         "size": "Drop Pod",
-        "weight": 5,
+        "weight": 2,
         "armor": "1/1/1/1",
         "max_weight": 0,
         "max_drop_weight": 0,
