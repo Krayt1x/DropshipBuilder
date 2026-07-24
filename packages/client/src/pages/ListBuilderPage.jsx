@@ -63,10 +63,14 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
   );
   const [selectedRosterKey, setSelectedRosterKey] = useState(null);
   const [activeMobileTab, setActiveMobileTab] = useState('catalogue');
+  const [showSplash, setShowSplash] = useState(() => roster.length === 0);
 
   const manufacturer = manufacturers.includes(settings.manufacturer)
     ? settings.manufacturer
     : (manufacturers[0] ?? '');
+
+  const [selectedManufacturer, setSelectedManufacturer] =
+    useState(manufacturer);
 
   const catalog = useMemo(
     () =>
@@ -124,8 +128,14 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
     });
   }
 
-  function handleManufacturerChange(e) {
-    setSettings((s) => ({ ...s, manufacturer: e.target.value }));
+  function handleSplashSubmit(e) {
+    updateSettings(e);
+    setShowSplash(false);
+  }
+
+  function openSettings() {
+    setSelectedManufacturer(manufacturer);
+    setShowSplash(true);
   }
 
   function addToList(unitId) {
@@ -218,12 +228,17 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
   const configureMobileActive =
     activeMobileTab === 'roster' && Boolean(selectedEntry);
 
-  return (
-    <div className="container">
-      <h1>List builder</h1>
-
-      <div className="card">
-        <form className="settings-row" onSubmit={updateSettings}>
+  if (showSplash) {
+    return (
+      <div className="container splash-container">
+        <h1>Build your list</h1>
+        <p
+          className="unit-meta"
+          style={{ textAlign: 'center', marginBottom: 20 }}
+        >
+          Set the basics, then start adding units.
+        </p>
+        <form className="card splash-form" onSubmit={handleSplashSubmit}>
           <div className="field">
             <label htmlFor="list_name">List name</label>
             <input
@@ -235,19 +250,28 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
             />
           </div>
           <div className="field">
-            <label htmlFor="manufacturer">Manufacturer</label>
-            <select
-              id="manufacturer"
-              name="manufacturer"
-              value={manufacturer}
-              onChange={handleManufacturerChange}
-            >
+            <label>Manufacturer</label>
+            <div className="manufacturer-tile-grid">
               {manufacturers.map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
+                <button
+                  type="button"
+                  key={m}
+                  className={`manufacturer-tile ${selectedManufacturer === m ? 'selected' : ''}`}
+                  onClick={() => setSelectedManufacturer(m)}
+                >
+                  <span className="manufacturer-tile-icon">🏭</span>
+                  <span className="manufacturer-tile-name">{m}</span>
+                  {selectedManufacturer === m && (
+                    <span className="manufacturer-tile-check">✓</span>
+                  )}
+                </button>
               ))}
-            </select>
+            </div>
+            <input
+              type="hidden"
+              name="manufacturer"
+              value={selectedManufacturer}
+            />
           </div>
           <div className="field">
             <label htmlFor="weight_limit">Weight limit (tonnes)</label>
@@ -261,21 +285,30 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
               step="1"
             />
           </div>
-          <button type="submit">Update</button>
+          <button type="submit" className="splash-submit">
+            Build roster →
+          </button>
         </form>
+      </div>
+    );
+  }
 
-        <div className="weight-label" style={{ marginTop: 14 }}>
-          <span>Weight used</span>
-          <span>
-            {totalWeight.toLocaleString()} t / {weightLimit.toLocaleString()} t
-          </span>
+  return (
+    <div className="container-wide">
+      <div className="workspace-settings-bar">
+        <div>
+          <b>{settings.list_name}</b> · {manufacturer} ·{' '}
+          <span className="weight-label-value">{`${totalWeight.toLocaleString()} t / ${weightLimit.toLocaleString()} t`}</span>
         </div>
-        <div className="weight-bar-track">
-          <div
-            className={`weight-bar-fill ${over ? 'over' : ''}`}
-            style={{ width: `${pct}%` }}
-          />
-        </div>
+        <button type="button" className="ghost" onClick={openSettings}>
+          Edit settings
+        </button>
+      </div>
+      <div className="weight-bar-track" style={{ marginBottom: '1.5rem' }}>
+        <div
+          className={`weight-bar-fill ${over ? 'over' : ''}`}
+          style={{ width: `${pct}%` }}
+        />
       </div>
 
       <div className="workspace-tabs">

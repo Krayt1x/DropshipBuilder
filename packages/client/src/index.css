@@ -148,6 +148,90 @@ body {
   padding: 1.5rem;
 }
 
+.container-wide {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.splash-container {
+  max-width: 480px;
+  padding-top: 3rem;
+}
+
+.splash-container h1 {
+  text-align: center;
+}
+
+.splash-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.splash-submit {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.manufacturer-tile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 8px;
+}
+
+.manufacturer-tile {
+  position: relative;
+  border: 1px solid var(--border-input);
+  border-radius: 8px;
+  background: var(--bg-input);
+  padding: 14px 8px;
+  text-align: center;
+  color: var(--text-primary);
+}
+
+.manufacturer-tile-icon {
+  display: block;
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+.manufacturer-tile-name {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.manufacturer-tile.selected {
+  border-color: var(--accent);
+  border-width: 2px;
+  background: var(--bg-track);
+}
+
+.manufacturer-tile-check {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.workspace-settings-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  flex-wrap: wrap;
+}
+
 h1 {
   font-size: 20px;
   margin: 0 0 1rem;

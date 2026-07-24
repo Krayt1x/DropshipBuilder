@@ -15,6 +15,10 @@ describe('ListBuilderPage', () => {
     window.localStorage.clear();
   });
 
+  function goToBuilder() {
+    fireEvent.click(screen.getByRole('button', { name: /Build roster/ }));
+  }
+
   it('adds a catalog unit to the roster', () => {
     render(
       <ListBuilderPage
@@ -23,6 +27,7 @@ describe('ListBuilderPage', () => {
         equipment={equipment}
       />,
     );
+    goToBuilder();
 
     expect(screen.getByText('No units added yet.')).toBeDefined();
 
@@ -40,6 +45,7 @@ describe('ListBuilderPage', () => {
         equipment={equipment}
       />,
     );
+    goToBuilder();
 
     fireEvent.click(screen.getByRole('button', { name: 'Add' }));
     fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
@@ -63,15 +69,14 @@ describe('ListBuilderPage', () => {
         equipment={[movementItem]}
       />,
     );
+    goToBuilder();
 
     fireEvent.click(screen.getByRole('button', { name: 'Add' }));
 
     // Adding a unit auto-equips its best movement item — "Heavy Legs" is
     // the only option here. Its 2t weight is added as-is, for a total of
     // 10 (unit) + 2 (equipment) = 12t.
-    const weightValue = container.querySelector(
-      '.weight-label span:last-child',
-    );
+    const weightValue = container.querySelector('.weight-label-value');
     expect(weightValue.textContent).toBe('12 t / 100 t');
   });
 });
