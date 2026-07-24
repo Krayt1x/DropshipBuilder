@@ -7,7 +7,7 @@
         "weight": 10,
         "armor": "2/2/2/1",
         "max_weight": 18,
-        "max_drop_weight": 15,
+        "max_drop_weight": 14,
         "hp": 10,
         "dice_blue": 3,
         "dice_red": 0,

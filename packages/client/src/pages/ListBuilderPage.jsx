@@ -278,7 +278,7 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
                   <p className="unit-meta">{unit.weight} t</p>
                   {Number(unit.max_weight ?? 0) > 0 && (
                     <p className="unit-stats">
-                      Max weight {unit.max_weight}t · Max drop{' '}
+                      Max weight {unit.max_weight}t · MSW{' '}
                       {unit.max_drop_weight ?? 0}t
                     </p>
                   )}

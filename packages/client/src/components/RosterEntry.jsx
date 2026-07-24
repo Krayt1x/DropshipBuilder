@@ -356,7 +356,7 @@ function RosterEntry({
           {overDropWeight && (
             <span
               className="warning-icon warning-icon-drop"
-              title={`Over max drop weight (${unit.max_drop_weight} t)`}
+              title={`Over Maximum Safe Weight (${unit.max_drop_weight} t)`}
             >
               ⚠️
             </span>
@@ -405,7 +405,7 @@ function RosterEntry({
                     totalWeight > maxDropWeight ? 'max-drop-exceeded' : ''
                   }
                 >
-                  Max drop {maxDropWeight}t
+                  MSW {maxDropWeight}t
                 </span>
               )}
               <span>Max {maxWeight}t</span>
@@ -439,10 +439,7 @@ function RosterEntry({
           <p className="unit-stats">
             Effective movement: <b>{effectiveMovement}</b> (gear movement{' '}
             {movementGearStat}
-            {excessDropWeight > 0
-              ? ` − ${excessDropWeight}t over max drop`
-              : ''}
-            )
+            {excessDropWeight > 0 ? ` − ${excessDropWeight}t over MSW` : ''})
           </p>
         )}
 
@@ -513,9 +510,7 @@ function RosterEntry({
             if (slot === 'Movement') {
               const slotOptions = unitEquipment
                 .filter((item) => (item.type ?? 'Movement') === 'Movement')
-                .sort(
-                  (a, b) => Number(b.movement ?? 0) - Number(a.movement ?? 0),
-                );
+                .sort((a, b) => Number(a.weight ?? 0) - Number(b.weight ?? 0));
               const selectedId = entry.equipment?.Movement?.[0] ?? 0;
               return (
                 <SlotPicker

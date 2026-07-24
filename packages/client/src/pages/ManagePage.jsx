@@ -551,7 +551,7 @@ function ManagePage({
                           onSort={(k) => toggleSort(setUnitSort, k)}
                         />
                         <SortTh
-                          label="Max drop wt"
+                          label="MSW"
                           sortKey="max_drop_weight"
                           sort={unitSort}
                           onSort={(k) => toggleSort(setUnitSort, k)}

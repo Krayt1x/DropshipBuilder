@@ -22,7 +22,7 @@ export const EFFECT_STATS = [
 // Bump this whenever the seed data (manufacturers/units/equipment.json)
 // changes, so browsers with older cached data get a "please purge cache"
 // warning instead of silently going stale.
-export const DATA_VERSION = 13;
+export const DATA_VERSION = 14;
 
 export function sizeLabel(size) {
   return UNIT_SIZES[size] ?? size;

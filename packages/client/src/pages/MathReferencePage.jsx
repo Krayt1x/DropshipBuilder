@@ -77,12 +77,12 @@ function MathReferencePage() {
         <p className="unit-stats" style={{ fontSize: 13, marginTop: 8 }}>
           <b>Effective movement</b> = the equipped movement gear&apos;s movement
           stat + any structured &quot;Movement&quot; effect bonuses from other
-          equipped items − any weight over the mech&apos;s max drop weight,
-          floored at 0.
+          equipped items − any weight over the mech&apos;s Maximum Safe Weight
+          (MSW), floored at 0.
         </p>
         <p className="unit-stats" style={{ fontSize: 13, marginTop: 8 }}>
           Example: a mech equipped with Chicken Legs (7 movement) weighing 2t
-          more than its max drop weight has an effective movement of 7 − 2 = 5.
+          more than its MSW has an effective movement of 7 − 2 = 5.
         </p>
       </div>
 
@@ -129,8 +129,9 @@ function MathReferencePage() {
         <h2 style={{ fontSize: 15, marginTop: 0 }}>Weight warnings</h2>
         <p className="unit-stats" style={{ fontSize: 13 }}>
           <span className="warning-icon warning-icon-drop">⚠️</span> Orange
-          warning — total weight exceeds the mech&apos;s max drop weight (but
-          not its max weight). This also reduces effective movement (see above).
+          warning — total weight exceeds the mech&apos;s Maximum Safe Weight
+          (MSW) (but not its max weight). This also reduces effective movement
+          (see above).
         </p>
         <p className="unit-stats" style={{ fontSize: 13, marginTop: 8 }}>
           <span className="warning-icon warning-icon-max">⛔</span> Red alert
