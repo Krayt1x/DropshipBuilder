@@ -42,7 +42,7 @@ describe('ListBuilderPage', () => {
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Add' }));
-    fireEvent.click(screen.getByRole('button', { name: '✕ Remove' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
 
     expect(screen.getByText('No units added yet.')).toBeDefined();
   });

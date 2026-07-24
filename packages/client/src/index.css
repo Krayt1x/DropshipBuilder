@@ -446,22 +446,6 @@ button.ghost:hover {
   background: #eab308;
 }
 
-.remove-row {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 10px;
-}
-
-.danger-ghost {
-  background: transparent;
-  border: 1px solid #b91c1c;
-  color: #b91c1c;
-}
-
-.danger-ghost:hover {
-  background: #fee2e2;
-}
-
 .equipment-slots {
   display: flex;
   flex-wrap: wrap;
