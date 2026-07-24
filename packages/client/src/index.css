@@ -222,6 +222,10 @@ button.ghost {
   color: var(--text-primary);
 }
 
+button.ghost:hover {
+  background: var(--bg-track);
+}
+
 .manufacturer-header {
   display: flex;
   align-items: center;
@@ -528,6 +532,11 @@ button.ghost {
 }
 
 .slot-card.open {
+  border-color: var(--accent);
+}
+
+.slot-card:hover:not(:disabled) {
+  background: var(--bg-track);
   border-color: var(--accent);
 }
 
