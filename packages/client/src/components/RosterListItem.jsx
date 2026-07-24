@@ -29,7 +29,6 @@ function RosterListItem({
   const {
     unit,
     isDropPod,
-    carried,
     slotCounts,
     resolveEquippedItems,
     dropPodSelected,
@@ -45,22 +44,7 @@ function RosterListItem({
 
   function renderCondensedGrid() {
     if (isDropPod) {
-      const carriedTiles = carried
-        .map((carriedEntry) => {
-          const carriedUnit = units.find(
-            (u) => Number(u.id) === Number(carriedEntry.unit_id),
-          );
-          if (!carriedUnit) return null;
-          return (
-            <div className="roster-condensed-tile" key={carriedEntry.key}>
-              <span className="roster-condensed-badge">C</span>
-              <span className="roster-condensed-name">{carriedUnit.name}</span>
-            </div>
-          );
-        })
-        .filter(Boolean);
-
-      if (!dropPodSelected && carriedTiles.length === 0) {
+      if (!dropPodSelected) {
         return (
           <p className="empty" style={{ padding: '4px 0' }}>
             Nothing loaded yet.
@@ -70,7 +54,6 @@ function RosterListItem({
       return (
         <div className="roster-condensed-grid">
           <CondensedTile badge="E" item={dropPodSelected} />
-          {carriedTiles}
         </div>
       );
     }

@@ -11,7 +11,7 @@ function MathReferencePage() {
         <h2 style={{ fontSize: 15, marginTop: 0 }}>Total weight</h2>
         <p className="unit-stats" style={{ fontSize: 13 }}>
           Total weight = unit base weight + the weight of every equipped item
-          (Left, Right, Movement, Head) + carried mech weight (drop pods only).
+          (Left, Right, Movement, Head).
         </p>
         <p className="unit-stats" style={{ fontSize: 13 }}>
           Movement and Augment equipment weigh 0t by default, so most of a

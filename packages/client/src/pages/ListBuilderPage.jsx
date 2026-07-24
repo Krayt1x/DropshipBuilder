@@ -40,15 +40,6 @@ function equipmentWeight(entrySlots, equipmentCatalog) {
   }, 0);
 }
 
-function carriedWeight(carried, unitsCatalog) {
-  return (carried ?? []).reduce((sum, c) => {
-    const carriedUnit = unitsCatalog.find(
-      (u) => Number(u.id) === Number(c.unit_id),
-    );
-    return sum + Number(carriedUnit?.weight ?? 0);
-  }, 0);
-}
-
 function ListBuilderPage({ manufacturers, units, equipment }) {
   const [settings, setSettings] = useLocalStorageState(
     'dropshipbuilder:settings',
@@ -95,7 +86,6 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
             key: entry.key,
             unit,
             equipment: entry.equipment ?? emptyEquipmentSlots(),
-            carried: entry.carried ?? [],
           };
         })
         .filter(Boolean),
@@ -106,8 +96,7 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
     (sum, entry) =>
       sum +
       Number(entry.unit.weight) +
-      equipmentWeight(entry.equipment, equipment) +
-      carriedWeight(entry.carried, units),
+      equipmentWeight(entry.equipment, equipment),
     0,
   );
   const weightLimit = Number(settings.weight_limit) || 0;
@@ -157,9 +146,7 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
       units,
       equipment,
       entryWeight: (entry) =>
-        Number(entry.unit.weight) +
-        equipmentWeight(entry.equipment, equipment) +
-        carriedWeight(entry.carried, units),
+        Number(entry.unit.weight) + equipmentWeight(entry.equipment, equipment),
     });
 
     if (navigator.share) {
@@ -193,7 +180,6 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
         key: makeKey('r'),
         unit_id: unitId,
         equipment: initialEquipment,
-        carried: [],
       },
     ]);
   }
@@ -211,9 +197,6 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
     setRoster((r) =>
       r.map((entry) => {
         if (entry.key !== key) return entry;
-        if (equipmentId > 0 && (entry.carried ?? []).length > 0) {
-          return entry;
-        }
         const nextEquipment = { ...(entry.equipment ?? emptyEquipmentSlots()) };
         const slotList = [...(nextEquipment[slot] ?? [])];
         if (slotIndex === -1) {
@@ -226,35 +209,6 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
         nextEquipment[slot] = slotList;
         return { ...entry, equipment: nextEquipment };
       }),
-    );
-  }
-
-  function addCarriedModel(key, carriedUnitId) {
-    setRoster((r) =>
-      r.map((entry) => {
-        if (entry.key !== key || (entry.carried ?? []).length > 0) {
-          return entry;
-        }
-        return {
-          ...entry,
-          carried: [{ key: makeKey('c'), unit_id: carriedUnitId }],
-        };
-      }),
-    );
-  }
-
-  function removeCarriedModel(key, carriedKey) {
-    setRoster((r) =>
-      r.map((entry) =>
-        entry.key === key
-          ? {
-              ...entry,
-              carried: (entry.carried ?? []).filter(
-                (c) => c.key !== carriedKey,
-              ),
-            }
-          : entry,
-      ),
     );
   }
 
@@ -441,8 +395,7 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
                     equipment={equipment}
                     totalWeight={
                       Number(entry.unit.weight) +
-                      equipmentWeight(entry.equipment, equipment) +
-                      carriedWeight(entry.carried, units)
+                      equipmentWeight(entry.equipment, equipment)
                     }
                     selected={entry.key === selectedRosterKey}
                     onSelect={() => selectRoster(entry.key)}
@@ -486,17 +439,10 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
               equipment={equipment}
               totalWeight={
                 Number(selectedEntry.unit.weight) +
-                equipmentWeight(selectedEntry.equipment, equipment) +
-                carriedWeight(selectedEntry.carried, units)
+                equipmentWeight(selectedEntry.equipment, equipment)
               }
               onAssignEquipment={(slot, slotIndex, equipmentId) =>
                 assignEquipment(selectedEntry.key, slot, slotIndex, equipmentId)
-              }
-              onAddCarried={(carriedUnitId) =>
-                addCarriedModel(selectedEntry.key, carriedUnitId)
-              }
-              onRemoveCarried={(carriedKey) =>
-                removeCarriedModel(selectedEntry.key, carriedKey)
               }
             />
           ) : (
