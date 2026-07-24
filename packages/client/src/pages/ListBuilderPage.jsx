@@ -12,7 +12,7 @@ function emptyEquipmentSlots() {
   }, {});
 }
 
-function bestMovementId(equipmentCatalog, manufacturer) {
+function cheapestMovementId(equipmentCatalog, manufacturer) {
   const options = equipmentCatalog
     .filter(
       (item) =>
@@ -20,7 +20,7 @@ function bestMovementId(equipmentCatalog, manufacturer) {
         (item.type ?? 'Movement') === 'Movement',
     )
     .slice()
-    .sort((a, b) => Number(b.movement ?? 0) - Number(a.movement ?? 0));
+    .sort((a, b) => Number(a.weight ?? 0) - Number(b.weight ?? 0));
   return options[0]?.id ?? null;
 }
 
@@ -149,8 +149,8 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
     const unit = units.find((u) => Number(u.id) === Number(unitId));
     const initialEquipment = emptyEquipmentSlots();
     if (unit && unit.size !== DROP_POD_SIZE) {
-      const best = bestMovementId(equipment, unit.manufacturer);
-      if (best != null) initialEquipment.Movement = [best];
+      const cheapest = cheapestMovementId(equipment, unit.manufacturer);
+      if (cheapest != null) initialEquipment.Movement = [cheapest];
     }
     setRoster((r) => [
       ...r,
