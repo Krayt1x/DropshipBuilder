@@ -3,7 +3,7 @@ export const UNIT_SIZES = {
   Medium: 'Small - 2',
   Large: 'Medium - 3',
   Huge: 'Large - 4',
-  'Drop Pod': 'Drop Pod (special)',
+  'Drop Pod': 'Drop Pod (special) - 1',
 };
 
 export const DICE_COLORS = ['blue', 'red', 'green'];
