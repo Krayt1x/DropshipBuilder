@@ -22,7 +22,7 @@ export function itemStatSummary(item) {
     return `${item.size ?? 'Small'} (${slots} slot${slots > 1 ? 's' : ''}) · ${item.weight ?? 0}t · Range ${item.range || '—'} · Heat ${item.heat_rating || '—'} · ${item.hit_dice || '—'} · HP ${item.hp ?? '—'}`;
   }
   if (itemType === 'Movement') {
-    return `${item.movement ?? 0} move · ${item.weight ?? 0}t`;
+    return `${item.movement ?? 0} move · ${item.weight ?? 0}t · Heat ${item.heat_rating || '—'}`;
   }
   if (itemType === 'Augment') {
     const slots = weaponSlotCost(item);

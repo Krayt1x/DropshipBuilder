@@ -104,6 +104,16 @@ function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
               defaultValue={editing?.movement ?? 0}
             />
           </div>
+          <div className="field">
+            <label htmlFor="heat_rating">Heat rating</label>
+            <input
+              type="text"
+              id="heat_rating"
+              name="heat_rating"
+              placeholder="e.g. 1/1"
+              defaultValue={editing?.heat_rating ?? ''}
+            />
+          </div>
         </div>
       )}
 

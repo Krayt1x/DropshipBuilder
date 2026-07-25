@@ -49,10 +49,17 @@ describe('itemStatSummary', () => {
   });
 
   it('summarizes movement gear, defaulting to type Movement when unset', () => {
-    expect(itemStatSummary({ movement: 4, weight: 2 })).toBe('4 move · 2t');
-    expect(itemStatSummary({ type: 'Movement', movement: 4, weight: 2 })).toBe(
-      '4 move · 2t',
+    expect(itemStatSummary({ movement: 4, weight: 2 })).toBe(
+      '4 move · 2t · Heat —',
     );
+    expect(
+      itemStatSummary({
+        type: 'Movement',
+        movement: 4,
+        weight: 2,
+        heat_rating: '1/1',
+      }),
+    ).toBe('4 move · 2t · Heat 1/1');
   });
 
   it('summarizes an augment', () => {
