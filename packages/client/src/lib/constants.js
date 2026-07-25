@@ -23,10 +23,21 @@ export const EFFECT_STATS = [
 // changes, so browsers with older cached data merge in the new seed
 // content instead of silently going stale (see mergeSeedRecords in
 // lib/storage.js).
-export const DATA_VERSION = 20;
+export const DATA_VERSION = 21;
 
 export function sizeLabel(size) {
   return UNIT_SIZES[size] ?? size;
+}
+
+export function armorLabel(unit) {
+  const parts = [
+    unit?.front_armor,
+    unit?.left_armor,
+    unit?.right_armor,
+    unit?.rear_armor,
+  ];
+  if (parts.every((v) => v == null)) return '—';
+  return parts.map((v) => v ?? 0).join('/');
 }
 
 export function weaponSlotCost(item) {

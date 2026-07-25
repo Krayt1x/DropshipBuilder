@@ -52,16 +52,6 @@ function UnitForm({ manufacturers, editing, onSubmit, onCancel }) {
           />
         </div>
         <div className="field">
-          <label htmlFor="armor">Armor</label>
-          <input
-            type="text"
-            id="armor"
-            name="armor"
-            placeholder="e.g. 2/2/2/1"
-            defaultValue={editing?.armor ?? ''}
-          />
-        </div>
-        <div className="field">
           <label htmlFor="max_weight">Max weight</label>
           <input
             type="number"
@@ -92,6 +82,53 @@ function UnitForm({ manufacturers, editing, onSubmit, onCancel }) {
             min="0"
             step="1"
             defaultValue={editing?.hp ?? 0}
+          />
+        </div>
+      </div>
+
+      <div className="stat-grid" style={{ marginTop: 10 }}>
+        <div className="field">
+          <label htmlFor="front_armor">Front armor</label>
+          <input
+            type="number"
+            id="front_armor"
+            name="front_armor"
+            min="0"
+            step="1"
+            defaultValue={editing?.front_armor ?? 0}
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="left_armor">Left armor</label>
+          <input
+            type="number"
+            id="left_armor"
+            name="left_armor"
+            min="0"
+            step="1"
+            defaultValue={editing?.left_armor ?? 0}
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="right_armor">Right armor</label>
+          <input
+            type="number"
+            id="right_armor"
+            name="right_armor"
+            min="0"
+            step="1"
+            defaultValue={editing?.right_armor ?? 0}
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="rear_armor">Rear armor</label>
+          <input
+            type="number"
+            id="rear_armor"
+            name="rear_armor"
+            min="0"
+            step="1"
+            defaultValue={editing?.rear_armor ?? 0}
           />
         </div>
       </div>

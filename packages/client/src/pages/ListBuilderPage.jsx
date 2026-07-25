@@ -1,6 +1,11 @@
 import { useMemo, useState } from 'react';
 import { useLocalStorageState, makeKey } from '../lib/storage.js';
-import { SLOTS, DROP_POD_SIZE, sizeLabel } from '../lib/constants.js';
+import {
+  SLOTS,
+  DROP_POD_SIZE,
+  sizeLabel,
+  armorLabel,
+} from '../lib/constants.js';
 import { buildShareText } from '../lib/shareList.js';
 import RosterListItem from '../components/RosterListItem.jsx';
 import RosterConfigPanel from '../components/RosterConfigPanel.jsx';
@@ -367,7 +372,7 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
                     </p>
                   )}
                   <p className="unit-stats">
-                    Armor {unit.armor || '—'} · HP {unit.hp ?? 0}
+                    Armor {armorLabel(unit)} · HP {unit.hp ?? 0}
                   </p>
                   <p className="unit-stats">
                     <DiceIcons unit={unit} />
