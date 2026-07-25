@@ -74,23 +74,31 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
     [units, manufacturer],
   );
 
-  const rosterUnits = useMemo(
-    () =>
-      roster
-        .map((entry) => {
-          const unit = units.find(
-            (u) => Number(u.id) === Number(entry.unit_id),
-          );
-          if (!unit) return null;
-          return {
-            key: entry.key,
-            unit,
-            equipment: entry.equipment ?? emptyEquipmentSlots(),
-          };
-        })
-        .filter(Boolean),
-    [roster, units],
-  );
+  const rosterUnits = useMemo(() => {
+    const counts = {};
+    roster.forEach((entry) => {
+      const id = Number(entry.unit_id);
+      counts[id] = (counts[id] || 0) + 1;
+    });
+    const seen = {};
+    return roster
+      .map((entry) => {
+        const unit = units.find((u) => Number(u.id) === Number(entry.unit_id));
+        if (!unit) return null;
+        const id = Number(entry.unit_id);
+        seen[id] = (seen[id] || 0) + 1;
+        const displayUnit =
+          counts[id] > 1
+            ? { ...unit, name: `${unit.name} (${seen[id]})` }
+            : unit;
+        return {
+          key: entry.key,
+          unit: displayUnit,
+          equipment: entry.equipment ?? emptyEquipmentSlots(),
+        };
+      })
+      .filter(Boolean);
+  }, [roster, units]);
 
   const totalWeight = rosterUnits.reduce(
     (sum, entry) =>
