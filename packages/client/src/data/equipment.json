@@ -23,6 +23,7 @@
         "range": "9",
         "heat_rating": "4/6",
         "hit_dice": "2d8",
+        "hp": 5,
         "no_drop_pod": false
     },
     {
@@ -49,6 +50,7 @@
         "range": "3-9",
         "heat_rating": "4/4",
         "hit_dice": "3d6",
+        "hp": 5,
         "no_drop_pod": false
     },
     {
@@ -88,6 +90,7 @@
         "range": "6",
         "heat_rating": "2/4",
         "hit_dice": "3d6",
+        "hp": 5,
         "no_drop_pod": false
     },
     {
@@ -101,6 +104,7 @@
         "range": "6",
         "heat_rating": "2/4",
         "hit_dice": "2d6",
+        "hp": 5,
         "no_drop_pod": false
     },
     {
@@ -114,6 +118,7 @@
         "range": "3",
         "heat_rating": "1/4",
         "hit_dice": "4d4",
+        "hp": 5,
         "no_drop_pod": false
     },
     {
@@ -127,6 +132,7 @@
         "range": "3",
         "heat_rating": "2/4",
         "hit_dice": "2d4",
+        "hp": 5,
         "no_drop_pod": false
     },
     {

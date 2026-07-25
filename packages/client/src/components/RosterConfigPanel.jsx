@@ -65,7 +65,7 @@ function SlotPicker({
               <span className="slot-picker-name">{item.name}</span>
               <span className="slot-picker-stats">
                 {isWeapon
-                  ? `${item.size ?? 'Small'} (${weaponSlotCost(item)} slot${weaponSlotCost(item) > 1 ? 's' : ''}) · ${item.weight ?? 0}t · ${item.range || '—'} · ${item.heat_rating || '—'} · ${item.hit_dice || '—'}`
+                  ? `${item.size ?? 'Small'} (${weaponSlotCost(item)} slot${weaponSlotCost(item) > 1 ? 's' : ''}) · ${item.weight ?? 0}t · ${item.range || '—'} · ${item.heat_rating || '—'} · ${item.hit_dice || '—'} · HP ${item.hp ?? '—'}`
                   : itemType === 'Movement'
                     ? `${item.movement ?? 0} movement · ${item.weight ?? 0}t`
                     : itemType === 'Augment'

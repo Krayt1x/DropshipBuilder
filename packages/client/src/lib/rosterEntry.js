@@ -19,7 +19,7 @@ export function itemStatSummary(item) {
   const itemType = item.type ?? 'Movement';
   if (itemType === 'Weapon') {
     const slots = weaponSlotCost(item);
-    return `${item.size ?? 'Small'} (${slots} slot${slots > 1 ? 's' : ''}) · ${item.weight ?? 0}t · Range ${item.range || '—'} · Heat ${item.heat_rating || '—'} · ${item.hit_dice || '—'}`;
+    return `${item.size ?? 'Small'} (${slots} slot${slots > 1 ? 's' : ''}) · ${item.weight ?? 0}t · Range ${item.range || '—'} · Heat ${item.heat_rating || '—'} · ${item.hit_dice || '—'} · HP ${item.hp ?? '—'}`;
   }
   if (itemType === 'Movement') {
     return `${item.movement ?? 0} move · ${item.weight ?? 0}t`;

@@ -289,6 +289,7 @@ function ManagePage({
     if (type === 'Weapon') {
       const sizeRaw = (form.get('size') || '').toString();
       payload.size = WEAPON_SIZES.includes(sizeRaw) ? sizeRaw : 'Small';
+      payload.hp = Math.max(0, Number(form.get('hp')) || 0);
     }
 
     if (type === 'Movement') {
@@ -813,6 +814,12 @@ function ManagePage({
                           onSort={(k) => toggleSort(setWeaponSort, k)}
                         />
                         <SortTh
+                          label="HP"
+                          sortKey="hp"
+                          sort={weaponSort}
+                          onSort={(k) => toggleSort(setWeaponSort, k)}
+                        />
+                        <SortTh
                           label="Drop Pod"
                           sortKey="no_drop_pod"
                           sort={weaponSort}
@@ -832,6 +839,7 @@ function ManagePage({
                             <td>{item.range || '—'}</td>
                             <td>{item.heat_rating || '—'}</td>
                             <td>{item.hit_dice || '—'}</td>
+                            <td>{item.hp ?? '—'}</td>
                             <td>{item.no_drop_pod ? '✕' : ''}</td>
                             <td>
                               <EffectsCell item={item} />

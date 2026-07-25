@@ -34,16 +34,17 @@ describe('itemStatSummary', () => {
       range: '12"',
       heat_rating: 'Low',
       hit_dice: '1d6',
+      hp: 5,
     };
     expect(itemStatSummary(item)).toBe(
-      'Large (3 slots) · 5t · Range 12" · Heat Low · 1d6',
+      'Large (3 slots) · 5t · Range 12" · Heat Low · 1d6 · HP 5',
     );
   });
 
   it('uses singular "slot" for a weapon needing exactly one slot', () => {
     const item = { type: 'Weapon', size: 'Small', weight: 1 };
     expect(itemStatSummary(item)).toBe(
-      'Small (1 slot) · 1t · Range — · Heat — · —',
+      'Small (1 slot) · 1t · Range — · Heat — · — · HP —',
     );
   });
 
