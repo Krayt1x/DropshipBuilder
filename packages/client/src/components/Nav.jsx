@@ -24,6 +24,13 @@ function Nav({ page }) {
         <a href="#rulebook" className={page === 'rulebook' ? 'active' : ''}>
           Rule book
         </a>
+        <a
+          href="https://krayt1x.github.io/DropshipSimulator/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Dropship Simulator
+        </a>
         <button
           type="button"
           className="hamburger-btn"
@@ -64,6 +71,14 @@ function Nav({ page }) {
             onClick={closeMenu}
           >
             Rule book
+          </a>
+          <a
+            href="https://krayt1x.github.io/DropshipSimulator/"
+            target="_blank"
+            rel="noreferrer"
+            onClick={closeMenu}
+          >
+            Dropship Simulator
           </a>
         </div>
       )}
