@@ -25,7 +25,7 @@ function Nav({ page }) {
           Rule book
         </a>
         <a
-          href="https://github.com/Krayt1x/DropshipSimulator"
+          href="https://krayt1x.github.io/DropshipSimulator/"
           target="_blank"
           rel="noreferrer"
         >
@@ -73,7 +73,7 @@ function Nav({ page }) {
             Rule book
           </a>
           <a
-            href="https://github.com/Krayt1x/DropshipSimulator"
+            href="https://krayt1x.github.io/DropshipSimulator/"
             target="_blank"
             rel="noreferrer"
             onClick={closeMenu}
