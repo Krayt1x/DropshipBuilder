@@ -696,6 +696,12 @@ function ManagePage({
                           onSort={(k) => toggleSort(setMovementSort, k)}
                         />
                         <SortTh
+                          label="Heat"
+                          sortKey="heat_rating"
+                          sort={movementSort}
+                          onSort={(k) => toggleSort(setMovementSort, k)}
+                        />
+                        <SortTh
                           label="Drop Pod"
                           sortKey="no_drop_pod"
                           sort={movementSort}
@@ -712,6 +718,7 @@ function ManagePage({
                             <td>{item.name}</td>
                             <td>{item.movement ?? 0}</td>
                             <td>{item.weight ?? 0} t</td>
+                            <td>{item.heat_rating || '—'}</td>
                             <td>{item.no_drop_pod ? '✕' : ''}</td>
                             <td>
                               <EffectsCell item={item} />
@@ -743,7 +750,7 @@ function ManagePage({
                           </tr>
                           {editingEquipmentId === Number(item.id) && (
                             <tr>
-                              <td colSpan={5}>
+                              <td colSpan={6}>
                                 <EquipmentForm
                                   key={item.id}
                                   manufacturers={manufacturers}

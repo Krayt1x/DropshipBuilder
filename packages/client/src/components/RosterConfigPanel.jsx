@@ -67,7 +67,7 @@ function SlotPicker({
                 {isWeapon
                   ? `${item.size ?? 'Small'} (${weaponSlotCost(item)} slot${weaponSlotCost(item) > 1 ? 's' : ''}) · ${item.weight ?? 0}t · ${item.range || '—'} · ${item.heat_rating || '—'} · ${item.hit_dice || '—'} · HP ${item.hp ?? '—'}`
                   : itemType === 'Movement'
-                    ? `${item.movement ?? 0} movement · ${item.weight ?? 0}t`
+                    ? `${item.movement ?? 0} movement · ${item.weight ?? 0}t · ${item.heat_rating || '—'}`
                     : itemType === 'Augment'
                       ? `${weaponSlotCost(item)} slot${weaponSlotCost(item) > 1 ? 's' : ''} · ${item.weight ?? 0}t`
                       : `${item.weight ?? 0}t`}
