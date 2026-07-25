@@ -64,7 +64,8 @@
         "dice_red": 1,
         "dice_green": 1,
         "left_slots": 1,
-        "right_slots": 1
+        "right_slots": 1,
+        "head_slots": 1
     },
     {
         "id": 9,
@@ -80,7 +81,8 @@
         "dice_red": 2,
         "dice_green": 2,
         "left_slots": 2,
-        "right_slots": 2
+        "right_slots": 2,
+        "head_slots": 1
     },
     {
         "id": 11,
