@@ -11,7 +11,7 @@ function Nav({ page }) {
   return (
     <div className="nav-wrapper">
       <nav className="topnav">
-        <strong>DropshipBuilder</strong>
+        <strong>Dropship Builder</strong>
         <a href="#list" className={page === 'list' ? 'active' : ''}>
           List builder
         </a>
