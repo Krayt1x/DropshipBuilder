@@ -5,6 +5,7 @@ import {
   WEAPON_SIZES,
   EFFECT_STATS,
   sizeLabel,
+  armorLabel,
   effectStatLabel,
 } from '../lib/constants.js';
 import { nextId, purgeCatalogCache } from '../lib/storage.js';
@@ -200,7 +201,10 @@ function ManagePage({
     }
 
     const stats = {
-      armor: (form.get('armor') || '').toString().trim(),
+      front_armor: Math.max(0, Number(form.get('front_armor')) || 0),
+      left_armor: Math.max(0, Number(form.get('left_armor')) || 0),
+      right_armor: Math.max(0, Number(form.get('right_armor')) || 0),
+      rear_armor: Math.max(0, Number(form.get('rear_armor')) || 0),
       max_weight: Number(form.get('max_weight')) || 0,
       max_drop_weight: Number(form.get('max_drop_weight')) || 0,
       hp: Number(form.get('hp')) || 0,
@@ -541,7 +545,7 @@ function ManagePage({
                         />
                         <SortTh
                           label="Armor"
-                          sortKey="armor"
+                          sortKey="front_armor"
                           sort={unitSort}
                           onSort={(k) => toggleSort(setUnitSort, k)}
                         />
@@ -596,7 +600,7 @@ function ManagePage({
                               </span>
                             </td>
                             <td>{unit.weight} t</td>
-                            <td>{unit.armor || '—'}</td>
+                            <td>{armorLabel(unit)}</td>
                             <td>{unit.max_weight ?? 0}</td>
                             <td>{unit.max_drop_weight ?? 0}</td>
                             <td>{unit.hp ?? 0}</td>

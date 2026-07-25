@@ -1,4 +1,9 @@
-import { SLOTS, DROP_POD_SIZE, weaponSlotCost } from './constants.js';
+import {
+  SLOTS,
+  DROP_POD_SIZE,
+  weaponSlotCost,
+  armorLabel,
+} from './constants.js';
 
 export const WEIGHT_SEGMENT_COLORS = [
   '#1d4ed8',
@@ -105,7 +110,7 @@ export function computeRosterStats(entry, units, equipment, totalWeight) {
   const effectiveMovement = Math.max(0, movementGearStat - excessDropWeight);
 
   const statsLine = [
-    `Armor ${unit.armor || '—'}`,
+    `Armor ${armorLabel(unit)}`,
     `HP ${effectiveHp}`,
     `Move ${effectiveMovement}`,
   ].join(' · ');
