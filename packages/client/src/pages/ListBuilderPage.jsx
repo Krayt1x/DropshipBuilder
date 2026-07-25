@@ -4,6 +4,7 @@ import { SLOTS, DROP_POD_SIZE, sizeLabel } from '../lib/constants.js';
 import { buildShareText } from '../lib/shareList.js';
 import RosterListItem from '../components/RosterListItem.jsx';
 import RosterConfigPanel from '../components/RosterConfigPanel.jsx';
+import ShareExportPanel from '../components/ShareExportPanel.jsx';
 import DiceIcons from '../components/DiceIcons.jsx';
 
 function emptyEquipmentSlots() {
@@ -56,7 +57,7 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
   const [selectedRosterKey, setSelectedRosterKey] = useState(null);
   const [activeMobileTab, setActiveMobileTab] = useState('catalogue');
   const [showSplash, setShowSplash] = useState(() => roster.length === 0);
-  const [shareStatus, setShareStatus] = useState('idle');
+  const [showExportPanel, setShowExportPanel] = useState(false);
 
   const manufacturer = manufacturers.includes(settings.manufacturer)
     ? settings.manufacturer
@@ -144,36 +145,30 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
     setShowSplash(true);
   }
 
-  async function shareList() {
-    const text = buildShareText({
-      listName: settings.list_name,
+  const shareText = useMemo(
+    () =>
+      buildShareText({
+        listName: settings.list_name,
+        manufacturer,
+        totalWeight,
+        weightLimit,
+        rosterUnits,
+        units,
+        equipment,
+        entryWeight: (entry) =>
+          Number(entry.unit.weight) +
+          equipmentWeight(entry.equipment, equipment),
+      }),
+    [
+      settings.list_name,
       manufacturer,
       totalWeight,
       weightLimit,
       rosterUnits,
       units,
       equipment,
-      entryWeight: (entry) =>
-        Number(entry.unit.weight) + equipmentWeight(entry.equipment, equipment),
-    });
-
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: settings.list_name, text });
-      } catch {
-        // user cancelled the native share sheet — nothing more to do
-      }
-      return;
-    }
-
-    try {
-      await navigator.clipboard.writeText(text);
-      setShareStatus('copied');
-      setTimeout(() => setShareStatus('idle'), 2000);
-    } catch {
-      // clipboard unavailable (e.g. insecure context) — nothing more we can do
-    }
-  }
+    ],
+  );
 
   function addToList(unitId) {
     const unit = units.find((u) => Number(u.id) === Number(unitId));
@@ -308,16 +303,23 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
           <button
             type="button"
             className="ghost"
-            onClick={shareList}
+            onClick={() => setShowExportPanel((v) => !v)}
             disabled={rosterUnits.length === 0}
           >
-            {shareStatus === 'copied' ? 'Copied!' : 'Share'}
+            Export
           </button>
           <button type="button" className="ghost" onClick={openSettings}>
             Edit settings
           </button>
         </div>
       </div>
+      {showExportPanel && (
+        <ShareExportPanel
+          text={shareText}
+          listName={settings.list_name}
+          onClose={() => setShowExportPanel(false)}
+        />
+      )}
       <div className="weight-bar-track" style={{ marginBottom: '1.5rem' }}>
         <div
           className={`weight-bar-fill ${over ? 'over' : ''}`}
