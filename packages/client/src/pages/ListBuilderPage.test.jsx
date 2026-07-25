@@ -53,6 +53,29 @@ describe('ListBuilderPage', () => {
     expect(screen.getByText('No units added yet.')).toBeDefined();
   });
 
+  it('numbers duplicate units added to the roster, leaving a single unit unnumbered', () => {
+    render(
+      <ListBuilderPage
+        manufacturers={manufacturers}
+        units={units}
+        equipment={equipment}
+      />,
+    );
+    goToBuilder();
+
+    // One roster entry: unnumbered, matching the catalog's own "A10" text.
+    fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+    expect(screen.getAllByText('A10')).toHaveLength(2);
+    expect(screen.queryByText('A10 (1)')).toBeNull();
+
+    // A second roster entry of the same unit: both get numbered, and the
+    // catalog's own unnumbered "A10" is the only remaining exact match.
+    fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+    expect(screen.getAllByText('A10')).toHaveLength(1);
+    expect(screen.getByText('A10 (1)')).toBeDefined();
+    expect(screen.getByText('A10 (2)')).toBeDefined();
+  });
+
   it('adds movement equipment weight without any size-based scaling', () => {
     const movementItem = {
       id: 1,
