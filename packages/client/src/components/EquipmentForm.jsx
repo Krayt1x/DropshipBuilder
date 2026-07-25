@@ -153,6 +153,17 @@ function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
               defaultValue={editing?.hit_dice ?? ''}
             />
           </div>
+          <div className="field">
+            <label htmlFor="hp">HP</label>
+            <input
+              type="number"
+              id="hp"
+              name="hp"
+              min="0"
+              step="1"
+              defaultValue={editing?.hp ?? 5}
+            />
+          </div>
         </div>
       )}
 
