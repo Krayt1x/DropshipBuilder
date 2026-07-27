@@ -1,8 +1,8 @@
 export const UNIT_SIZES = {
-  Small: 'Micro - 1',
-  Medium: 'Small - 2',
-  Large: 'Medium - 3',
-  Huge: 'Large - 4',
+  Micro: 'Micro - 1',
+  Small: 'Small - 2',
+  Medium: 'Medium - 3',
+  Large: 'Large - 4',
   'Drop Pod': 'Drop Pod (special) - 1',
 };
 
