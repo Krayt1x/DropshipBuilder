@@ -13,6 +13,7 @@ import { DATA_VERSION } from './lib/constants.js';
 import manufacturersSeed from './data/manufacturers.json';
 import unitsSeed from './data/units.json';
 import equipmentSeed from './data/equipment.json';
+import actionDiceSeed from './data/actionDice.json';
 
 function currentPage() {
   if (window.location.hash === '#manage') return 'manage';
@@ -35,6 +36,10 @@ function App() {
     'dropshipbuilder:equipment',
     equipmentSeed,
   );
+  const [actionDice, setActionDice] = useLocalStorageState(
+    'dropshipbuilder:actionDice',
+    actionDiceSeed,
+  );
   const [dataVersion, setDataVersion] = useLocalStorageState(
     'dropshipbuilder:dataVersion',
     DATA_VERSION,
@@ -51,7 +56,7 @@ function App() {
   useEffect(() => {
     if (dataVersion === DATA_VERSION) return;
 
-    let snapshot = { units: [], equipment: [] };
+    let snapshot = { units: [], equipment: [], actionDice: [] };
     try {
       const raw = window.localStorage.getItem('dropshipbuilder:seedSnapshot');
       if (raw) snapshot = JSON.parse(raw);
@@ -68,17 +73,31 @@ function App() {
     setEquipment((current) =>
       mergeSeedRecords(current, snapshot.equipment ?? [], equipmentSeed),
     );
+    setActionDice((current) =>
+      mergeSeedRecords(current, snapshot.actionDice ?? [], actionDiceSeed),
+    );
     setDataVersion(DATA_VERSION);
 
     try {
       window.localStorage.setItem(
         'dropshipbuilder:seedSnapshot',
-        JSON.stringify({ units: unitsSeed, equipment: equipmentSeed }),
+        JSON.stringify({
+          units: unitsSeed,
+          equipment: equipmentSeed,
+          actionDice: actionDiceSeed,
+        }),
       );
     } catch {
       // localStorage unavailable — merge still applied for this session
     }
-  }, [dataVersion, setManufacturers, setUnits, setEquipment, setDataVersion]);
+  }, [
+    dataVersion,
+    setManufacturers,
+    setUnits,
+    setEquipment,
+    setActionDice,
+    setDataVersion,
+  ]);
 
   return (
     <>
@@ -91,6 +110,8 @@ function App() {
           setUnits={setUnits}
           equipment={equipment}
           setEquipment={setEquipment}
+          actionDice={actionDice}
+          setActionDice={setActionDice}
         />
       ) : page === 'math' ? (
         <MathReferencePage />
