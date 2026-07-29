@@ -27,15 +27,13 @@ export const EFFECT_STATS = [
   { key: 'left_slots', label: 'Left slots' },
   { key: 'right_slots', label: 'Right slots' },
   { key: 'head_slots', label: 'Head slots' },
-  { key: 'dice_blue', label: 'Blue dice' },
-  { key: 'dice_red', label: 'Red dice' },
-  { key: 'dice_green', label: 'Green dice' },
+  { key: 'dice', label: 'Dice' },
 ];
 // Bump this whenever the seed data (manufacturers/units/equipment.json)
 // changes, so browsers with older cached data merge in the new seed
 // content instead of silently going stale (see mergeSeedRecords in
 // lib/storage.js).
-export const DATA_VERSION = 23;
+export const DATA_VERSION = 24;
 
 export function sizeLabel(size) {
   return UNIT_SIZES[size] ?? size;
@@ -58,4 +56,14 @@ export function weaponSlotCost(item) {
 
 export function effectStatLabel(key) {
   return EFFECT_STATS.find((s) => s.key === key)?.label ?? key;
+}
+
+export function effectStatChipText(effect) {
+  if (effect.stat === 'dice') {
+    const color = String(effect.amount ?? '');
+    const label = color ? color.charAt(0).toUpperCase() + color.slice(1) : '';
+    return `+1 ${label} die`;
+  }
+  const sign = effect.amount > 0 ? '+' : '';
+  return `${sign}${effect.amount} ${effectStatLabel(effect.stat)}`;
 }

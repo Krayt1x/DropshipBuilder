@@ -28,5 +28,15 @@
         "side4": "Attack",
         "side5": "Attack",
         "side6": "Action"
+    },
+    {
+        "id": 4,
+        "color": "yellow",
+        "side1": "Move",
+        "side2": "Move",
+        "side3": "Move",
+        "side4": "Action",
+        "side5": "Action",
+        "side6": "Attack"
     }
 ]

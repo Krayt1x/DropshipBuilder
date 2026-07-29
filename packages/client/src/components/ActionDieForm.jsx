@@ -1,8 +1,4 @@
-import {
-  DICE_COLORS,
-  ACTION_DICE_SIDE_KEYS,
-  ACTION_DICE_FACES,
-} from '../lib/constants.js';
+import { ACTION_DICE_SIDE_KEYS, ACTION_DICE_FACES } from '../lib/constants.js';
 
 function ActionDieForm({ editing, onSubmit, onCancel }) {
   return (
@@ -10,17 +6,14 @@ function ActionDieForm({ editing, onSubmit, onCancel }) {
       <div className="stat-grid">
         <div className="field">
           <label htmlFor="color">Colour</label>
-          <select
+          <input
+            type="text"
             id="color"
             name="color"
-            defaultValue={editing?.color ?? DICE_COLORS[0]}
-          >
-            {DICE_COLORS.map((color) => (
-              <option key={color} value={color}>
-                {color}
-              </option>
-            ))}
-          </select>
+            placeholder="e.g. blue"
+            defaultValue={editing?.color ?? ''}
+            required
+          />
         </div>
         {ACTION_DICE_SIDE_KEYS.map((key, i) => (
           <div className="field" key={key}>

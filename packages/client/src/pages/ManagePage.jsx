@@ -4,12 +4,12 @@ import {
   EQUIPMENT_TYPES,
   WEAPON_SIZES,
   EFFECT_STATS,
-  DICE_COLORS,
   ACTION_DICE_SIDE_KEYS,
   ACTION_DICE_FACES,
+  DICE_COLORS,
   sizeLabel,
   armorLabel,
-  effectStatLabel,
+  effectStatChipText,
 } from '../lib/constants.js';
 import { nextId, purgeCatalogCache } from '../lib/storage.js';
 import UnitForm from '../components/UnitForm.jsx';
@@ -28,8 +28,7 @@ function EffectsCell({ item }) {
         <div className="effect-chips" style={{ marginBottom: hasText ? 4 : 0 }}>
           {statEffects.map((effect, i) => (
             <span className="effect-chip" key={`${effect.stat}-${i}`}>
-              {effect.amount > 0 ? '+' : ''}
-              {effect.amount} {effectStatLabel(effect.stat)}
+              {effectStatChipText(effect)}
             </span>
           ))}
         </div>
@@ -282,12 +281,11 @@ function ManagePage({
     try {
       const parsed = JSON.parse(form.get('effect_stats') || '[]');
       if (Array.isArray(parsed)) {
-        effectStats = parsed.filter(
-          (e) =>
-            EFFECT_STATS.some((s) => s.key === e.stat) &&
-            Number.isFinite(Number(e.amount)) &&
-            Number(e.amount) !== 0,
-        );
+        effectStats = parsed.filter((e) => {
+          if (!EFFECT_STATS.some((s) => s.key === e.stat)) return false;
+          if (e.stat === 'dice') return DICE_COLORS.includes(e.amount);
+          return Number.isFinite(Number(e.amount)) && Number(e.amount) !== 0;
+        });
       }
     } catch {
       effectStats = [];
@@ -346,9 +344,9 @@ function ManagePage({
   function submitActionDie(e) {
     e.preventDefault();
     const form = new FormData(e.target);
-    const color = (form.get('color') || '').toString();
+    const color = (form.get('color') || '').toString().trim().toLowerCase();
 
-    if (!DICE_COLORS.includes(color)) {
+    if (!color) {
       showFlash('Fill in every action die field with a valid value.', true);
       return;
     }
