@@ -19,26 +19,21 @@ export function requiredTypeForSlot(slot) {
   return 'Weapon';
 }
 
-function actionDiceSummary(item) {
-  return item?.action_dice_color ? ` · +1 ${item.action_dice_color} die` : '';
-}
-
 export function itemStatSummary(item) {
   if (!item) return '';
   const itemType = item.type ?? 'Movement';
-  const dice = actionDiceSummary(item);
   if (itemType === 'Weapon') {
     const slots = weaponSlotCost(item);
-    return `${item.size ?? 'Small'} (${slots} slot${slots > 1 ? 's' : ''}) · ${item.weight ?? 0}t · Range ${item.range || '—'} · Heat ${item.heat_rating || '—'} · ${item.hit_dice || '—'} · HP ${item.hp ?? '—'}${dice}`;
+    return `${item.size ?? 'Small'} (${slots} slot${slots > 1 ? 's' : ''}) · ${item.weight ?? 0}t · Range ${item.range || '—'} · Heat ${item.heat_rating || '—'} · ${item.hit_dice || '—'} · HP ${item.hp ?? '—'}`;
   }
   if (itemType === 'Movement') {
-    return `${item.movement ?? 0} move · ${item.weight ?? 0}t · Heat ${item.heat_rating || '—'}${dice}`;
+    return `${item.movement ?? 0} move · ${item.weight ?? 0}t · Heat ${item.heat_rating || '—'}`;
   }
   if (itemType === 'Augment') {
     const slots = weaponSlotCost(item);
-    return `${slots} slot${slots > 1 ? 's' : ''} · ${item.weight ?? 0}t${dice}`;
+    return `${slots} slot${slots > 1 ? 's' : ''} · ${item.weight ?? 0}t`;
   }
-  return `${item.weight ?? 0}t${dice}`;
+  return `${item.weight ?? 0}t`;
 }
 
 export function computeRosterStats(entry, units, equipment, totalWeight) {
@@ -78,10 +73,25 @@ export function computeRosterStats(entry, units, equipment, totalWeight) {
       });
       return bonus;
     },
-    { base_movement: 0, hp: 0, left_slots: 0, right_slots: 0, head_slots: 0 },
+    {
+      base_movement: 0,
+      hp: 0,
+      left_slots: 0,
+      right_slots: 0,
+      head_slots: 0,
+      dice_blue: 0,
+      dice_red: 0,
+      dice_green: 0,
+    },
   );
 
   const effectiveHp = Number(unit.hp ?? 0) + statBonus.hp;
+
+  const effectiveDice = {
+    dice_blue: Number(unit.dice_blue ?? 0) + statBonus.dice_blue,
+    dice_red: Number(unit.dice_red ?? 0) + statBonus.dice_red,
+    dice_green: Number(unit.dice_green ?? 0) + statBonus.dice_green,
+  };
 
   const slotCounts = {
     Movement: 1,
@@ -185,6 +195,7 @@ export function computeRosterStats(entry, units, equipment, totalWeight) {
     movementGearStat,
     excessDropWeight,
     effectiveMovement,
+    effectiveDice,
     statsLine,
     equippedWithEffects,
     equippedWeights,

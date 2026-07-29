@@ -27,6 +27,9 @@ export const EFFECT_STATS = [
   { key: 'left_slots', label: 'Left slots' },
   { key: 'right_slots', label: 'Right slots' },
   { key: 'head_slots', label: 'Head slots' },
+  { key: 'dice_blue', label: 'Blue dice' },
+  { key: 'dice_red', label: 'Red dice' },
+  { key: 'dice_green', label: 'Green dice' },
 ];
 // Bump this whenever the seed data (manufacturers/units/equipment.json)
 // changes, so browsers with older cached data merge in the new seed
