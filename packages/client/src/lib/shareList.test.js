@@ -50,6 +50,7 @@ describe('buildShareText', () => {
         'Weight: 5t / 100t',
         '',
         'Test Mech - 5t',
+        '  Armor — · HP 0 · Move 4',
         '  Left: Small Gun',
         '  Movement: Legs',
       ].join('\n'),
@@ -88,6 +89,7 @@ describe('buildShareText', () => {
         'Weight: 4t / 50t',
         '',
         'Pod - 4t',
+        '  Armor — · HP 0 · Move 0',
         '  Equipment: Thruster Pack',
       ].join('\n'),
     );
@@ -113,7 +115,13 @@ describe('buildShareText', () => {
     });
 
     expect(text).toBe(
-      ['Pod List (Corp A)', 'Weight: 0t / 50t', '', 'Pod - 0t'].join('\n'),
+      [
+        'Pod List (Corp A)',
+        'Weight: 0t / 50t',
+        '',
+        'Pod - 0t',
+        '  Armor — · HP 0 · Move 0',
+      ].join('\n'),
     );
   });
 
