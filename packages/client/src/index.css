@@ -1024,3 +1024,38 @@ footer a {
   background: var(--bg-track);
   margin-top: 8px;
 }
+
+.import-preview {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+  margin-top: 10px;
+}
+
+.import-preview-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.import-preview-row:last-child {
+  border-bottom: none;
+}
+
+.import-tag-ok {
+  color: #16a34a;
+  font-weight: 600;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.import-tag-warn {
+  color: #b45309;
+  font-weight: 600;
+  font-size: 12px;
+  white-space: nowrap;
+}

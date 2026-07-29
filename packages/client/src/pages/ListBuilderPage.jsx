@@ -10,6 +10,7 @@ import { buildShareText } from '../lib/shareList.js';
 import RosterListItem from '../components/RosterListItem.jsx';
 import RosterConfigPanel from '../components/RosterConfigPanel.jsx';
 import ShareExportPanel from '../components/ShareExportPanel.jsx';
+import ImportListPanel from '../components/ImportListPanel.jsx';
 import DiceIcons from '../components/DiceIcons.jsx';
 
 function emptyEquipmentSlots() {
@@ -63,6 +64,7 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
   const [activeMobileTab, setActiveMobileTab] = useState('catalogue');
   const [showSplash, setShowSplash] = useState(() => roster.length === 0);
   const [showExportPanel, setShowExportPanel] = useState(false);
+  const [showImportPanel, setShowImportPanel] = useState(false);
 
   const manufacturer = manufacturers.includes(settings.manufacturer)
     ? settings.manufacturer
@@ -225,6 +227,31 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
     setSelectedRosterKey(null);
   }
 
+  function importList(preview) {
+    if (roster.length > 0) {
+      const confirmed = window.confirm(
+        'Importing a list will replace your current roster. Continue?',
+      );
+      if (!confirmed) return;
+    }
+    setSettings({
+      list_name: preview.listName,
+      manufacturer: preview.manufacturer,
+      weight_limit:
+        preview.weightLimit > 0 ? preview.weightLimit : settings.weight_limit,
+    });
+    setRoster(
+      preview.matchedUnits.map((u) => ({
+        key: u.key,
+        unit_id: u.unit_id,
+        equipment: u.equipment,
+      })),
+    );
+    setSelectedRosterKey(null);
+    setShowImportPanel(false);
+    setShowSplash(false);
+  }
+
   const selectedEntry =
     rosterUnits.find((entry) => entry.key === selectedRosterKey) ?? null;
   const catalogueMobileActive = activeMobileTab === 'catalogue';
@@ -308,10 +335,23 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
           <button
             type="button"
             className="ghost"
-            onClick={() => setShowExportPanel((v) => !v)}
+            onClick={() => {
+              setShowImportPanel(false);
+              setShowExportPanel((v) => !v);
+            }}
             disabled={rosterUnits.length === 0}
           >
             Export
+          </button>
+          <button
+            type="button"
+            className="ghost"
+            onClick={() => {
+              setShowExportPanel(false);
+              setShowImportPanel((v) => !v);
+            }}
+          >
+            Import
           </button>
           <button type="button" className="ghost" onClick={openSettings}>
             Edit settings
@@ -323,6 +363,15 @@ function ListBuilderPage({ manufacturers, units, equipment }) {
           text={shareText}
           listName={settings.list_name}
           onClose={() => setShowExportPanel(false)}
+        />
+      )}
+      {showImportPanel && (
+        <ImportListPanel
+          manufacturers={manufacturers}
+          units={units}
+          equipment={equipment}
+          onImport={importList}
+          onClose={() => setShowImportPanel(false)}
         />
       )}
       <div className="weight-bar-track" style={{ marginBottom: '1.5rem' }}>
