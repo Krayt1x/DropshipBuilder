@@ -293,6 +293,8 @@ function ManagePage({
       effectStats = [];
     }
 
+    const actionDiceColorRaw = (form.get('action_dice_color') || '').toString();
+
     const payload = {
       name,
       manufacturer,
@@ -300,6 +302,9 @@ function ManagePage({
       effects: (form.get('effects') || '').toString().trim(),
       effect_stats: effectStats,
       weight: Number(form.get('weight')) || 0,
+      action_dice_color: DICE_COLORS.includes(actionDiceColorRaw)
+        ? actionDiceColorRaw
+        : '',
       range: (form.get('range') || '').toString().trim(),
       heat_rating: (form.get('heat_rating') || '').toString().trim(),
       hit_dice: (form.get('hit_dice') || '').toString().trim(),
@@ -865,6 +870,12 @@ function ManagePage({
                           sort={movementSort}
                           onSort={(k) => toggleSort(setMovementSort, k)}
                         />
+                        <SortTh
+                          label="Action Die"
+                          sortKey="action_dice_color"
+                          sort={movementSort}
+                          onSort={(k) => toggleSort(setMovementSort, k)}
+                        />
                         <th>Effects</th>
                         <th></th>
                       </tr>
@@ -878,6 +889,9 @@ function ManagePage({
                             <td>{item.weight ?? 0} t</td>
                             <td>{item.heat_rating || '—'}</td>
                             <td>{item.no_drop_pod ? '✕' : ''}</td>
+                            <td style={{ textTransform: 'capitalize' }}>
+                              {item.action_dice_color || '—'}
+                            </td>
                             <td>
                               <EffectsCell item={item} />
                             </td>
@@ -908,7 +922,7 @@ function ManagePage({
                           </tr>
                           {editingEquipmentId === Number(item.id) && (
                             <tr>
-                              <td colSpan={6}>
+                              <td colSpan={7}>
                                 <EquipmentForm
                                   key={item.id}
                                   manufacturers={manufacturers}
@@ -990,6 +1004,12 @@ function ManagePage({
                           sort={weaponSort}
                           onSort={(k) => toggleSort(setWeaponSort, k)}
                         />
+                        <SortTh
+                          label="Action Die"
+                          sortKey="action_dice_color"
+                          sort={weaponSort}
+                          onSort={(k) => toggleSort(setWeaponSort, k)}
+                        />
                         <th>Effects</th>
                         <th></th>
                       </tr>
@@ -1006,6 +1026,9 @@ function ManagePage({
                             <td>{item.hit_dice || '—'}</td>
                             <td>{item.hp ?? '—'}</td>
                             <td>{item.no_drop_pod ? '✕' : ''}</td>
+                            <td style={{ textTransform: 'capitalize' }}>
+                              {item.action_dice_color || '—'}
+                            </td>
                             <td>
                               <EffectsCell item={item} />
                             </td>
@@ -1036,7 +1059,7 @@ function ManagePage({
                           </tr>
                           {editingEquipmentId === Number(item.id) && (
                             <tr>
-                              <td colSpan={9}>
+                              <td colSpan={10}>
                                 <EquipmentForm
                                   key={item.id}
                                   manufacturers={manufacturers}
@@ -1090,6 +1113,12 @@ function ManagePage({
                           sort={augmentSort}
                           onSort={(k) => toggleSort(setAugmentSort, k)}
                         />
+                        <SortTh
+                          label="Action Die"
+                          sortKey="action_dice_color"
+                          sort={augmentSort}
+                          onSort={(k) => toggleSort(setAugmentSort, k)}
+                        />
                         <th>Effects</th>
                         <th></th>
                       </tr>
@@ -1101,6 +1130,9 @@ function ManagePage({
                             <td>{item.name}</td>
                             <td>{item.weight ?? 0} t</td>
                             <td>{item.no_drop_pod ? '✕' : ''}</td>
+                            <td style={{ textTransform: 'capitalize' }}>
+                              {item.action_dice_color || '—'}
+                            </td>
                             <td>
                               <EffectsCell item={item} />
                             </td>
@@ -1131,7 +1163,7 @@ function ManagePage({
                           </tr>
                           {editingEquipmentId === Number(item.id) && (
                             <tr>
-                              <td colSpan={5}>
+                              <td colSpan={6}>
                                 <EquipmentForm
                                   key={item.id}
                                   manufacturers={manufacturers}

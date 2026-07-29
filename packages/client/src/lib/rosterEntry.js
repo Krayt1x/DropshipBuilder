@@ -19,21 +19,26 @@ export function requiredTypeForSlot(slot) {
   return 'Weapon';
 }
 
+function actionDiceSummary(item) {
+  return item?.action_dice_color ? ` · +1 ${item.action_dice_color} die` : '';
+}
+
 export function itemStatSummary(item) {
   if (!item) return '';
   const itemType = item.type ?? 'Movement';
+  const dice = actionDiceSummary(item);
   if (itemType === 'Weapon') {
     const slots = weaponSlotCost(item);
-    return `${item.size ?? 'Small'} (${slots} slot${slots > 1 ? 's' : ''}) · ${item.weight ?? 0}t · Range ${item.range || '—'} · Heat ${item.heat_rating || '—'} · ${item.hit_dice || '—'} · HP ${item.hp ?? '—'}`;
+    return `${item.size ?? 'Small'} (${slots} slot${slots > 1 ? 's' : ''}) · ${item.weight ?? 0}t · Range ${item.range || '—'} · Heat ${item.heat_rating || '—'} · ${item.hit_dice || '—'} · HP ${item.hp ?? '—'}${dice}`;
   }
   if (itemType === 'Movement') {
-    return `${item.movement ?? 0} move · ${item.weight ?? 0}t · Heat ${item.heat_rating || '—'}`;
+    return `${item.movement ?? 0} move · ${item.weight ?? 0}t · Heat ${item.heat_rating || '—'}${dice}`;
   }
   if (itemType === 'Augment') {
     const slots = weaponSlotCost(item);
-    return `${slots} slot${slots > 1 ? 's' : ''} · ${item.weight ?? 0}t`;
+    return `${slots} slot${slots > 1 ? 's' : ''} · ${item.weight ?? 0}t${dice}`;
   }
-  return `${item.weight ?? 0}t`;
+  return `${item.weight ?? 0}t${dice}`;
 }
 
 export function computeRosterStats(entry, units, equipment, totalWeight) {
