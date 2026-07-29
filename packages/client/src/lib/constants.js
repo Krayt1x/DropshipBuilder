@@ -7,6 +7,15 @@ export const UNIT_SIZES = {
 };
 
 export const DICE_COLORS = ['blue', 'red', 'green'];
+export const ACTION_DICE_SIDE_KEYS = [
+  'side1',
+  'side2',
+  'side3',
+  'side4',
+  'side5',
+  'side6',
+];
+export const ACTION_DICE_FACES = ['Action', 'Attack', 'Move'];
 export const SLOTS = ['Movement', 'Left', 'Right', 'Head'];
 export const DROP_POD_SIZE = 'Drop Pod';
 export const EQUIPMENT_TYPES = ['Movement', 'Weapon', 'Augment'];
@@ -23,7 +32,7 @@ export const EFFECT_STATS = [
 // changes, so browsers with older cached data merge in the new seed
 // content instead of silently going stale (see mergeSeedRecords in
 // lib/storage.js).
-export const DATA_VERSION = 22;
+export const DATA_VERSION = 23;
 
 export function sizeLabel(size) {
   return UNIT_SIZES[size] ?? size;

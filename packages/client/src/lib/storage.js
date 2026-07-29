@@ -35,6 +35,7 @@ export function purgeCatalogCache() {
   window.localStorage.removeItem('dropshipbuilder:manufacturers');
   window.localStorage.removeItem('dropshipbuilder:units');
   window.localStorage.removeItem('dropshipbuilder:equipment');
+  window.localStorage.removeItem('dropshipbuilder:actionDice');
   window.localStorage.removeItem('dropshipbuilder:dataVersion');
   window.localStorage.removeItem('dropshipbuilder:seedSnapshot');
   window.location.reload();

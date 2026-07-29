@@ -4,6 +4,9 @@ import {
   EQUIPMENT_TYPES,
   WEAPON_SIZES,
   EFFECT_STATS,
+  DICE_COLORS,
+  ACTION_DICE_SIDE_KEYS,
+  ACTION_DICE_FACES,
   sizeLabel,
   armorLabel,
   effectStatLabel,
@@ -11,6 +14,7 @@ import {
 import { nextId, purgeCatalogCache } from '../lib/storage.js';
 import UnitForm from '../components/UnitForm.jsx';
 import EquipmentForm from '../components/EquipmentForm.jsx';
+import ActionDieForm from '../components/ActionDieForm.jsx';
 import ExportPanel from '../components/ExportPanel.jsx';
 import DiceIcons from '../components/DiceIcons.jsx';
 
@@ -79,13 +83,17 @@ function ManagePage({
   setUnits,
   equipment,
   setEquipment,
+  actionDice,
+  setActionDice,
 }) {
   const [flash, setFlash] = useState(null);
   const [editingUnitId, setEditingUnitId] = useState(null);
   const [editingEquipmentId, setEditingEquipmentId] = useState(null);
+  const [editingActionDieId, setEditingActionDieId] = useState(null);
   const [showManufacturerForm, setShowManufacturerForm] = useState(false);
   const [showUnitForm, setShowUnitForm] = useState(false);
   const [showEquipmentForm, setShowEquipmentForm] = useState(false);
+  const [showActionDieForm, setShowActionDieForm] = useState(false);
   const [unitSort, setUnitSort] = useState({ key: 'weight', dir: 'asc' });
   const [movementSort, setMovementSort] = useState({
     key: 'movement',
@@ -93,6 +101,10 @@ function ManagePage({
   });
   const [weaponSort, setWeaponSort] = useState({ key: 'weight', dir: 'asc' });
   const [augmentSort, setAugmentSort] = useState({ key: 'name', dir: 'asc' });
+  const [actionDiceSort, setActionDiceSort] = useState({
+    key: 'color',
+    dir: 'asc',
+  });
   const [activeManufacturer, setActiveManufacturer] = useState(
     manufacturers[0] ?? null,
   );
@@ -108,6 +120,10 @@ function ManagePage({
   const editingEquipmentItem =
     editingEquipmentId != null
       ? equipment.find((e) => Number(e.id) === editingEquipmentId)
+      : null;
+  const editingActionDie =
+    editingActionDieId != null
+      ? actionDice.find((d) => Number(d.id) === editingActionDieId)
       : null;
   function showFlash(message, isError = false) {
     setFlash({ message, isError });
@@ -277,6 +293,8 @@ function ManagePage({
       effectStats = [];
     }
 
+    const actionDiceColorRaw = (form.get('action_dice_color') || '').toString();
+
     const payload = {
       name,
       manufacturer,
@@ -284,6 +302,9 @@ function ManagePage({
       effects: (form.get('effects') || '').toString().trim(),
       effect_stats: effectStats,
       weight: Number(form.get('weight')) || 0,
+      action_dice_color: DICE_COLORS.includes(actionDiceColorRaw)
+        ? actionDiceColorRaw
+        : '',
       range: (form.get('range') || '').toString().trim(),
       heat_rating: (form.get('heat_rating') || '').toString().trim(),
       hit_dice: (form.get('hit_dice') || '').toString().trim(),
@@ -325,6 +346,44 @@ function ManagePage({
         : 'Equipment removed.',
     );
     if (editingEquipmentId === id) setEditingEquipmentId(null);
+  }
+
+  function submitActionDie(e) {
+    e.preventDefault();
+    const form = new FormData(e.target);
+    const color = (form.get('color') || '').toString();
+
+    if (!DICE_COLORS.includes(color)) {
+      showFlash('Fill in every action die field with a valid value.', true);
+      return;
+    }
+
+    const payload = { color };
+    ACTION_DICE_SIDE_KEYS.forEach((key) => {
+      const face = (form.get(key) || '').toString();
+      payload[key] = ACTION_DICE_FACES.includes(face)
+        ? face
+        : ACTION_DICE_FACES[0];
+    });
+
+    if (editingActionDie) {
+      const id = editingActionDie.id;
+      setActionDice((dice) =>
+        dice.map((d) => (Number(d.id) === Number(id) ? { id, ...payload } : d)),
+      );
+      showFlash('Saved changes to the action die.');
+      setEditingActionDieId(null);
+    } else {
+      setActionDice((dice) => [...dice, { id: nextId(dice), ...payload }]);
+      showFlash('Added a new action die.');
+      e.target.reset();
+    }
+  }
+
+  function deleteActionDie(id) {
+    setActionDice((dice) => dice.filter((d) => Number(d.id) !== id));
+    showFlash('Action die removed.');
+    if (editingActionDieId === id) setEditingActionDieId(null);
   }
 
   function purgeCache() {
@@ -389,6 +448,16 @@ function ManagePage({
           >
             {showEquipmentForm ? 'Cancel' : 'Add equipment'}
           </button>
+          <button
+            type="button"
+            className="ghost"
+            onClick={() => {
+              setShowActionDieForm((v) => !v);
+              setEditingActionDieId(null);
+            }}
+          >
+            {showActionDieForm ? 'Cancel' : 'Add action die'}
+          </button>
         </div>
       </div>
 
@@ -439,6 +508,96 @@ function ManagePage({
           />
         </div>
       )}
+
+      {showActionDieForm && (
+        <div className="card">
+          <h2 style={{ fontSize: 15, marginTop: 0 }}>Add an action die</h2>
+          <ActionDieForm
+            key="new-action-die"
+            editing={null}
+            onSubmit={submitActionDie}
+            onCancel={() => setShowActionDieForm(false)}
+          />
+        </div>
+      )}
+
+      <div className="card">
+        <h2 style={{ fontSize: 15, marginTop: 0 }}>Action dice</h2>
+        <p className="unit-meta" style={{ marginBottom: 10 }}>
+          Action dice are separate from manufacturers and equipment — each
+          die&apos;s six sides show what it does when rolled.
+        </p>
+        {actionDice.length === 0 ? (
+          <p className="empty">No action dice yet.</p>
+        ) : (
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <SortTh
+                    label="Colour"
+                    sortKey="color"
+                    sort={actionDiceSort}
+                    onSort={(k) => toggleSort(setActionDiceSort, k)}
+                  />
+                  {ACTION_DICE_SIDE_KEYS.map((key, i) => (
+                    <th key={key}>Side {i + 1}</th>
+                  ))}
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {sortRows(actionDice, actionDiceSort).map((die) => (
+                  <Fragment key={die.id}>
+                    <tr>
+                      <td style={{ textTransform: 'capitalize' }}>
+                        {die.color}
+                      </td>
+                      {ACTION_DICE_SIDE_KEYS.map((key) => (
+                        <td key={key}>{die[key] || '—'}</td>
+                      ))}
+                      <td>
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <button
+                            type="button"
+                            className="ghost"
+                            onClick={() => {
+                              setEditingActionDieId(Number(die.id));
+                              setShowActionDieForm(false);
+                            }}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            className="danger"
+                            aria-label="Remove"
+                            onClick={() => deleteActionDie(Number(die.id))}
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    {editingActionDieId === Number(die.id) && (
+                      <tr>
+                        <td colSpan={8}>
+                          <ActionDieForm
+                            key={die.id}
+                            editing={die}
+                            onSubmit={submitActionDie}
+                            onCancel={() => setEditingActionDieId(null)}
+                          />
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
       {manufacturers.length > 0 && (
         <div className="card">
@@ -711,6 +870,12 @@ function ManagePage({
                           sort={movementSort}
                           onSort={(k) => toggleSort(setMovementSort, k)}
                         />
+                        <SortTh
+                          label="Action Die"
+                          sortKey="action_dice_color"
+                          sort={movementSort}
+                          onSort={(k) => toggleSort(setMovementSort, k)}
+                        />
                         <th>Effects</th>
                         <th></th>
                       </tr>
@@ -724,6 +889,9 @@ function ManagePage({
                             <td>{item.weight ?? 0} t</td>
                             <td>{item.heat_rating || '—'}</td>
                             <td>{item.no_drop_pod ? '✕' : ''}</td>
+                            <td style={{ textTransform: 'capitalize' }}>
+                              {item.action_dice_color || '—'}
+                            </td>
                             <td>
                               <EffectsCell item={item} />
                             </td>
@@ -754,7 +922,7 @@ function ManagePage({
                           </tr>
                           {editingEquipmentId === Number(item.id) && (
                             <tr>
-                              <td colSpan={6}>
+                              <td colSpan={7}>
                                 <EquipmentForm
                                   key={item.id}
                                   manufacturers={manufacturers}
@@ -836,6 +1004,12 @@ function ManagePage({
                           sort={weaponSort}
                           onSort={(k) => toggleSort(setWeaponSort, k)}
                         />
+                        <SortTh
+                          label="Action Die"
+                          sortKey="action_dice_color"
+                          sort={weaponSort}
+                          onSort={(k) => toggleSort(setWeaponSort, k)}
+                        />
                         <th>Effects</th>
                         <th></th>
                       </tr>
@@ -852,6 +1026,9 @@ function ManagePage({
                             <td>{item.hit_dice || '—'}</td>
                             <td>{item.hp ?? '—'}</td>
                             <td>{item.no_drop_pod ? '✕' : ''}</td>
+                            <td style={{ textTransform: 'capitalize' }}>
+                              {item.action_dice_color || '—'}
+                            </td>
                             <td>
                               <EffectsCell item={item} />
                             </td>
@@ -882,7 +1059,7 @@ function ManagePage({
                           </tr>
                           {editingEquipmentId === Number(item.id) && (
                             <tr>
-                              <td colSpan={9}>
+                              <td colSpan={10}>
                                 <EquipmentForm
                                   key={item.id}
                                   manufacturers={manufacturers}
@@ -936,6 +1113,12 @@ function ManagePage({
                           sort={augmentSort}
                           onSort={(k) => toggleSort(setAugmentSort, k)}
                         />
+                        <SortTh
+                          label="Action Die"
+                          sortKey="action_dice_color"
+                          sort={augmentSort}
+                          onSort={(k) => toggleSort(setAugmentSort, k)}
+                        />
                         <th>Effects</th>
                         <th></th>
                       </tr>
@@ -947,6 +1130,9 @@ function ManagePage({
                             <td>{item.name}</td>
                             <td>{item.weight ?? 0} t</td>
                             <td>{item.no_drop_pod ? '✕' : ''}</td>
+                            <td style={{ textTransform: 'capitalize' }}>
+                              {item.action_dice_color || '—'}
+                            </td>
                             <td>
                               <EffectsCell item={item} />
                             </td>
@@ -977,7 +1163,7 @@ function ManagePage({
                           </tr>
                           {editingEquipmentId === Number(item.id) && (
                             <tr>
-                              <td colSpan={5}>
+                              <td colSpan={6}>
                                 <EquipmentForm
                                   key={item.id}
                                   manufacturers={manufacturers}
