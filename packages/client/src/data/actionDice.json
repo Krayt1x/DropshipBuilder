@@ -4,29 +4,29 @@
         "color": "blue",
         "side1": "Action",
         "side2": "Action",
-        "side3": "Attack",
-        "side4": "Attack",
+        "side3": "Action",
+        "side4": "Move",
         "side5": "Move",
-        "side6": "Move"
+        "side6": "Attack"
     },
     {
         "id": 2,
         "color": "red",
-        "side1": "Action",
-        "side2": "Action",
+        "side1": "Attack",
+        "side2": "Attack",
         "side3": "Attack",
-        "side4": "Attack",
-        "side5": "Move",
+        "side4": "Action",
+        "side5": "Action",
         "side6": "Move"
     },
     {
         "id": 3,
         "color": "green",
-        "side1": "Action",
-        "side2": "Action",
-        "side3": "Attack",
+        "side1": "Move",
+        "side2": "Move",
+        "side3": "Move",
         "side4": "Attack",
-        "side5": "Move",
-        "side6": "Move"
+        "side5": "Attack",
+        "side6": "Action"
     }
 ]
