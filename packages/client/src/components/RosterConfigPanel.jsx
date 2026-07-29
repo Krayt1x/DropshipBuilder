@@ -2,7 +2,7 @@ import { useState } from 'react';
 import {
   sizeLabel,
   weaponSlotCost,
-  effectStatLabel,
+  effectStatChipText,
 } from '../lib/constants.js';
 import {
   WEIGHT_SEGMENT_COLORS,
@@ -425,8 +425,7 @@ function RosterConfigPanel({
           {item.effects && item.effect_stats?.length > 0 ? ' · ' : ''}
           {item.effect_stats?.map((effect, i) => (
             <span className="effect-chip" key={`${key}-${effect.stat}-${i}`}>
-              {effect.amount > 0 ? '+' : ''}
-              {effect.amount} {effectStatLabel(effect.stat)}
+              {effectStatChipText(effect)}
             </span>
           ))}
         </p>

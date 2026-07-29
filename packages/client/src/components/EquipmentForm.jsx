@@ -3,7 +3,8 @@ import {
   EQUIPMENT_TYPES,
   WEAPON_SIZES,
   EFFECT_STATS,
-  effectStatLabel,
+  DICE_COLORS,
+  effectStatChipText,
 } from '../lib/constants.js';
 
 function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
@@ -16,8 +17,11 @@ function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
   const isMovement = type === 'Movement';
 
   function addStatEffect() {
-    const amount = Number(newEffectAmount);
-    if (!EFFECT_STATS.some((s) => s.key === newEffectStat) || !amount) return;
+    if (!EFFECT_STATS.some((s) => s.key === newEffectStat)) return;
+    const isDice = newEffectStat === 'dice';
+    const amount = isDice ? newEffectAmount : Number(newEffectAmount);
+    const valid = isDice ? DICE_COLORS.includes(amount) : Boolean(amount);
+    if (!valid) return;
     setStatEffects((current) => [...current, { stat: newEffectStat, amount }]);
     setShowEffectEditor(false);
     setNewEffectStat('');
@@ -214,8 +218,7 @@ function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
           <div className="effect-chips">
             {statEffects.map((effect, i) => (
               <span className="effect-chip" key={`${effect.stat}-${i}`}>
-                {effect.amount > 0 ? '+' : ''}
-                {effect.amount} {effectStatLabel(effect.stat)}
+                {effectStatChipText(effect)}
                 <button
                   type="button"
                   className="effect-chip-remove"
@@ -245,7 +248,10 @@ function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
               <select
                 id="effect_stat"
                 value={newEffectStat}
-                onChange={(e) => setNewEffectStat(e.target.value)}
+                onChange={(e) => {
+                  setNewEffectStat(e.target.value);
+                  setNewEffectAmount('');
+                }}
               >
                 <option value="" disabled>
                   Choose a stat
@@ -259,14 +265,31 @@ function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
             </div>
             <div className="field" style={{ flex: 1 }}>
               <label htmlFor="effect_amount">Amount</label>
-              <input
-                type="number"
-                id="effect_amount"
-                step="1"
-                placeholder="+2"
-                value={newEffectAmount}
-                onChange={(e) => setNewEffectAmount(e.target.value)}
-              />
+              {newEffectStat === 'dice' ? (
+                <select
+                  id="effect_amount"
+                  value={newEffectAmount}
+                  onChange={(e) => setNewEffectAmount(e.target.value)}
+                >
+                  <option value="" disabled>
+                    Choose a die
+                  </option>
+                  {DICE_COLORS.map((color) => (
+                    <option key={color} value={color}>
+                      {color}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type="number"
+                  id="effect_amount"
+                  step="1"
+                  placeholder="+2"
+                  value={newEffectAmount}
+                  onChange={(e) => setNewEffectAmount(e.target.value)}
+                />
+              )}
             </div>
             <button type="button" onClick={addStatEffect}>
               Add

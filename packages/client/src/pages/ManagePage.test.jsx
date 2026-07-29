@@ -71,7 +71,7 @@ describe('ManagePage', () => {
     ).toBeDefined();
   });
 
-  it('adds a new action die with the default colour and faces', () => {
+  it('adds a new action die with a typed colour and the default faces', () => {
     const setActionDice = vi.fn();
     render(
       <ManagePage
@@ -87,6 +87,9 @@ describe('ManagePage', () => {
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Add action die' }));
+    fireEvent.change(screen.getByLabelText('Colour'), {
+      target: { value: 'Yellow' },
+    });
     fireEvent.click(
       screen.getAllByRole('button', { name: 'Add action die' }).at(-1),
     );
@@ -95,7 +98,7 @@ describe('ManagePage', () => {
     const nextActionDice = setActionDice.mock.calls[0][0]([]);
     expect(nextActionDice).toEqual([
       expect.objectContaining({
-        color: 'blue',
+        color: 'yellow',
         side1: 'Action',
         side2: 'Action',
         side3: 'Action',
@@ -104,6 +107,28 @@ describe('ManagePage', () => {
         side6: 'Action',
       }),
     ]);
+  });
+
+  it('rejects an action die with a blank colour', () => {
+    const setActionDice = vi.fn();
+    render(
+      <ManagePage
+        manufacturers={[]}
+        setManufacturers={() => {}}
+        units={[]}
+        setUnits={() => {}}
+        equipment={[]}
+        setEquipment={() => {}}
+        actionDice={[]}
+        setActionDice={setActionDice}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Add action die' }));
+    const form = screen.getByLabelText('Colour').closest('form');
+    fireEvent.submit(form);
+
+    expect(setActionDice).not.toHaveBeenCalled();
   });
 
   it('removes an action die from the list', () => {

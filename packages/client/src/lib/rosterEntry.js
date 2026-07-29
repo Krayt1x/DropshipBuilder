@@ -69,6 +69,11 @@ export function computeRosterStats(entry, units, equipment, totalWeight) {
   const statBonus = allEquippedItems.reduce(
     (bonus, item) => {
       (item.effect_stats ?? []).forEach(({ stat, amount }) => {
+        if (stat === 'dice') {
+          const key = `dice_${amount}`;
+          if (key in bonus) bonus[key] += 1;
+          return;
+        }
         if (stat in bonus) bonus[stat] += Number(amount) || 0;
       });
       return bonus;

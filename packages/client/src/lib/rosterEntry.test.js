@@ -160,11 +160,11 @@ describe('computeRosterStats', () => {
     ]);
   });
 
-  it('combines the unit base dice with dice_* stat effect bonuses from equipped items', () => {
+  it('combines the unit base dice with a "dice" stat effect bonus from an equipped item', () => {
     const diceUnit = { ...unit, dice_blue: 1, dice_red: 0, dice_green: 0 };
     const diceHelmet = {
       ...helmet,
-      effect_stats: [{ stat: 'dice_red', amount: 1 }],
+      effect_stats: [{ stat: 'dice', amount: 'red' }],
     };
     const diceEntry = {
       unit: diceUnit,
