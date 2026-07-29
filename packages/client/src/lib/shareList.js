@@ -20,6 +20,7 @@ export function buildShareText({
     const weight = entryWeight(entry);
     const stats = computeRosterStats(entry, units, equipment, weight);
     lines.push(`${entry.unit.name} - ${weight}t`);
+    lines.push(`  ${stats.statsLine}`);
 
     if (stats.isDropPod) {
       if (stats.dropPodSelected) {

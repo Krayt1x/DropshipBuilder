@@ -3,7 +3,8 @@
 }
 
 :root {
-  --bg-page: #f4f3ef;
+  --bg-page: #e5e3d9;
+  --bg-container: #f4f3ef;
   --bg-card: #ffffff;
   --bg-input: #ffffff;
   --bg-track: #eceae1;
@@ -20,6 +21,7 @@
 
 [data-theme='dark'] {
   --bg-page: #171613;
+  --bg-container: #171613;
   --bg-card: #221f1a;
   --bg-input: #2a2721;
   --bg-track: #332f26;
@@ -146,12 +148,14 @@ body {
   max-width: 960px;
   margin: 0 auto;
   padding: 1.5rem;
+  background: var(--bg-container);
 }
 
 .container-wide {
   max-width: 1400px;
   margin: 0 auto;
   padding: 1.5rem;
+  background: var(--bg-container);
 }
 
 .splash-container {
@@ -1019,4 +1023,39 @@ footer a {
   padding: 10px;
   background: var(--bg-track);
   margin-top: 8px;
+}
+
+.import-preview {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+  margin-top: 10px;
+}
+
+.import-preview-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.import-preview-row:last-child {
+  border-bottom: none;
+}
+
+.import-tag-ok {
+  color: #16a34a;
+  font-weight: 600;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.import-tag-warn {
+  color: #b45309;
+  font-weight: 600;
+  font-size: 12px;
+  white-space: nowrap;
 }
