@@ -1,7 +1,13 @@
 import { useMemo, useState } from 'react';
 import { parseShareText, matchImportedList } from '../lib/importList.js';
 
-function ImportListPanel({ manufacturers, units, equipment, onImport, onClose }) {
+function ImportListPanel({
+  manufacturers,
+  units,
+  equipment,
+  onImport,
+  onClose,
+}) {
   const [text, setText] = useState('');
 
   const preview = useMemo(() => {
@@ -11,7 +17,9 @@ function ImportListPanel({ manufacturers, units, equipment, onImport, onClose })
     return matchImportedList({ parsed, manufacturers, units, equipment });
   }, [text, manufacturers, units, equipment]);
 
-  const canImport = Boolean(preview?.manufacturer && preview.matchedUnits.length > 0);
+  const canImport = Boolean(
+    preview?.manufacturer && preview.matchedUnits.length > 0,
+  );
 
   return (
     <div className="card" style={{ marginBottom: '1.5rem' }}>
@@ -48,10 +56,16 @@ function ImportListPanel({ manufacturers, units, equipment, onImport, onClose })
             </span>
             <span
               className={
-                preview.warnings.length > 0 ? 'import-tag-warn' : 'import-tag-ok'
+                preview.warnings.length > 0
+                  ? 'import-tag-warn'
+                  : 'import-tag-ok'
               }
             >
-              {canImport ? (preview.warnings.length > 0 ? 'Warnings' : 'Ready') : 'Nothing to import'}
+              {canImport
+                ? preview.warnings.length > 0
+                  ? 'Warnings'
+                  : 'Ready'
+                : 'Nothing to import'}
             </span>
           </div>
           {preview.matchedUnits.map((u) => (
@@ -61,7 +75,9 @@ function ImportListPanel({ manufacturers, units, equipment, onImport, onClose })
                 {u.warnings.length > 0 ? ` — ${u.warnings.join(', ')}` : ''}
               </span>
               <span
-                className={u.warnings.length > 0 ? 'import-tag-warn' : 'import-tag-ok'}
+                className={
+                  u.warnings.length > 0 ? 'import-tag-warn' : 'import-tag-ok'
+                }
               >
                 {u.warnings.length > 0 ? 'Partial match' : 'Matched'}
               </span>

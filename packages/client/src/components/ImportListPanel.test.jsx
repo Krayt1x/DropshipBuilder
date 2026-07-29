@@ -4,7 +4,12 @@ import ImportListPanel from './ImportListPanel.jsx';
 
 afterEach(cleanup);
 
-const unit = { id: 1, name: 'Test Mech', manufacturer: 'Corp A', size: 'Medium' };
+const unit = {
+  id: 1,
+  name: 'Test Mech',
+  manufacturer: 'Corp A',
+  size: 'Medium',
+};
 const gun = {
   id: 2,
   manufacturer: 'Corp A',
@@ -47,9 +52,13 @@ describe('ImportListPanel', () => {
       />,
     );
     pasteText(
-      ['My List (Corp A)', 'Weight: 3t / 100t', '', 'Test Mech - 3t', '  Left: Small Gun'].join(
-        '\n',
-      ),
+      [
+        'My List (Corp A)',
+        'Weight: 3t / 100t',
+        '',
+        'Test Mech - 3t',
+        '  Left: Small Gun',
+      ].join('\n'),
     );
 
     expect(screen.getByText('Ready')).toBeDefined();
@@ -98,9 +107,13 @@ describe('ImportListPanel', () => {
       />,
     );
     pasteText(
-      ['My List (Corp A)', 'Weight: 3t / 100t', '', 'Test Mech - 3t', '  Left: Small Gun'].join(
-        '\n',
-      ),
+      [
+        'My List (Corp A)',
+        'Weight: 3t / 100t',
+        '',
+        'Test Mech - 3t',
+        '  Left: Small Gun',
+      ].join('\n'),
     );
     fireEvent.click(screen.getByRole('button', { name: 'Import as new list' }));
 

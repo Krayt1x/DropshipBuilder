@@ -31,15 +31,18 @@ describe('parseShareText', () => {
   });
 
   it('strips a "(N)" duplicate suffix from unit names', () => {
-    const text = ['List (Corp A)', 'Weight: 0t / 100t', '', 'Grunt (2) - 5t'].join(
-      '\n',
-    );
+    const text = [
+      'List (Corp A)',
+      'Weight: 0t / 100t',
+      '',
+      'Grunt (2) - 5t',
+    ].join('\n');
     expect(parseShareText(text).units).toEqual([
       { name: 'Grunt', weight: 5, slots: [] },
     ]);
   });
 
-  it('parses a drop pod\'s single Equipment line', () => {
+  it("parses a drop pod's single Equipment line", () => {
     const text = [
       'Pod List (Corp A)',
       'Weight: 4t / 50t',
@@ -184,10 +187,12 @@ describe('matchImportedList', () => {
       Right: [],
       Head: [],
     });
-    expect(result.matchedUnits[0].warnings).toEqual(['"Missing Gun" not found']);
+    expect(result.matchedUnits[0].warnings).toEqual([
+      '"Missing Gun" not found',
+    ]);
   });
 
-  it('matches a drop pod\'s Equipment line regardless of equipment type', () => {
+  it("matches a drop pod's Equipment line regardless of equipment type", () => {
     const dropPodUnit = {
       id: 2,
       name: 'Pod',
