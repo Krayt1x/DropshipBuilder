@@ -3,7 +3,8 @@
 }
 
 :root {
-  --bg-page: #f4f3ef;
+  --bg-page: #e5e3d9;
+  --bg-container: #f4f3ef;
   --bg-card: #ffffff;
   --bg-input: #ffffff;
   --bg-track: #eceae1;
@@ -20,6 +21,7 @@
 
 [data-theme='dark'] {
   --bg-page: #171613;
+  --bg-container: #171613;
   --bg-card: #221f1a;
   --bg-input: #2a2721;
   --bg-track: #332f26;
@@ -146,12 +148,14 @@ body {
   max-width: 960px;
   margin: 0 auto;
   padding: 1.5rem;
+  background: var(--bg-container);
 }
 
 .container-wide {
   max-width: 1400px;
   margin: 0 auto;
   padding: 1.5rem;
+  background: var(--bg-container);
 }
 
 .splash-container {
