@@ -71,9 +71,6 @@ function SlotPicker({
                     : itemType === 'Augment'
                       ? `${weaponSlotCost(item)} slot${weaponSlotCost(item) > 1 ? 's' : ''} · ${item.weight ?? 0}t`
                       : `${item.weight ?? 0}t`}
-                {item.action_dice_color
-                  ? ` · +1 ${item.action_dice_color} die`
-                  : ''}
               </span>
             </div>
             {!isWeapon && item.effects && (
@@ -119,6 +116,7 @@ function RosterConfigPanel({
     movementGearStat,
     excessDropWeight,
     effectiveMovement,
+    effectiveDice,
     statsLine,
     equippedWithEffects,
     equippedWeights,
@@ -300,7 +298,7 @@ function RosterConfigPanel({
       <p className="unit-stats">{sizeLabel(unit.size)}</p>
       <p className="unit-stats">{statsLine}</p>
       <p className="unit-stats">
-        <DiceIcons unit={unit} />
+        <DiceIcons unit={effectiveDice} />
       </p>
 
       {maxWeight > 0 && (

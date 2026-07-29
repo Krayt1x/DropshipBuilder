@@ -69,15 +69,6 @@ describe('itemStatSummary', () => {
   it('falls back to just weight for an unrecognized type', () => {
     expect(itemStatSummary({ type: 'Other', weight: 3 })).toBe('3t');
   });
-
-  it('appends the bonus action die when one is set, regardless of type', () => {
-    expect(
-      itemStatSummary({ type: 'Augment', weight: 1, action_dice_color: 'red' }),
-    ).toBe('1 slot · 1t · +1 red die');
-    expect(
-      itemStatSummary({ type: 'Other', weight: 3, action_dice_color: 'blue' }),
-    ).toBe('3t · +1 blue die');
-  });
 });
 
 describe('computeRosterStats', () => {
@@ -167,6 +158,24 @@ describe('computeRosterStats', () => {
     expect(stats.equippedWithEffects).toEqual([
       { key: 'Head-0', item: helmet },
     ]);
+  });
+
+  it('combines the unit base dice with dice_* stat effect bonuses from equipped items', () => {
+    const diceUnit = { ...unit, dice_blue: 1, dice_red: 0, dice_green: 0 };
+    const diceHelmet = {
+      ...helmet,
+      effect_stats: [{ stat: 'dice_red', amount: 1 }],
+    };
+    const diceEntry = {
+      unit: diceUnit,
+      equipment: { Movement: [1], Left: [], Right: [], Head: [4] },
+    };
+    const stats = computeRosterStats(diceEntry, [], [legs, diceHelmet], 2);
+    expect(stats.effectiveDice).toEqual({
+      dice_blue: 1,
+      dice_red: 1,
+      dice_green: 0,
+    });
   });
 
   it('reduces effective movement by excess weight over the max drop weight', () => {

@@ -3,7 +3,6 @@ import {
   EQUIPMENT_TYPES,
   WEAPON_SIZES,
   EFFECT_STATS,
-  DICE_COLORS,
   effectStatLabel,
 } from '../lib/constants.js';
 
@@ -89,21 +88,6 @@ function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
             defaultValue={editing?.weight ?? 0}
             required
           />
-        </div>
-        <div className="field">
-          <label htmlFor="action_dice_color">Action dice</label>
-          <select
-            id="action_dice_color"
-            name="action_dice_color"
-            defaultValue={editing?.action_dice_color ?? ''}
-          >
-            <option value="">— None —</option>
-            {DICE_COLORS.map((color) => (
-              <option key={color} value={color}>
-                {color}
-              </option>
-            ))}
-          </select>
         </div>
       </div>
 

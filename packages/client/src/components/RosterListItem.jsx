@@ -38,6 +38,7 @@ function RosterListItem({
     overDropWeight,
     overCapacitySlots,
     statsLine,
+    effectiveDice,
     hullWeight,
     equippedWeights,
   } = stats;
@@ -212,7 +213,7 @@ function RosterListItem({
             <p className="unit-stats">{sizeLabel(unit.size)}</p>
             <p className="unit-stats">{statsLine}</p>
             <p className="unit-stats">
-              <DiceIcons unit={unit} />
+              <DiceIcons unit={effectiveDice} />
             </p>
           </div>
           {renderCondensedGrid()}
