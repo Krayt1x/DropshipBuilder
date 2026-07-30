@@ -394,7 +394,7 @@ function ManagePage({
 
   return (
     <div className="container">
-      <h1>Manage available models</h1>
+      <h1>Configuration</h1>
 
       {flash && (
         <div className={`flash ${flash.isError ? 'error' : ''}`}>

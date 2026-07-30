@@ -3,8 +3,8 @@ import { render, screen } from '@testing-library/react';
 import App from './App.jsx';
 
 describe('App', () => {
-  it('renders the Dropship Builder heading', () => {
+  it('renders the primary navigation', () => {
     render(<App />);
-    expect(screen.getByText('Dropship Builder')).toBeDefined();
+    expect(screen.getByRole('link', { name: 'List builder' })).toBeDefined();
   });
 });
