@@ -4,6 +4,7 @@ import ListBuilderPage from './pages/ListBuilderPage.jsx';
 import ManagePage from './pages/ManagePage.jsx';
 import MathReferencePage from './pages/MathReferencePage.jsx';
 import RuleBookPage from './pages/RuleBookPage.jsx';
+import MapEditorPage from './pages/MapEditorPage.jsx';
 import {
   useLocalStorageState,
   mergeSeedRecords,
@@ -19,6 +20,7 @@ function currentPage() {
   if (window.location.hash === '#manage') return 'manage';
   if (window.location.hash === '#math') return 'math';
   if (window.location.hash === '#rulebook') return 'rulebook';
+  if (window.location.hash === '#map') return 'map';
   return 'list';
 }
 
@@ -117,6 +119,8 @@ function App() {
         <MathReferencePage />
       ) : page === 'rulebook' ? (
         <RuleBookPage />
+      ) : page === 'map' ? (
+        <MapEditorPage />
       ) : (
         <ListBuilderPage
           manufacturers={manufacturers}

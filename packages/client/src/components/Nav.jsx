@@ -24,6 +24,9 @@ function Nav({ page }) {
         <a href="#rulebook" className={page === 'rulebook' ? 'active' : ''}>
           Rule book
         </a>
+        <a href="#map" className={page === 'map' ? 'active' : ''}>
+          Map editor
+        </a>
         <a
           href="https://krayt1x.github.io/DropshipSimulator/"
           target="_blank"
@@ -71,6 +74,13 @@ function Nav({ page }) {
             onClick={closeMenu}
           >
             Rule book
+          </a>
+          <a
+            href="#map"
+            className={page === 'map' ? 'active' : ''}
+            onClick={closeMenu}
+          >
+            Map editor
           </a>
           <a
             href="https://krayt1x.github.io/DropshipSimulator/"
