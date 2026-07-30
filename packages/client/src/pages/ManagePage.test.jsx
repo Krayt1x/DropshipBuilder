@@ -157,13 +157,14 @@ describe('ManagePage', () => {
       />,
     );
 
+    fireEvent.click(screen.getByRole('button', { name: 'Expand' }));
     fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
 
     expect(setActionDice).toHaveBeenCalled();
     expect(setActionDice.mock.calls[0][0]([{ id: 1 }])).toEqual([]);
   });
 
-  it('collapses and expands the action dice table', () => {
+  it('starts collapsed and can be expanded and re-collapsed', () => {
     render(
       <ManagePage
         manufacturers={[]}
@@ -188,12 +189,12 @@ describe('ManagePage', () => {
       />,
     );
 
-    expect(screen.getByText(/Colour/)).toBeDefined();
-
-    fireEvent.click(screen.getByRole('button', { name: 'Collapse' }));
     expect(screen.queryByText(/Colour/)).toBeNull();
 
     fireEvent.click(screen.getByRole('button', { name: 'Expand' }));
     expect(screen.getByText(/Colour/)).toBeDefined();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Collapse' }));
+    expect(screen.queryByText(/Colour/)).toBeNull();
   });
 });

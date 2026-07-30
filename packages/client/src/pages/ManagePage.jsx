@@ -93,7 +93,7 @@ function ManagePage({
   const [showUnitForm, setShowUnitForm] = useState(false);
   const [showEquipmentForm, setShowEquipmentForm] = useState(false);
   const [showActionDieForm, setShowActionDieForm] = useState(false);
-  const [actionDiceCollapsed, setActionDiceCollapsed] = useState(false);
+  const [actionDiceCollapsed, setActionDiceCollapsed] = useState(true);
   const [unitSort, setUnitSort] = useState({ key: 'weight', dir: 'asc' });
   const [movementSort, setMovementSort] = useState({
     key: 'movement',
