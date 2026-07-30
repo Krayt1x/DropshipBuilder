@@ -1059,3 +1059,79 @@ footer a {
   font-size: 12px;
   white-space: nowrap;
 }
+
+.die-swatch-icon {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  margin-left: 6px;
+  cursor: pointer;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  vertical-align: middle;
+}
+
+.dice-net-popover {
+  position: fixed;
+  z-index: 50;
+  background: var(--bg-card);
+  border: 1px solid var(--border-input);
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.dice-net {
+  position: relative;
+  width: 168px;
+  height: 126px;
+}
+
+.dice-net-face {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(0, 0, 0, 0.35);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  line-height: 1.1;
+}
+
+.dice-net-face-top {
+  left: 44px;
+  top: 0;
+}
+
+.dice-net-face-l1 {
+  left: 0;
+  top: 43px;
+}
+
+.dice-net-face-l2 {
+  left: 44px;
+  top: 43px;
+}
+
+.dice-net-face-l3 {
+  left: 88px;
+  top: 43px;
+}
+
+.dice-net-face-l4 {
+  left: 132px;
+  top: 43px;
+}
+
+.dice-net-face-bottom {
+  left: 44px;
+  top: 86px;
+}
