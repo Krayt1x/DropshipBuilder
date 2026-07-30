@@ -17,6 +17,7 @@ import EquipmentForm from '../components/EquipmentForm.jsx';
 import ActionDieForm from '../components/ActionDieForm.jsx';
 import ExportPanel from '../components/ExportPanel.jsx';
 import DiceIcons from '../components/DiceIcons.jsx';
+import { DiceSwatch } from '../components/DiceNet.jsx';
 
 function EffectsCell({ item }) {
   const statEffects = item.effect_stats ?? [];
@@ -563,6 +564,7 @@ function ManagePage({
                         <tr>
                           <td style={{ textTransform: 'capitalize' }}>
                             {die.color}
+                            <DiceSwatch die={die} />
                           </td>
                           {ACTION_DICE_SIDE_KEYS.map((key) => (
                             <td key={key}>{die[key] || '—'}</td>
