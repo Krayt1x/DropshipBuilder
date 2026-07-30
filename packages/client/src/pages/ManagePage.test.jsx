@@ -162,4 +162,38 @@ describe('ManagePage', () => {
     expect(setActionDice).toHaveBeenCalled();
     expect(setActionDice.mock.calls[0][0]([{ id: 1 }])).toEqual([]);
   });
+
+  it('collapses and expands the action dice table', () => {
+    render(
+      <ManagePage
+        manufacturers={[]}
+        setManufacturers={() => {}}
+        units={[]}
+        setUnits={() => {}}
+        equipment={[]}
+        setEquipment={() => {}}
+        actionDice={[
+          {
+            id: 1,
+            color: 'blue',
+            side1: 'Action',
+            side2: 'Action',
+            side3: 'Attack',
+            side4: 'Attack',
+            side5: 'Move',
+            side6: 'Move',
+          },
+        ]}
+        setActionDice={() => {}}
+      />,
+    );
+
+    expect(screen.getByText(/Colour/)).toBeDefined();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Collapse' }));
+    expect(screen.queryByText(/Colour/)).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Expand' }));
+    expect(screen.getByText(/Colour/)).toBeDefined();
+  });
 });

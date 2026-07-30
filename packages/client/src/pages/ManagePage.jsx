@@ -93,6 +93,7 @@ function ManagePage({
   const [showUnitForm, setShowUnitForm] = useState(false);
   const [showEquipmentForm, setShowEquipmentForm] = useState(false);
   const [showActionDieForm, setShowActionDieForm] = useState(false);
+  const [actionDiceCollapsed, setActionDiceCollapsed] = useState(false);
   const [unitSort, setUnitSort] = useState({ key: 'weight', dir: 'asc' });
   const [movementSort, setMovementSort] = useState({
     key: 'movement',
@@ -515,80 +516,99 @@ function ManagePage({
       )}
 
       <div className="card">
-        <h2 style={{ fontSize: 15, marginTop: 0 }}>Action dice</h2>
-        <p className="unit-meta" style={{ marginBottom: 10 }}>
-          Action dice are separate from manufacturers and equipment — each
-          die&apos;s six sides show what it does when rolled.
-        </p>
-        {actionDice.length === 0 ? (
-          <p className="empty">No action dice yet.</p>
-        ) : (
-          <div className="table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <SortTh
-                    label="Colour"
-                    sortKey="color"
-                    sort={actionDiceSort}
-                    onSort={(k) => toggleSort(setActionDiceSort, k)}
-                  />
-                  {ACTION_DICE_SIDE_KEYS.map((key, i) => (
-                    <th key={key}>Side {i + 1}</th>
-                  ))}
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortRows(actionDice, actionDiceSort).map((die) => (
-                  <Fragment key={die.id}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <h2 style={{ fontSize: 15, margin: 0 }}>Action dice</h2>
+          <button
+            type="button"
+            className="ghost"
+            onClick={() => setActionDiceCollapsed((v) => !v)}
+          >
+            {actionDiceCollapsed ? 'Expand' : 'Collapse'}
+          </button>
+        </div>
+        {!actionDiceCollapsed && (
+          <>
+            <p className="unit-meta" style={{ margin: '10px 0' }}>
+              Action dice are separate from manufacturers and equipment — each
+              die&apos;s six sides show what it does when rolled.
+            </p>
+            {actionDice.length === 0 ? (
+              <p className="empty">No action dice yet.</p>
+            ) : (
+              <div className="table-scroll">
+                <table>
+                  <thead>
                     <tr>
-                      <td style={{ textTransform: 'capitalize' }}>
-                        {die.color}
-                      </td>
-                      {ACTION_DICE_SIDE_KEYS.map((key) => (
-                        <td key={key}>{die[key] || '—'}</td>
+                      <SortTh
+                        label="Colour"
+                        sortKey="color"
+                        sort={actionDiceSort}
+                        onSort={(k) => toggleSort(setActionDiceSort, k)}
+                      />
+                      {ACTION_DICE_SIDE_KEYS.map((key, i) => (
+                        <th key={key}>Side {i + 1}</th>
                       ))}
-                      <td>
-                        <div style={{ display: 'flex', gap: 8 }}>
-                          <button
-                            type="button"
-                            className="ghost"
-                            onClick={() => {
-                              setEditingActionDieId(Number(die.id));
-                              setShowActionDieForm(false);
-                            }}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            type="button"
-                            className="danger"
-                            aria-label="Remove"
-                            onClick={() => deleteActionDie(Number(die.id))}
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      </td>
+                      <th></th>
                     </tr>
-                    {editingActionDieId === Number(die.id) && (
-                      <tr>
-                        <td colSpan={8}>
-                          <ActionDieForm
-                            key={die.id}
-                            editing={die}
-                            onSubmit={submitActionDie}
-                            onCancel={() => setEditingActionDieId(null)}
-                          />
-                        </td>
-                      </tr>
-                    )}
-                  </Fragment>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                  </thead>
+                  <tbody>
+                    {sortRows(actionDice, actionDiceSort).map((die) => (
+                      <Fragment key={die.id}>
+                        <tr>
+                          <td style={{ textTransform: 'capitalize' }}>
+                            {die.color}
+                          </td>
+                          {ACTION_DICE_SIDE_KEYS.map((key) => (
+                            <td key={key}>{die[key] || '—'}</td>
+                          ))}
+                          <td>
+                            <div style={{ display: 'flex', gap: 8 }}>
+                              <button
+                                type="button"
+                                className="ghost"
+                                onClick={() => {
+                                  setEditingActionDieId(Number(die.id));
+                                  setShowActionDieForm(false);
+                                }}
+                              >
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                className="danger"
+                                aria-label="Remove"
+                                onClick={() => deleteActionDie(Number(die.id))}
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                        {editingActionDieId === Number(die.id) && (
+                          <tr>
+                            <td colSpan={8}>
+                              <ActionDieForm
+                                key={die.id}
+                                editing={die}
+                                onSubmit={submitActionDie}
+                                onCancel={() => setEditingActionDieId(null)}
+                              />
+                            </td>
+                          </tr>
+                        )}
+                      </Fragment>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
         )}
       </div>
 
