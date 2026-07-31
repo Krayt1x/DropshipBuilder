@@ -8,30 +8,44 @@ import {
   effectStatChipText,
 } from '../lib/constants.js';
 
+const STAT_TYPES = EFFECT_STATS.filter((s) => s.key !== 'tags');
+
 function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
   const [type, setType] = useState(editing?.type ?? 'Movement');
   const [statEffects, setStatEffects] = useState(editing?.effect_stats ?? []);
   const [showEffectEditor, setShowEffectEditor] = useState(false);
+  const [effectCategory, setEffectCategory] = useState('');
   const [newEffectStat, setNewEffectStat] = useState('');
   const [newEffectAmount, setNewEffectAmount] = useState('');
   const isWeapon = type === 'Weapon';
   const isMovement = type === 'Movement';
+  const isDice = effectCategory === 'stat' && newEffectStat === 'dice';
 
-  function addStatEffect() {
-    if (!EFFECT_STATS.some((s) => s.key === newEffectStat)) return;
-    const isDice = newEffectStat === 'dice';
-    const isTags = newEffectStat === 'tags';
-    const amount = isDice || isTags ? newEffectAmount : Number(newEffectAmount);
-    const valid = isDice
-      ? DICE_COLORS.includes(amount)
-      : isTags
-        ? EQUIPMENT_TAGS.includes(amount)
-        : Boolean(amount);
-    if (!valid) return;
-    setStatEffects((current) => [...current, { stat: newEffectStat, amount }]);
-    setShowEffectEditor(false);
+  function resetEffectEditor() {
+    setEffectCategory('');
     setNewEffectStat('');
     setNewEffectAmount('');
+  }
+
+  function addStatEffect() {
+    let stat;
+    let amount;
+    if (effectCategory === 'tags') {
+      if (!EQUIPMENT_TAGS.includes(newEffectAmount)) return;
+      stat = 'tags';
+      amount = newEffectAmount;
+    } else if (effectCategory === 'stat') {
+      if (!STAT_TYPES.some((s) => s.key === newEffectStat)) return;
+      amount = isDice ? newEffectAmount : Number(newEffectAmount);
+      const valid = isDice ? DICE_COLORS.includes(amount) : Boolean(amount);
+      if (!valid) return;
+      stat = newEffectStat;
+    } else {
+      return;
+    }
+    setStatEffects((current) => [...current, { stat, amount }]);
+    setShowEffectEditor(false);
+    resetEffectEditor();
   }
 
   function removeStatEffect(index) {
@@ -240,7 +254,10 @@ function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
         <button
           type="button"
           className="add-effect-btn"
-          onClick={() => setShowEffectEditor((v) => !v)}
+          onClick={() => {
+            setShowEffectEditor((v) => !v);
+            resetEffectEditor();
+          }}
         >
           {showEffectEditor ? 'Cancel' : '+ Add an effect'}
         </button>
@@ -249,48 +266,49 @@ function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
             className="effect-editor"
             style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}
           >
-            <div className="field" style={{ flex: 2 }}>
-              <label htmlFor="effect_stat">Effect</label>
+            <div className="field" style={{ flex: 1 }}>
+              <label htmlFor="effect_category">Effect</label>
               <select
-                id="effect_stat"
-                value={newEffectStat}
+                id="effect_category"
+                value={effectCategory}
                 onChange={(e) => {
-                  setNewEffectStat(e.target.value);
+                  setEffectCategory(e.target.value);
+                  setNewEffectStat('');
                   setNewEffectAmount('');
                 }}
               >
                 <option value="" disabled>
                   Choose an effect
                 </option>
-                {EFFECT_STATS.map((s) => (
-                  <option key={s.key} value={s.key}>
-                    {s.label}
-                  </option>
-                ))}
+                <option value="stat">Stat</option>
+                <option value="tags">Tags</option>
               </select>
             </div>
-            <div className="field" style={{ flex: 1 }}>
-              <label htmlFor="effect_amount">
-                {newEffectStat === 'dice' || newEffectStat === 'tags'
-                  ? 'Type'
-                  : 'Amount'}
-              </label>
-              {newEffectStat === 'dice' ? (
+            {effectCategory === 'stat' && (
+              <div className="field" style={{ flex: 1 }}>
+                <label htmlFor="effect_stat">Type</label>
                 <select
-                  id="effect_amount"
-                  value={newEffectAmount}
-                  onChange={(e) => setNewEffectAmount(e.target.value)}
+                  id="effect_stat"
+                  value={newEffectStat}
+                  onChange={(e) => {
+                    setNewEffectStat(e.target.value);
+                    setNewEffectAmount('');
+                  }}
                 >
                   <option value="" disabled>
-                    Choose a die
+                    Choose a stat
                   </option>
-                  {DICE_COLORS.map((color) => (
-                    <option key={color} value={color}>
-                      {color}
+                  {STAT_TYPES.map((s) => (
+                    <option key={s.key} value={s.key}>
+                      {s.label}
                     </option>
                   ))}
                 </select>
-              ) : newEffectStat === 'tags' ? (
+              </div>
+            )}
+            {effectCategory === 'tags' && (
+              <div className="field" style={{ flex: 1 }}>
+                <label htmlFor="effect_amount">Type</label>
                 <select
                   id="effect_amount"
                   value={newEffectAmount}
@@ -305,17 +323,38 @@ function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
                     </option>
                   ))}
                 </select>
-              ) : (
-                <input
-                  type="number"
-                  id="effect_amount"
-                  step="1"
-                  placeholder="+2"
-                  value={newEffectAmount}
-                  onChange={(e) => setNewEffectAmount(e.target.value)}
-                />
-              )}
-            </div>
+              </div>
+            )}
+            {effectCategory === 'stat' && (
+              <div className="field" style={{ flex: 1 }}>
+                <label htmlFor="effect_amount">Amount</label>
+                {isDice ? (
+                  <select
+                    id="effect_amount"
+                    value={newEffectAmount}
+                    onChange={(e) => setNewEffectAmount(e.target.value)}
+                  >
+                    <option value="" disabled>
+                      Choose a die
+                    </option>
+                    {DICE_COLORS.map((color) => (
+                      <option key={color} value={color}>
+                        {color}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type="number"
+                    id="effect_amount"
+                    step="1"
+                    placeholder="+2"
+                    value={newEffectAmount}
+                    onChange={(e) => setNewEffectAmount(e.target.value)}
+                  />
+                )}
+              </div>
+            )}
             <button type="button" onClick={addStatEffect}>
               Add
             </button>

@@ -35,7 +35,7 @@ export const EFFECT_STATS = [
 // changes, so browsers with older cached data merge in the new seed
 // content instead of silently going stale (see mergeSeedRecords in
 // lib/storage.js).
-export const DATA_VERSION = 27;
+export const DATA_VERSION = 28;
 
 export function sizeLabel(size) {
   return UNIT_SIZES[size] ?? size;
