@@ -39,4 +39,10 @@ describe('effectStatChipText', () => {
       '+1 Blue die',
     );
   });
+
+  it('formats a tags stat effect as just the tag name', () => {
+    expect(effectStatChipText({ stat: 'tags', amount: 'Indirect Fire' })).toBe(
+      'Indirect Fire',
+    );
+  });
 });
