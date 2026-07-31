@@ -4,6 +4,7 @@ import {
   EQUIPMENT_TYPES,
   WEAPON_SIZES,
   EFFECT_STATS,
+  EQUIPMENT_TAGS,
   ACTION_DICE_SIDE_KEYS,
   ACTION_DICE_FACES,
   DICE_COLORS,
@@ -286,6 +287,9 @@ function ManagePage({
         effectStats = parsed.filter((e) => {
           if (!EFFECT_STATS.some((s) => s.key === e.stat)) return false;
           if (e.stat === 'dice') return DICE_COLORS.includes(e.amount);
+          if (e.stat === 'tags') {
+            return EQUIPMENT_TAGS.some((t) => t.key === e.amount);
+          }
           return Number.isFinite(Number(e.amount)) && Number(e.amount) !== 0;
         });
       }

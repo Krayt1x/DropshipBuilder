@@ -39,4 +39,13 @@ describe('effectStatChipText', () => {
       '+1 Blue die',
     );
   });
+
+  it('formats a tags stat effect as just the tag label, no prefix (#269)', () => {
+    expect(effectStatChipText({ stat: 'tags', amount: 'flying' })).toBe(
+      'Flying',
+    );
+    expect(effectStatChipText({ stat: 'tags', amount: 'indirect_fire' })).toBe(
+      'Indirect Fire',
+    );
+  });
 });

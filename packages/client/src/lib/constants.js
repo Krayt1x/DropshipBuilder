@@ -28,12 +28,23 @@ export const EFFECT_STATS = [
   { key: 'right_slots', label: 'Right slots' },
   { key: 'head_slots', label: 'Head slots' },
   { key: 'dice', label: 'Dice' },
+  { key: 'tags', label: 'Tags' },
+];
+// Gameplay tags DropshipSimulator keys its rules off of (#265-#268) — the
+// simulator reads these off an item's `effect_stats` entries with
+// `stat === 'tags'`, so the `key` values here are the wire format, not just
+// display text.
+export const EQUIPMENT_TAGS = [
+  { key: 'flying', label: 'Flying' },
+  { key: 'fire', label: 'Fire' },
+  { key: 'splash', label: 'Splash' },
+  { key: 'indirect_fire', label: 'Indirect Fire' },
 ];
 // Bump this whenever the seed data (manufacturers/units/equipment.json)
 // changes, so browsers with older cached data merge in the new seed
 // content instead of silently going stale (see mergeSeedRecords in
 // lib/storage.js).
-export const DATA_VERSION = 27;
+export const DATA_VERSION = 28;
 
 export function sizeLabel(size) {
   return UNIT_SIZES[size] ?? size;
@@ -63,6 +74,12 @@ export function effectStatChipText(effect) {
     const color = String(effect.amount ?? '');
     const label = color ? color.charAt(0).toUpperCase() + color.slice(1) : '';
     return `+1 ${label} die`;
+  }
+  if (effect.stat === 'tags') {
+    return (
+      EQUIPMENT_TAGS.find((t) => t.key === effect.amount)?.label ??
+      effect.amount
+    );
   }
   const sign = effect.amount > 0 ? '+' : '';
   return `${sign}${effect.amount} ${effectStatLabel(effect.stat)}`;
