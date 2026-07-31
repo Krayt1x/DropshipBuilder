@@ -7,6 +7,7 @@ import {
   ACTION_DICE_SIDE_KEYS,
   ACTION_DICE_FACES,
   DICE_COLORS,
+  EQUIPMENT_TAGS,
   sizeLabel,
   armorLabel,
   effectStatChipText,
@@ -286,6 +287,7 @@ function ManagePage({
         effectStats = parsed.filter((e) => {
           if (!EFFECT_STATS.some((s) => s.key === e.stat)) return false;
           if (e.stat === 'dice') return DICE_COLORS.includes(e.amount);
+          if (e.stat === 'tags') return EQUIPMENT_TAGS.includes(e.amount);
           return Number.isFinite(Number(e.amount)) && Number(e.amount) !== 0;
         });
       }

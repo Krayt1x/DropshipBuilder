@@ -4,6 +4,7 @@ import {
   WEAPON_SIZES,
   EFFECT_STATS,
   DICE_COLORS,
+  EQUIPMENT_TAGS,
   effectStatChipText,
 } from '../lib/constants.js';
 
@@ -19,8 +20,13 @@ function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
   function addStatEffect() {
     if (!EFFECT_STATS.some((s) => s.key === newEffectStat)) return;
     const isDice = newEffectStat === 'dice';
-    const amount = isDice ? newEffectAmount : Number(newEffectAmount);
-    const valid = isDice ? DICE_COLORS.includes(amount) : Boolean(amount);
+    const isTags = newEffectStat === 'tags';
+    const amount = isDice || isTags ? newEffectAmount : Number(newEffectAmount);
+    const valid = isDice
+      ? DICE_COLORS.includes(amount)
+      : isTags
+        ? EQUIPMENT_TAGS.includes(amount)
+        : Boolean(amount);
     if (!valid) return;
     setStatEffects((current) => [...current, { stat: newEffectStat, amount }]);
     setShowEffectEditor(false);
@@ -213,7 +219,7 @@ function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
       </div>
 
       <div className="field" style={{ marginTop: 10 }}>
-        <label>Stat effects</label>
+        <label>Equipment Effects</label>
         {statEffects.length > 0 && (
           <div className="effect-chips">
             {statEffects.map((effect, i) => (
@@ -244,7 +250,7 @@ function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
             style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}
           >
             <div className="field" style={{ flex: 2 }}>
-              <label htmlFor="effect_stat">Stat</label>
+              <label htmlFor="effect_stat">Effect</label>
               <select
                 id="effect_stat"
                 value={newEffectStat}
@@ -254,7 +260,7 @@ function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
                 }}
               >
                 <option value="" disabled>
-                  Choose a stat
+                  Choose an effect
                 </option>
                 {EFFECT_STATS.map((s) => (
                   <option key={s.key} value={s.key}>
@@ -264,7 +270,11 @@ function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
               </select>
             </div>
             <div className="field" style={{ flex: 1 }}>
-              <label htmlFor="effect_amount">Amount</label>
+              <label htmlFor="effect_amount">
+                {newEffectStat === 'dice' || newEffectStat === 'tags'
+                  ? 'Type'
+                  : 'Amount'}
+              </label>
               {newEffectStat === 'dice' ? (
                 <select
                   id="effect_amount"
@@ -277,6 +287,21 @@ function EquipmentForm({ manufacturers, editing, onSubmit, onCancel }) {
                   {DICE_COLORS.map((color) => (
                     <option key={color} value={color}>
                       {color}
+                    </option>
+                  ))}
+                </select>
+              ) : newEffectStat === 'tags' ? (
+                <select
+                  id="effect_amount"
+                  value={newEffectAmount}
+                  onChange={(e) => setNewEffectAmount(e.target.value)}
+                >
+                  <option value="" disabled>
+                    Choose a tag
+                  </option>
+                  {EQUIPMENT_TAGS.map((tag) => (
+                    <option key={tag} value={tag}>
+                      {tag}
                     </option>
                   ))}
                 </select>

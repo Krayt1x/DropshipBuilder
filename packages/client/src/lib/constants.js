@@ -7,6 +7,7 @@ export const UNIT_SIZES = {
 };
 
 export const DICE_COLORS = ['blue', 'red', 'green'];
+export const EQUIPMENT_TAGS = ['Flying', 'Fire', 'Splash', 'Indirect Fire'];
 export const ACTION_DICE_SIDE_KEYS = [
   'side1',
   'side2',
@@ -28,6 +29,7 @@ export const EFFECT_STATS = [
   { key: 'right_slots', label: 'Right slots' },
   { key: 'head_slots', label: 'Head slots' },
   { key: 'dice', label: 'Dice' },
+  { key: 'tags', label: 'Tags' },
 ];
 // Bump this whenever the seed data (manufacturers/units/equipment.json)
 // changes, so browsers with older cached data merge in the new seed
@@ -63,6 +65,9 @@ export function effectStatChipText(effect) {
     const color = String(effect.amount ?? '');
     const label = color ? color.charAt(0).toUpperCase() + color.slice(1) : '';
     return `+1 ${label} die`;
+  }
+  if (effect.stat === 'tags') {
+    return String(effect.amount ?? '');
   }
   const sign = effect.amount > 0 ? '+' : '';
   return `${sign}${effect.amount} ${effectStatLabel(effect.stat)}`;
